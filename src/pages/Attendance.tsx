@@ -107,7 +107,7 @@ export default function Attendance() {
             {searchedMembers.length === 0 ? <p className="rounded-2xl border border-dashed border-slate-300 p-5 text-sm text-slate-500">No member matches this name.</p> : searchedMembers.map(({ member, matchingRecords, present, absent, percentage: annualPercentage }) => <article key={member.id} className="attendance-search-card overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 sm:p-6">
               <div className="attendance-member-banner -m-5 mb-5 grid h-40 place-items-center sm:-m-6 sm:mb-6 sm:h-48"><span>{memberInitials(member.name)}</span></div>
               <div>
-                <p className="text-center text-xs font-bold uppercase tracking-[.18em] text-emerald-700">YDM member</p>
+                <p className="text-center text-xs font-bold uppercase tracking-[.18em] text-emerald-700">{member.role || 'YDM member'}</p>
                 <h3 className="mt-2 text-center text-2xl font-black">{member.name}</h3>
                 <p className="mt-1 text-center text-sm text-slate-500">{formatDate(fromDate)}{toDate ? ` to ${formatDate(toDate)}` : ''}</p>
               </div>
