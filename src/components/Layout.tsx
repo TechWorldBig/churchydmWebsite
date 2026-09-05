@@ -60,7 +60,6 @@ export default function Layout({ children }: { children: ReactNode }) {
         <div className="verse-ticker" role="marquee" aria-label="வாலவயதின் குமாரர் பலவான் கையிலுள்ள அம்புகளுக்கு ஒப்பாயிருக்கிறார்கள். சங்கீதம் 127:5">
           <div className="verse-ticker-track" aria-hidden="true">
             <span>வாலவயதின் குமாரர் பலவான் கையிலுள்ள அம்புகளுக்கு ஒப்பாயிருக்கிறார்கள். <b>சங்கீதம் 127:5</b></span>
-            <span>வாலவயதின் குமாரர் பலவான் கையிலுள்ள அம்புகளுக்கு ஒப்பாயிருக்கிறார்கள். <b>சங்கீதம் 127:5</b></span>
           </div>
         </div>
         <AnimatePresence>
