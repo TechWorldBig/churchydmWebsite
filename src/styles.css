@@ -82,6 +82,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .church-assistant-fab.bird-chirping svg { animation: bird-wing-flap .18s ease-in-out 4; filter: drop-shadow(2px 4px 0 rgba(7,31,25,.18)); transform-origin: 42% 55%; }
 @keyframes bird-chirp-bounce { 0% { transform: perspective(180px) translateY(0) rotateX(0) rotateY(0); } 30% { transform: perspective(180px) translateY(-.8rem) rotateX(24deg) rotateY(-24deg) scale(1.08); } 58% { transform: perspective(180px) translateY(.1rem) rotateX(-12deg) rotateY(18deg) scale(.96); } 100% { transform: perspective(180px) translateY(0) rotateX(0) rotateY(0); } }
 @keyframes bird-wing-flap { 0%, 100% { transform: rotateZ(0) scale(1); } 50% { transform: rotateZ(-16deg) scale(1.16, .88); } }
+.assistant-header-bot { box-shadow: 0 7px 0 #b4862e, 0 13px 20px rgba(0,0,0,.22); transform-style: preserve-3d; animation: assistant-new-chat 850ms cubic-bezier(.22, 1, .36, 1) both; }
+.assistant-header-bot svg { animation: assistant-bot-wave 850ms ease-in-out both; }
+@keyframes assistant-new-chat { 0% { opacity: 0; transform: perspective(180px) translateX(-1rem) rotateY(82deg) rotateZ(-12deg) scale(.68); } 60% { opacity: 1; transform: perspective(180px) translateX(.12rem) rotateY(-15deg) rotateZ(4deg) scale(1.1); } 100% { opacity: 1; transform: perspective(180px) translateX(0) rotateY(0) rotateZ(0) scale(1); } }
+@keyframes assistant-bot-wave { 0%, 35% { transform: rotate(-14deg) scale(.75); } 65% { transform: rotate(15deg) scale(1.15); } 100% { transform: rotate(0) scale(1); } }
 .church-assistant-panel {
   right: max(1.25rem, env(safe-area-inset-right));
   bottom: calc(6rem + env(safe-area-inset-bottom));
