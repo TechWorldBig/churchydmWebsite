@@ -99,7 +99,7 @@ export default function Attendance() {
             <label className="field-label md:col-span-1">To date <span className="normal-case tracking-normal text-slate-400">(optional)</span>
               <span className="calendar-control-3d"><input value={toDate} min={fromDate || undefined} onChange={event => { setToDate(event.target.value); resetSearch() }} type="date" className="field" /><CalendarDays aria-hidden="true" size={17} /></span>
             </label>
-            <button type="button" onClick={runSearch} className="dark-btn search-button-3d self-end md:col-span-1">Search <Search size={17} /></button>
+            <button type="button" onClick={runSearch} className="dark-btn search-button-3d self-end md:col-span-1"><Search size={17} /> Search</button>
           </div>
           {searchNotice && <p role="alert" className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">{searchNotice}</p>}
 
