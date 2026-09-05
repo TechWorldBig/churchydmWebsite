@@ -52,6 +52,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .home-cta { position: relative; overflow: hidden; }
 .home-cta::after { position: absolute; right: -5rem; top: -8rem; height: 22rem; width: 22rem; border: 1px solid rgba(7,31,25,.12); border-radius: 9999px; content: ""; }
 .home-cta > div { position: relative; z-index: 1; }
+.location-pin-3d { position: relative; display: grid; flex: 0 0 auto; place-items: center; width: 2.7rem; height: 2.7rem; margin-top: .1rem; border: 1px solid rgba(255,255,255,.5); border-radius: 1rem 1rem 1.25rem; color: #e3bc62; background: linear-gradient(145deg, #17483b, #061c17); box-shadow: inset 0 1px 1px rgba(255,255,255,.18), inset 0 -5px 8px rgba(0,0,0,.25), 0 9px 0 #092a22, 0 16px 19px rgba(7,31,25,.26); transform: perspective(180px) rotateX(8deg) rotateY(-10deg); animation: location-pin-float 2.7s ease-in-out infinite; }
+.location-pin-3d::after { position: absolute; bottom: -1rem; left: .4rem; width: 1.9rem; height: .4rem; border-radius: 999px; background: rgba(7,31,25,.28); content: ""; filter: blur(2px); animation: location-pin-shadow 2.7s ease-in-out infinite; }
+.location-pin-3d svg { position: relative; z-index: 1; filter: drop-shadow(0 2px 1px rgba(0,0,0,.3)); }
+@keyframes location-pin-float { 0%, 100% { transform: perspective(180px) translateY(0) rotateX(8deg) rotateY(-10deg); } 50% { transform: perspective(180px) translateY(-.45rem) rotateX(-5deg) rotateY(11deg) rotateZ(-4deg); } }
+@keyframes location-pin-shadow { 0%, 100% { transform: scaleX(1); opacity: .75; } 50% { transform: scaleX(.62); opacity: .32; } }
+@media (prefers-reduced-motion: reduce) { .location-pin-3d, .location-pin-3d::after { animation: none; } }
 @keyframes hero-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
 .site-footer { position: relative; overflow: hidden; }
 .site-footer::before { position: absolute; right: -10rem; top: -12rem; height: 28rem; width: 28rem; border: 1px solid rgba(227,188,98,.12); border-radius: 9999px; content: ""; }
