@@ -343,6 +343,7 @@ export default function ChurchAssistant() {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [input, setInput] = useState('')
   const [isReplying, setIsReplying] = useState(false)
+  const [isChirping, setIsChirping] = useState(false)
   const [preferredLanguage, setPreferredLanguage] = useState<BibleLanguage>('en')
   const [aiHistory, setAiHistory] = useState<AssistantTurn[]>([])
   const listRef = useRef<HTMLDivElement>(null)
@@ -355,6 +356,33 @@ export default function ChurchAssistant() {
     () => (name ? assistantCopy[preferredLanguage].placeholder : 'Enter your name...'),
     [name, preferredLanguage],
   )
+
+  function chirp() {
+    setIsChirping(true)
+    window.setTimeout(() => setIsChirping(false), 780)
+    try {
+      const BrowserAudioContext = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
+      if (!BrowserAudioContext) return
+      const context = new BrowserAudioContext()
+      const startAt = context.currentTime
+      ;[[0, 1_100, 1_650], [.16, 1_350, 2_000], [.32, 1_500, 2_250]].forEach(([offset, from, to]) => {
+        const oscillator = context.createOscillator()
+        const gain = context.createGain()
+        oscillator.type = 'sine'
+        oscillator.frequency.setValueAtTime(from, startAt + offset)
+        oscillator.frequency.exponentialRampToValueAtTime(to, startAt + offset + .11)
+        gain.gain.setValueAtTime(.0001, startAt + offset)
+        gain.gain.exponentialRampToValueAtTime(.07, startAt + offset + .018)
+        gain.gain.exponentialRampToValueAtTime(.0001, startAt + offset + .13)
+        oscillator.connect(gain).connect(context.destination)
+        oscillator.start(startAt + offset)
+        oscillator.stop(startAt + offset + .14)
+      })
+      window.setTimeout(() => void context.close(), 650)
+    } catch {
+      // Audio may be disabled by the device or browser; the visual chirp still plays.
+    }
+  }
 
   async function sendMessage() {
     const text = input.trim()
@@ -456,8 +484,8 @@ export default function ChurchAssistant() {
       <button
         type="button"
         aria-label={open ? 'Close church assistant' : 'Open church assistant'}
-        onClick={() => setOpen((value) => !value)}
-        className="church-assistant-fab fixed z-[70] grid h-14 w-14 place-items-center rounded-full bg-[#e3bc62] text-[#071f19] shadow-[0_18px_40px_rgba(4,21,17,.25)] transition hover:-translate-y-1"
+        onClick={() => { chirp(); setOpen((value) => !value) }}
+        className={`church-assistant-fab fixed z-[70] grid h-14 w-14 place-items-center rounded-full bg-[#e3bc62] text-[#071f19] shadow-[0_18px_40px_rgba(4,21,17,.25)] transition hover:-translate-y-1 ${isChirping ? 'bird-chirping' : ''}`}
       >
         <Bird size={22} />
       </button>

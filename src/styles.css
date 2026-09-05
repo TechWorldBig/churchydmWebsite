@@ -78,6 +78,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
+.church-assistant-fab.bird-chirping { animation: bird-chirp-bounce .78s cubic-bezier(.22, 1, .36, 1); transform-style: preserve-3d; }
+.church-assistant-fab.bird-chirping svg { animation: bird-wing-flap .18s ease-in-out 4; filter: drop-shadow(2px 4px 0 rgba(7,31,25,.18)); transform-origin: 42% 55%; }
+@keyframes bird-chirp-bounce { 0% { transform: perspective(180px) translateY(0) rotateX(0) rotateY(0); } 30% { transform: perspective(180px) translateY(-.8rem) rotateX(24deg) rotateY(-24deg) scale(1.08); } 58% { transform: perspective(180px) translateY(.1rem) rotateX(-12deg) rotateY(18deg) scale(.96); } 100% { transform: perspective(180px) translateY(0) rotateX(0) rotateY(0); } }
+@keyframes bird-wing-flap { 0%, 100% { transform: rotateZ(0) scale(1); } 50% { transform: rotateZ(-16deg) scale(1.16, .88); } }
 .church-assistant-panel {
   right: max(1.25rem, env(safe-area-inset-right));
   bottom: calc(6rem + env(safe-area-inset-bottom));
