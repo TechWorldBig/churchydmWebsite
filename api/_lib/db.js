@@ -1,6 +1,7 @@
 import { neon } from '@neondatabase/serverless'
 
 let schemaPromise
+let memberGenderPromise
 
 export function getSql() {
   const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL || (process.env.PGHOST && process.env.PGUSER && process.env.PGPASSWORD && process.env.PGDATABASE
@@ -23,12 +24,14 @@ export async function ensureSchema() {
       email TEXT NOT NULL DEFAULT '',
       phone TEXT NOT NULL DEFAULT '',
       address TEXT NOT NULL DEFAULT '',
+      gender TEXT NOT NULL DEFAULT '',
       date_of_birth TEXT NOT NULL DEFAULT '',
       focus TEXT NOT NULL DEFAULT '',
       photo TEXT NOT NULL DEFAULT '',
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
     `
+    await sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS gender TEXT NOT NULL DEFAULT ''`
     await sql`
     CREATE TABLE IF NOT EXISTS attendance (
       id TEXT PRIMARY KEY,
@@ -62,6 +65,16 @@ export async function ensureSchema() {
   })
 
   return schemaPromise
+}
+
+export async function ensureMemberGenderColumn() {
+  if (memberGenderPromise) return memberGenderPromise
+  const sql = getSql()
+  memberGenderPromise = sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS gender TEXT NOT NULL DEFAULT ''`.catch((error) => {
+    memberGenderPromise = undefined
+    throw error
+  })
+  return memberGenderPromise
 }
 
 export function sendError(res, error) {

@@ -5,6 +5,7 @@ export type Member = {
   email: string
   phone: string
   address: string
+  gender: string
   dateOfBirth: string
   focus: string
   photo: string
