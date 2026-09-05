@@ -7,6 +7,7 @@ import { getAttendance, getLastUpdated, getMembers } from '../data/api'
 const formatDate = (value: string) => new Date(`${value}T00:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
 const formatDateTime = (value: string) => new Date(value).toLocaleString(undefined, { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' })
 const memberInitials = (name: string) => name.split(/\s+/u).filter(Boolean).slice(0, 2).map(part => part[0]).join('').toUpperCase()
+const isFemale = (gender: string) => gender.trim().toLocaleLowerCase() === 'female'
 
 export default function Attendance() {
   const [members, setMembers] = useState<Member[]>([])
@@ -106,11 +107,26 @@ export default function Attendance() {
           {hasSearched && <div className="mt-7 grid gap-5 lg:grid-cols-2">
             {searchedMembers.length === 0 ? <p className="rounded-2xl border border-dashed border-slate-300 p-5 text-sm text-slate-500">No member matches this name.</p> : searchedMembers.map(({ member, matchingRecords, present, absent, percentage: annualPercentage }) => <article key={member.id} className="attendance-search-card overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 sm:p-6">
               <div className="attendance-member-banner -m-5 mb-5 grid h-40 place-items-center sm:-m-6 sm:mb-6 sm:h-48"><span>{memberInitials(member.name)}</span></div>
-              <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                <div><p className="text-xs font-bold uppercase tracking-[.18em] text-emerald-700">YDM member</p><h3 className="mt-2 text-2xl font-black">{member.name}</h3><p className="mt-1 text-sm text-slate-500">{fromMonth}{toMonth ? ` to ${toMonth}` : ''}</p></div>
-                <div className="attendance-year-chart" style={{ background: `conic-gradient(#059669 0 ${annualPercentage}%, #ef4444 ${annualPercentage}% 100%)` }} aria-label={`${year} attendance: ${annualPercentage}% present`}><span>{annualPercentage}%</span></div>
+              <div>
+                <p className="text-center text-xs font-bold uppercase tracking-[.18em] text-emerald-700">YDM member</p>
+                <h3 className="mt-2 text-center text-2xl font-black">{member.name}</h3>
+                <p className="mt-1 text-center text-sm text-slate-500">{fromMonth}{toMonth ? ` to ${toMonth}` : ''}</p>
               </div>
-              <div className="attendance-search-summary mt-5 flex flex-wrap gap-4 text-xs font-bold"><span className="text-emerald-700">Present: {present}</span><span className="text-rose-600">Absent: {absent}</span><span className="text-slate-500">{year} overall</span></div>
+              <div className="attendance-member-visual mt-5">
+                <div className={`member-figure member-figure-${isFemale(member.gender) ? 'female' : 'male'}`} role="img" aria-label={`Animated ${isFemale(member.gender) ? 'female' : 'male'} member figure`}>
+                  <span className="member-figure-halo" />
+                  <span className="member-figure-hair" />
+                  <span className="member-figure-head" />
+                  <span className="member-figure-body" />
+                  <span className="member-figure-arm member-figure-arm-left" />
+                  <span className="member-figure-arm member-figure-arm-right" />
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  <div className="attendance-year-chart" style={{ background: `conic-gradient(#059669 0 ${annualPercentage}%, #ef4444 ${annualPercentage}% 100%)` }} aria-label={`${year} attendance: ${annualPercentage}% present`}><span>{annualPercentage}%</span></div>
+                  <p className="text-xs font-bold uppercase tracking-[.12em] text-slate-500">{year} overall</p>
+                </div>
+              </div>
+              <div className="attendance-search-summary mt-5 flex flex-wrap justify-center gap-4 text-xs font-bold"><span className="text-emerald-700">Present: {present}</span><span className="text-rose-600">Absent: {absent}</span></div>
               <div className="mt-5 border-t border-slate-200 pt-4"><p className="mb-3 text-xs font-bold uppercase tracking-[.14em] text-slate-500">Attendance history</p>
                 {matchingRecords.length === 0 ? <p className="text-sm text-slate-500">No attendance records for this selected month.</p> : <div className="grid max-h-56 gap-2 overflow-y-auto pr-1">{matchingRecords.map(record => <div key={record.id} className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm font-semibold ${record.present ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-700'}`}><span>{formatDate(record.date)}</span><span>{record.present ? 'Present' : 'Absent'}</span></div>)}</div>}
               </div>
