@@ -37,6 +37,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .site-header nav a { position: relative; }
 .site-header nav a:not([aria-current="page"])::after { position: absolute; left: 1rem; right: 1rem; bottom: .3rem; height: 2px; transform: scaleX(0); transform-origin: center; background: var(--gold); content: ""; transition: transform .25s ease; }
 .site-header nav a:not([aria-current="page"]):hover::after { transform: scaleX(1); }
+.verse-ticker { overflow: hidden; border-top: 1px solid rgba(255,255,255,.1); border-bottom: 1px solid rgba(227,188,98,.18); background: rgba(4,21,17,.64); color: rgba(255,255,255,.9); white-space: nowrap; }
+.verse-ticker-track { display: flex; width: max-content; animation: verse-ticker-scroll 27s linear infinite; }
+.verse-ticker-track span { display: inline-block; padding: .46rem 3rem .48rem 1.5rem; font-family: "Noto Sans Tamil", "Latha", system-ui, sans-serif; font-size: .8rem; letter-spacing: .015em; }
+.verse-ticker-track b { margin-left: .65rem; color: var(--gold); font-weight: 800; }
+@keyframes verse-ticker-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 .page-hero { isolation: isolate; background-image: radial-gradient(circle at 82% 25%, rgba(227,188,98,.12), transparent 18rem), linear-gradient(120deg, #041511, #071f19 55%, #0c3428); }
 .page-hero::before { position: absolute; inset: 0; z-index: -1; background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px); background-size: 42px 42px; content: ""; mask-image: linear-gradient(to bottom, black, transparent); }
 .page-hero h1 { text-wrap: balance; }
@@ -226,6 +231,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  .verse-ticker-track { animation: none !important; }
 }
 
 /* Responsive interaction and accessibility baseline. */

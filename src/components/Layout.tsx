@@ -57,6 +57,12 @@ export default function Layout({ children }: { children: ReactNode }) {
             {open ? <X /> : <Menu />}
           </button>
         </div>
+        <div className="verse-ticker" role="marquee" aria-label="வாலவயதின் குமாரர் பலவான் கையிலுள்ள அம்புகளுக்கு ஒப்பாயிருக்கிறார்கள். சங்கீதம் 127:5">
+          <div className="verse-ticker-track" aria-hidden="true">
+            <span>வாலவயதின் குமாரர் பலவான் கையிலுள்ள அம்புகளுக்கு ஒப்பாயிருக்கிறார்கள். <b>சங்கீதம் 127:5</b></span>
+            <span>வாலவயதின் குமாரர் பலவான் கையிலுள்ள அம்புகளுக்கு ஒப்பாயிருக்கிறார்கள். <b>சங்கீதம் 127:5</b></span>
+          </div>
+        </div>
         <AnimatePresence>
           {open && (
             <motion.nav aria-label="Mobile navigation" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mobile-nav overflow-hidden border-t border-white/10 bg-[#071f19] px-4 shadow-2xl lg:hidden">
