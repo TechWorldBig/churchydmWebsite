@@ -78,20 +78,26 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .attendance-page > .mx-auto > .mt-10.grid.sm\:grid-cols-2.lg\:grid-cols-3 { display: none; }
 .attendance-year-chart { display: grid; width: 5.5rem; height: 5.5rem; flex: 0 0 auto; place-items: center; border-radius: 999px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.55), 0 8px 16px rgba(7,31,25,.16); }
 .attendance-year-chart span { display: grid; width: 3.95rem; height: 3.95rem; place-items: center; border-radius: 999px; background: #fff; color: #071f19; font-size: .9rem; font-weight: 900; box-shadow: inset 0 1px 4px rgba(7,31,25,.1); }
-.attendance-member-visual { display: flex; align-items: center; justify-content: center; gap: 1.5rem; min-height: 7.4rem; }
-.member-figure { position: relative; width: 5.7rem; height: 6.4rem; filter: drop-shadow(0 .65rem .45rem rgba(7,31,25,.22)); transform-style: preserve-3d; animation: member-figure-bounce 2.8s ease-in-out infinite; }
+.attendance-member-visual { display: flex; align-items: center; justify-content: center; gap: 1.5rem; min-height: 9.4rem; }
+.member-figure { position: relative; width: 6.2rem; height: 8.35rem; filter: drop-shadow(0 .65rem .45rem rgba(7,31,25,.22)); transform-style: preserve-3d; animation: member-figure-bounce 2.8s ease-in-out infinite; }
 .member-figure span { position: absolute; display: block; }
 .member-figure-halo { inset: .5rem .3rem 1.1rem; border: 1px solid rgba(227,188,98,.52); border-radius: 999px; transform: translateZ(-1rem) rotateX(65deg); animation: member-figure-halo 2.8s ease-in-out infinite; }
 .member-figure-head { z-index: 3; top: .9rem; left: 1.8rem; width: 2.15rem; height: 2.2rem; border-radius: 48% 48% 45% 45%; background: linear-gradient(115deg, #ffd7a2, #cf8a58); box-shadow: inset .3rem .15rem .2rem rgba(255,255,255,.35), inset -.25rem -.2rem .25rem rgba(87,42,24,.2), .15rem .25rem 0 rgba(4,53,41,.3); transform: translateZ(.45rem); }
 .member-figure-head::after { position: absolute; right: .3rem; bottom: .57rem; width: .17rem; height: .17rem; border-radius: 999px; background: #16352c; box-shadow: -.73rem 0 #16352c; content: ''; }
 .member-figure-hair { z-index: 4; top: .63rem; left: 1.65rem; width: 2.45rem; height: 1.1rem; border-radius: 70% 70% 35% 35%; background: linear-gradient(145deg, #2a211d, #080c0a); transform: translateZ(.62rem); }
-.member-figure-body { z-index: 2; bottom: .22rem; left: 1.15rem; width: 3.35rem; height: 3.4rem; border-radius: 1.25rem 1.25rem .75rem .75rem; background: linear-gradient(110deg, #e3bc62, #a97424); box-shadow: inset .28rem .18rem .22rem rgba(255,255,255,.34), inset -.35rem -.25rem .3rem rgba(78,48,8,.25); transform: perspective(8rem) rotateX(7deg) translateZ(.2rem); }
-.member-figure-arm { z-index: 1; top: 3.35rem; width: .75rem; height: 2.6rem; border-radius: 999px; background: linear-gradient(90deg, #cf8a58, #ffd7a2); transform-origin: top center; }
-.member-figure-arm-left { left: .85rem; transform: rotate(25deg); animation: member-figure-wave-left 1.4s ease-in-out infinite; }
-.member-figure-arm-right { right: .85rem; transform: rotate(-25deg); animation: member-figure-wave-right 1.4s ease-in-out infinite; }
+.member-figure-body { z-index: 2; top: 3rem; left: 1.3rem; width: 3.6rem; height: 3.2rem; border-radius: 1.25rem 1.25rem .45rem .45rem; background: linear-gradient(110deg, #1c5e53, #082a23); box-shadow: inset .28rem .18rem .22rem rgba(255,255,255,.22), inset -.35rem -.25rem .3rem rgba(0,0,0,.3); transform: perspective(8rem) rotateX(7deg) translateZ(.2rem); }
+.member-figure-body::after { position: absolute; top: .18rem; left: 1.5rem; width: .6rem; height: 2.65rem; border-radius: 999px; background: linear-gradient(90deg, #f6f7f5, #c8d3ce); box-shadow: -.4rem .25rem 0 -.25rem #e3bc62, .4rem .25rem 0 -.25rem #e3bc62; content: ''; }
+.member-figure-arm { z-index: 1; top: 3.3rem; width: .75rem; height: 2.6rem; border-radius: 999px; background: linear-gradient(90deg, #cf8a58, #ffd7a2); transform-origin: top center; }
+.member-figure-arm-left { left: 1rem; transform: rotate(25deg); animation: member-figure-wave-left 1.4s ease-in-out infinite; }
+.member-figure-arm-right { right: 1rem; transform: rotate(-25deg); animation: member-figure-wave-right 1.4s ease-in-out infinite; }
+.member-figure-legs { z-index: 1; bottom: .55rem; left: 1.75rem; width: .88rem; height: 2.45rem; border-radius: 0 0 .42rem .42rem; background: linear-gradient(90deg, #27323f, #101820); box-shadow: 1.66rem 0 0 #101820; }
+.member-figure-shoes { z-index: 2; bottom: .22rem; left: 1.4rem; width: 1.55rem; height: .52rem; border-radius: .55rem .2rem .35rem .35rem; background: linear-gradient(#1b2227, #050707); box-shadow: 2rem 0 0 #050707; }
 .member-figure-female .member-figure-hair { top: .55rem; left: 1.45rem; width: 2.85rem; height: 2.45rem; border-radius: 75% 75% 48% 48%; background: linear-gradient(130deg, #472a23, #170e0b); }
 .member-figure-female .member-figure-head { top: 1rem; }
-.member-figure-female .member-figure-body { background: linear-gradient(110deg, #ee8d9a, #b54262); border-radius: 1.6rem 1.6rem .7rem .7rem; }
+.member-figure-female .member-figure-body { height: 3.85rem; background: linear-gradient(110deg, #d55c78, #8f2448); border-radius: 1.6rem 1.6rem .7rem .7rem; clip-path: polygon(16% 0,84% 0,100% 100%,0 100%); }
+.member-figure-female .member-figure-body::after { background: linear-gradient(90deg, #fff6f6, #f5c8d0); }
+.member-figure-female .member-figure-legs { bottom: .23rem; height: 1.35rem; background: linear-gradient(90deg, #cf8a58, #ffd7a2); box-shadow: 1.66rem 0 0 #ffd7a2; }
+.member-figure-female .member-figure-shoes { bottom: 0; background: linear-gradient(#e2b041, #8c6112); box-shadow: 2rem 0 0 #8c6112; }
 .member-figure-female .member-figure-arm-left { animation-delay: -.35s; }
 @keyframes member-figure-bounce { 0%,100% { transform: perspective(14rem) translateY(0) rotateY(-8deg); } 50% { transform: perspective(14rem) translateY(-.42rem) rotateY(10deg) rotateZ(-2deg); } }
 @keyframes member-figure-halo { 0%,100% { opacity: .4; transform: translateZ(-1rem) rotateX(65deg) scale(.86); } 50% { opacity: .8; transform: translateZ(-1rem) rotateX(65deg) scale(1.08); } }

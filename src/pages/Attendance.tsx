@@ -119,6 +119,8 @@ export default function Attendance() {
                   <span className="member-figure-body" />
                   <span className="member-figure-arm member-figure-arm-left" />
                   <span className="member-figure-arm member-figure-arm-right" />
+                  <span className="member-figure-legs" />
+                  <span className="member-figure-shoes" />
                 </div>
                 <div className="flex flex-col items-center gap-2">
                   <div className="attendance-year-chart" style={{ background: `conic-gradient(#059669 0 ${annualPercentage}%, #ef4444 ${annualPercentage}% 100%)` }} aria-label={`${year} attendance: ${annualPercentage}% present`}><span>{annualPercentage}%</span></div>
