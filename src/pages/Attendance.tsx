@@ -3,7 +3,8 @@ import { CalendarCheck, CalendarDays, Clock3, Search, TrendingUp, Users } from '
 import PageHero from '../components/PageHero'
 import { AttendanceRecord, Member } from '../data/memberStore'
 import { getAttendance, getLastUpdated, getMembers } from '../data/api'
-import memberFiguresGif from '../assets/member-figures.gif'
+import memberMaleGif from '../assets/member-male.gif'
+import memberFemaleGif from '../assets/member-female.gif'
 
 const formatDate = (value: string) => new Date(`${value}T00:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
 const formatDateTime = (value: string) => new Date(value).toLocaleString(undefined, { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' })
@@ -112,8 +113,8 @@ export default function Attendance() {
                 <p className="mt-1 text-center text-sm text-slate-500">{formatDate(fromDate)}{toDate ? ` to ${formatDate(toDate)}` : ''}</p>
               </div>
               <div className="attendance-member-visual mt-5">
-                <div className={`member-gif-figure member-gif-${isFemale(member.gender) ? 'female' : 'male'}`}>
-                  <img src={memberFiguresGif} alt={`${isFemale(member.gender) ? 'Female' : 'Male'} member animation`} />
+                <div className="member-gif-figure">
+                  <img src={isFemale(member.gender) ? memberFemaleGif : memberMaleGif} alt={`${isFemale(member.gender) ? 'Female' : 'Male'} member animation`} />
                 </div>
                 <div className="flex flex-col items-center gap-2">
                   <div className="attendance-year-chart" style={{ background: `conic-gradient(#059669 0 ${annualPercentage}%, #ef4444 ${annualPercentage}% 100%)` }} aria-label={`${year} attendance: ${annualPercentage}% present`}><span>{annualPercentage}%</span></div>
