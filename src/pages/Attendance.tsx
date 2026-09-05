@@ -90,7 +90,7 @@ export default function Attendance() {
           </div>
           <div className="mt-6 grid gap-3 md:grid-cols-6">
             <label className="field-label md:col-span-3">Member name
-              <input value={memberSearch} onChange={event => { setMemberSearch(event.target.value); resetSearch() }} className="field" placeholder="Search by name" />
+              <input value={memberSearch} onChange={event => { setMemberSearch(event.target.value); resetSearch() }} className="field member-name-field-3d" placeholder="Search by name" />
             </label>
             <label className="field-label md:col-span-1">From date
               <span className="calendar-control-3d"><input value={fromDate} onChange={event => { setFromDate(event.target.value); resetSearch() }} type="date" className="field" /><CalendarDays aria-hidden="true" size={17} /></span>
