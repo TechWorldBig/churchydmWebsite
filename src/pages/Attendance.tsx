@@ -14,8 +14,8 @@ export default function Attendance() {
   const [records, setRecords] = useState<AttendanceRecord[]>([])
   const [lastUpdatedValue, setLastUpdatedValue] = useState<string | null>(null)
   const [memberSearch, setMemberSearch] = useState('')
-  const [fromMonth, setFromMonth] = useState('')
-  const [toMonth, setToMonth] = useState('')
+  const [fromDate, setFromDate] = useState('')
+  const [toDate, setToDate] = useState('')
   const [hasSearched, setHasSearched] = useState(false)
   const [searchNotice, setSearchNotice] = useState('')
 
@@ -45,23 +45,22 @@ export default function Attendance() {
 
   const searchedMembers = useMemo(() => {
     const search = memberSearch.trim().toLocaleLowerCase()
-    if (!search || !fromMonth) return []
+    if (!search || !fromDate) return []
     return members.filter(member => member.name.toLocaleLowerCase().includes(search)).map(member => {
       const isMemberRecord = (record: AttendanceRecord) => record.memberId === member.id || (!record.memberId && record.name === member.name)
       const matchingRecords = records.filter(record => {
-        const recordMonth = record.date.slice(0, 7)
-        return isMemberRecord(record) && (toMonth ? recordMonth >= fromMonth && recordMonth <= toMonth : recordMonth === fromMonth)
+        return isMemberRecord(record) && (toDate ? record.date >= fromDate && record.date <= toDate : record.date === fromDate)
       }).sort((a, b) => b.date.localeCompare(a.date))
       const yearlyRecords = records.filter(record => isMemberRecord(record) && record.date.startsWith(year))
       const present = yearlyRecords.filter(record => record.present).length
       return { member, matchingRecords, present, absent: yearlyRecords.length - present, percentage: percentage(yearlyRecords) }
     })
-  }, [fromMonth, memberSearch, members, records, toMonth, year])
+  }, [fromDate, memberSearch, members, records, toDate, year])
 
   const runSearch = () => {
-    if (!memberSearch.trim() || !fromMonth) {
+    if (!memberSearch.trim() || !fromDate) {
       setHasSearched(false)
-      setSearchNotice('Please enter both a member name and a From Month to view attendance records.')
+      setSearchNotice('Please enter both a member name and a From Date to view attendance records.')
       return
     }
     setSearchNotice('')
@@ -94,11 +93,11 @@ export default function Attendance() {
             <label className="field-label md:col-span-3">Member name
               <input value={memberSearch} onChange={event => { setMemberSearch(event.target.value); resetSearch() }} className="field" placeholder="Search by name" />
             </label>
-            <label className="field-label md:col-span-1">From month
-              <input value={fromMonth} onChange={event => { setFromMonth(event.target.value); resetSearch() }} type="month" className="field" />
+            <label className="field-label md:col-span-1">From date
+              <input value={fromDate} onChange={event => { setFromDate(event.target.value); resetSearch() }} type="date" className="field" />
             </label>
-            <label className="field-label md:col-span-1">To month <span className="normal-case tracking-normal text-slate-400">(optional)</span>
-              <input value={toMonth} min={fromMonth || undefined} onChange={event => { setToMonth(event.target.value); resetSearch() }} type="month" className="field" />
+            <label className="field-label md:col-span-1">To date <span className="normal-case tracking-normal text-slate-400">(optional)</span>
+              <input value={toDate} min={fromDate || undefined} onChange={event => { setToDate(event.target.value); resetSearch() }} type="date" className="field" />
             </label>
             <button type="button" onClick={runSearch} className="dark-btn self-end md:col-span-1">Search <Search size={17} /></button>
           </div>
@@ -110,7 +109,7 @@ export default function Attendance() {
               <div>
                 <p className="text-center text-xs font-bold uppercase tracking-[.18em] text-emerald-700">YDM member</p>
                 <h3 className="mt-2 text-center text-2xl font-black">{member.name}</h3>
-                <p className="mt-1 text-center text-sm text-slate-500">{fromMonth}{toMonth ? ` to ${toMonth}` : ''}</p>
+                <p className="mt-1 text-center text-sm text-slate-500">{formatDate(fromDate)}{toDate ? ` to ${formatDate(toDate)}` : ''}</p>
               </div>
               <div className="attendance-member-visual mt-5">
                 <div className={`member-figure member-figure-${isFemale(member.gender) ? 'female' : 'male'}`} role="img" aria-label={`Animated ${isFemale(member.gender) ? 'female' : 'male'} member figure`}>
@@ -128,7 +127,7 @@ export default function Attendance() {
               </div>
               <div className="attendance-search-summary mt-5 flex flex-wrap justify-center gap-4 text-xs font-bold"><span className="text-emerald-700">Present: {present}</span><span className="text-rose-600">Absent: {absent}</span></div>
               <div className="mt-5 border-t border-slate-200 pt-4"><p className="mb-3 text-xs font-bold uppercase tracking-[.14em] text-slate-500">Attendance history</p>
-                {matchingRecords.length === 0 ? <p className="text-sm text-slate-500">No attendance records for this selected month.</p> : <div className="grid max-h-56 gap-2 overflow-y-auto pr-1">{matchingRecords.map(record => <div key={record.id} className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm font-semibold ${record.present ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-700'}`}><span>{formatDate(record.date)}</span><span>{record.present ? 'Present' : 'Absent'}</span></div>)}</div>}
+                {matchingRecords.length === 0 ? <p className="text-sm text-slate-500">No attendance records for the selected date range.</p> : <div className="grid max-h-56 gap-2 overflow-y-auto pr-1">{matchingRecords.map(record => <div key={record.id} className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm font-semibold ${record.present ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-700'}`}><span>{formatDate(record.date)}</span><span>{record.present ? 'Present' : 'Absent'}</span></div>)}</div>}
               </div>
             </article>)}
           </div>}
