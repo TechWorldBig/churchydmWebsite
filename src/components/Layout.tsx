@@ -80,21 +80,21 @@ export default function Layout({ children }: { children: ReactNode }) {
       <main id="main-content" tabIndex={-1}>{children}</main>
 
       <footer className="site-footer bg-[#041511] text-white">
-        <div className="mx-auto grid max-w-7xl gap-5 px-5 py-5 md:grid-cols-[1.4fr_1fr_1fr] lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-4 px-5 py-3 md:grid-cols-[1.4fr_1fr_1fr] lg:px-8">
           <div>
             <div className="mb-3 flex items-center gap-3 text-sm font-black sm:text-base"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#e3bc62] text-[#071f19]"><Cross size={19} /></span><span>JSC Youth Development Ministry</span></div>
             <p className="max-w-md text-sm leading-7 text-white/55">A Christ-centered youth community growing together through worship, Scripture, fellowship, service and leadership.</p>
           </div>
           <div>
-            <h3 className="mb-4 text-sm font-bold uppercase tracking-[0.18em] text-[#e3bc62]">Explore</h3>
-            <div className="grid gap-2 text-sm text-white/60"><Link className="footer-link" to="/members">YDM Members</Link><Link className="footer-link" to="/gallery">Gallery</Link><Link className="footer-link" to="/programs">Programs</Link><Link className="footer-link" to="/attendance">Attendance</Link><Link className="footer-link" to="/about">About</Link></div>
+            <h3 className="mb-2 text-sm font-bold uppercase tracking-[0.18em] text-[#e3bc62]">Explore</h3>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm text-white/60"><div className="grid gap-1"><Link className="footer-link" to="/members">YDM Members</Link><Link className="footer-link" to="/gallery">Gallery</Link><Link className="footer-link" to="/programs">Programs</Link></div><div className="grid gap-1"><Link className="footer-link" to="/attendance">Attendance</Link><Link className="footer-link" to="/about">About</Link></div></div>
           </div>
           <div>
-            <h3 className="mb-4 text-sm font-bold uppercase tracking-[0.18em] text-[#e3bc62]">Connect</h3>
+            <h3 className="mb-2 text-sm font-bold uppercase tracking-[0.18em] text-[#e3bc62]">Connect</h3>
             <div className="flex gap-3" role="group" aria-label="Social media"><span className="social-icon"><Instagram size={18} /></span><span className="social-icon"><Youtube size={18} /></span></div>
           </div>
         </div>
-        <div className="border-t border-white/10 px-5 py-4 text-center text-xs text-white/65">© {new Date().getFullYear()} JSC Youth Development Ministry. Faith • Fellowship • Service.</div>
+        <div className="border-t border-white/10 px-5 py-2 text-center text-xs text-white/65">© {new Date().getFullYear()} JSC Youth Development Ministry. Faith • Fellowship • Service.</div>
       </footer>
       <ChurchAssistant />
     </div>
