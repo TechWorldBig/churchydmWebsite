@@ -60,6 +60,16 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .attendance-search-panel { position: relative; overflow: hidden; transform: perspective(1000px) rotateX(.35deg); }
 .attendance-search-panel::before { position: absolute; right: -4rem; top: -7rem; width: 15rem; height: 15rem; border: 1px solid rgba(5,150,105,.15); border-radius: 999px; content: ""; }
 .attendance-search-panel > * { position: relative; z-index: 1; }
+.search-icon-3d { padding: .45rem; box-sizing: content-box; border: 1px solid rgba(5,150,105,.22); border-radius: 1rem; background: linear-gradient(145deg, #fff, #d9f5e8); box-shadow: inset 0 1px 0 #fff, 0 5px 0 #91cfb2, 0 10px 15px rgba(7,31,25,.14); transform: perspective(9rem) rotateX(8deg) rotateY(-9deg); animation: search-icon-float 2.7s ease-in-out infinite; }
+.calendar-control-3d { position: relative; display: block; transform: perspective(18rem) rotateX(2deg); transition: transform .25s ease; }
+.calendar-control-3d:hover, .calendar-control-3d:focus-within { transform: perspective(18rem) translateY(-.18rem) rotateX(4deg); }
+.calendar-control-3d .field { padding-right: 2.8rem; border-color: #cce9dc; background: linear-gradient(145deg, #fff, #edf9f3); box-shadow: inset 0 1px 0 #fff, 0 4px 0 #b6decb, 0 9px 15px rgba(7,31,25,.1); }
+.calendar-control-3d svg { position: absolute; right: .85rem; top: 50%; pointer-events: none; color: #08785a; filter: drop-shadow(0 2px 0 rgba(255,255,255,.9)); transform: translateY(-50%) translateZ(.5rem); }
+.calendar-control-3d input::-webkit-calendar-picker-indicator { position: absolute; right: .55rem; z-index: 2; width: 1.8rem; height: 1.8rem; cursor: pointer; opacity: 0; }
+.search-button-3d { border: 1px solid rgba(227,188,98,.35); box-shadow: inset 0 1px 1px rgba(255,255,255,.16), 0 6px 0 #0a382d, 0 14px 22px rgba(7,31,25,.2); transform: perspective(14rem) rotateX(3deg); }
+.search-button-3d:hover { box-shadow: inset 0 1px 1px rgba(255,255,255,.16), 0 8px 0 #0a382d, 0 18px 25px rgba(7,31,25,.22); }
+.search-button-3d:active { box-shadow: inset 0 2px 5px rgba(0,0,0,.28), 0 2px 0 #0a382d; transform: translateY(.28rem) perspective(14rem) rotateX(3deg); }
+@keyframes search-icon-float { 0%, 100% { transform: perspective(9rem) translateY(0) rotateX(8deg) rotateY(-9deg); } 50% { transform: perspective(9rem) translateY(-.25rem) rotateX(-5deg) rotateY(10deg); } }
 .attendance-search-card { box-shadow: 0 10px 0 rgba(15,23,42,.035), 0 18px 30px rgba(7,31,25,.07); transition: transform .3s ease, box-shadow .3s ease; }
 .attendance-search-card:hover { box-shadow: 0 16px 0 rgba(15,23,42,.035), 0 28px 40px rgba(7,31,25,.12); transform: translateY(-.3rem) rotateX(1deg) rotateY(-1deg); }
 .attendance-member-banner { background: radial-gradient(circle at 50% 20%, rgba(227,188,98,.12), transparent 35%), #061e18; border-bottom: 1px solid rgba(227,188,98,.18); }
@@ -87,7 +97,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 @keyframes member-figure-halo { 0%,100% { opacity: .4; transform: translateZ(-1rem) rotateX(65deg) scale(.86); } 50% { opacity: .8; transform: translateZ(-1rem) rotateX(65deg) scale(1.08); } }
 @keyframes member-figure-wave-left { 0%,100% { transform: rotate(25deg); } 50% { transform: rotate(62deg); } }
 @keyframes member-figure-wave-right { 0%,100% { transform: rotate(-25deg); } 50% { transform: rotate(-62deg); } }
-@media (prefers-reduced-motion: reduce) { .member-figure, .member-figure-halo, .member-figure-arm { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .member-figure, .member-figure-halo, .member-figure-arm, .search-icon-3d { animation: none; } }
 .location-pin-3d { position: relative; display: grid; flex: 0 0 auto; place-items: center; width: 2.7rem; height: 2.7rem; margin-top: .1rem; border: 1px solid rgba(255,255,255,.5); border-radius: 1rem 1rem 1.25rem; color: #e3bc62; background: linear-gradient(145deg, #17483b, #061c17); box-shadow: inset 0 1px 1px rgba(255,255,255,.18), inset 0 -5px 8px rgba(0,0,0,.25), 0 9px 0 #092a22, 0 16px 19px rgba(7,31,25,.26); transform: perspective(180px) rotateX(8deg) rotateY(-10deg); animation: location-pin-float 2.7s ease-in-out infinite; }
 .location-pin-3d::after { position: absolute; bottom: -1rem; left: .4rem; width: 1.9rem; height: .4rem; border-radius: 999px; background: rgba(7,31,25,.28); content: ""; filter: blur(2px); animation: location-pin-shadow 2.7s ease-in-out infinite; }
 .location-pin-3d svg { position: relative; z-index: 1; filter: drop-shadow(0 2px 1px rgba(0,0,0,.3)); }

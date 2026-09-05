@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { CalendarCheck, Clock3, Search, TrendingUp, Users } from 'lucide-react'
+import { CalendarCheck, CalendarDays, Clock3, Search, TrendingUp, Users } from 'lucide-react'
 import PageHero from '../components/PageHero'
 import { AttendanceRecord, Member } from '../data/memberStore'
 import { getAttendance, getLastUpdated, getMembers } from '../data/api'
@@ -87,19 +87,19 @@ export default function Attendance() {
         <section className="attendance-search-panel mt-8 rounded-3xl border border-emerald-100 bg-white p-5 shadow-[0_18px_45px_rgba(7,31,25,.1)] sm:p-7">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div><p className="eyebrow">Find attendance</p><h2 className="mt-2 text-2xl font-black">Search a member&apos;s attendance</h2></div>
-            <Search className="text-emerald-700" size={28} />
+            <Search className="search-icon-3d text-emerald-700" size={28} />
           </div>
           <div className="mt-6 grid gap-3 md:grid-cols-6">
             <label className="field-label md:col-span-3">Member name
               <input value={memberSearch} onChange={event => { setMemberSearch(event.target.value); resetSearch() }} className="field" placeholder="Search by name" />
             </label>
             <label className="field-label md:col-span-1">From date
-              <input value={fromDate} onChange={event => { setFromDate(event.target.value); resetSearch() }} type="date" className="field" />
+              <span className="calendar-control-3d"><input value={fromDate} onChange={event => { setFromDate(event.target.value); resetSearch() }} type="date" className="field" /><CalendarDays aria-hidden="true" size={17} /></span>
             </label>
             <label className="field-label md:col-span-1">To date <span className="normal-case tracking-normal text-slate-400">(optional)</span>
-              <input value={toDate} min={fromDate || undefined} onChange={event => { setToDate(event.target.value); resetSearch() }} type="date" className="field" />
+              <span className="calendar-control-3d"><input value={toDate} min={fromDate || undefined} onChange={event => { setToDate(event.target.value); resetSearch() }} type="date" className="field" /><CalendarDays aria-hidden="true" size={17} /></span>
             </label>
-            <button type="button" onClick={runSearch} className="dark-btn self-end md:col-span-1">Search <Search size={17} /></button>
+            <button type="button" onClick={runSearch} className="dark-btn search-button-3d self-end md:col-span-1">Search <Search size={17} /></button>
           </div>
           {searchNotice && <p role="alert" className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">{searchNotice}</p>}
 
