@@ -344,6 +344,7 @@ export default function ChurchAssistant() {
   const [input, setInput] = useState('')
   const [isReplying, setIsReplying] = useState(false)
   const [isChirping, setIsChirping] = useState(false)
+  const [botExpression, setBotExpression] = useState(0)
   const [preferredLanguage, setPreferredLanguage] = useState<BibleLanguage>('en')
   const [aiHistory, setAiHistory] = useState<AssistantTurn[]>([])
   const listRef = useRef<HTMLDivElement>(null)
@@ -351,6 +352,10 @@ export default function ChurchAssistant() {
   useEffect(() => {
     if (open) listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' })
   }, [messages, open])
+
+  useEffect(() => {
+    if (messages.length > initialMessages.length) setBotExpression((current) => current + 1)
+  }, [messages])
 
   const placeholder = useMemo(
     () => (name ? assistantCopy[preferredLanguage].placeholder : 'Enter your name...'),
@@ -494,7 +499,7 @@ export default function ChurchAssistant() {
         <div role="dialog" aria-label="YDM assistant" onKeyDown={(event) => { if (event.key === 'Escape') { setOpen(false); document.querySelector<HTMLButtonElement>('.church-assistant-fab')?.focus() } }} className="church-assistant-panel fixed z-[70] flex flex-col overflow-hidden rounded-3xl border border-white/15 bg-[#061914] text-white shadow-[0_24px_70px_rgba(4,21,17,.4)]">
           <div className="flex min-w-0 items-center justify-between border-b border-white/10 px-4 py-3">
             <div className="flex min-w-0 flex-1 items-center gap-3">
-              <span className="assistant-header-bot grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[#e3bc62] text-[#071f19]">
+              <span key={botExpression} className="assistant-header-bot grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[#e3bc62] text-[#071f19]">
                 <Bot size={18} />
               </span>
               <div className="min-w-0">
