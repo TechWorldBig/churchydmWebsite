@@ -35,6 +35,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 }
 
 .site-header { box-shadow: 0 10px 35px rgba(4, 21, 17, .14); background-image: linear-gradient(105deg, rgba(7,31,25,.98), rgba(7,31,25,.9) 60%, rgba(16,61,47,.94)); }
+.site-header { --mobile-header-height: 5.75rem; }
 .site-header nav a { position: relative; }
 .site-header nav a:not([aria-current="page"])::after { position: absolute; left: 1rem; right: 1rem; bottom: .3rem; height: 2px; transform: scaleX(0); transform-origin: center; background: var(--gold); content: ""; transition: transform .25s ease; }
 .site-header nav a:not([aria-current="page"]):hover::after { transform: scaleX(1); }
@@ -201,7 +202,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .site-footer > div:first-child { grid-template-columns: 1fr 1fr; gap: 1.25rem; padding-top: 1rem; padding-bottom: 1rem; }
   .site-footer > div:first-child > div:first-child { grid-column: 1 / -1; }
   .site-footer .social-icon { min-height: 2.75rem; min-width: 2.75rem; }
-  .page-hero { padding-top: 6rem; padding-bottom: 2.5rem; }
+  .page-hero { padding-top: calc(var(--mobile-header-height) + 1.25rem); padding-bottom: 2.5rem; }
   .home-cta { padding-top: 2.75rem; padding-bottom: 2.75rem; }
   .page-hero h1 { font-size: clamp(2rem, 10vw, 3rem); line-height: 1.05; }
   .page-hero p { max-width: none; font-size: .95rem; line-height: 1.7; }
@@ -295,7 +296,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .site-header .group > span:last-child > span:first-child { font-size: .85rem; letter-spacing: .06em; }
   .verse-ticker { height: 1.75rem; }
   .verse-ticker-track span { padding: .25rem 2rem .25rem 1rem; font-size: .7rem; }
-  .page-hero { padding-top: 6.25rem; padding-bottom: 2rem; }
+  .page-hero { padding-top: calc(var(--mobile-header-height) + 1.5rem); padding-bottom: 2rem; }
   .page-hero .relative { padding-left: 1rem; padding-right: 1rem; }
   .page-hero h1 { font-size: clamp(2rem, 11vw, 2.75rem); }
   .page-hero p { margin-top: .75rem; font-size: .875rem; line-height: 1.55; }
