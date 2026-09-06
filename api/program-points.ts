@@ -8,7 +8,7 @@ export default async function handler(req: any, res: any) {
     if (req.method === 'GET') {
       const query = req.query || {}
       if (!query.name) { if (!await authorizeMutation(req, res)) return; const rows = await sql`SELECT id, member_id AS "memberId", name, program, seniority, date, questions_answered AS "questionsAnswered" FROM program_points ORDER BY date DESC, created_at DESC`; return res.status(200).json(rows) }
-      const rows = await sql`SELECT id, member_id AS "memberId", name, program, seniority, date, questions_answered AS "questionsAnswered" FROM program_points WHERE LOWER(TRIM(name)) = LOWER(TRIM(${query.name})) AND (${query.program || ''} = '' OR TRIM(program) = TRIM(${query.program || ''})) AND (${query.from || ''} = '' OR date >= ${query.from || ''}) AND (${query.to || ''} = '' OR date <= ${query.to || ''}) ORDER BY date DESC, created_at DESC`
+      const rows = await sql`SELECT id, member_id AS "memberId", name, program, seniority, date, questions_answered AS "questionsAnswered" FROM program_points WHERE LOWER(TRIM(name)) LIKE LOWER('%' || TRIM(${query.name}) || '%') AND (${query.program || ''} = '' OR TRIM(program) = TRIM(${query.program || ''})) AND (${query.from || ''} = '' OR date >= ${query.from || ''}) AND (${query.to || ''} = '' OR date <= ${query.to || ''}) ORDER BY date DESC, created_at DESC`
       return res.status(200).json(rows)
     }
     if (req.method !== 'POST' || !await authorizeMutation(req, res)) return
