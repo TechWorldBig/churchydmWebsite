@@ -79,6 +79,18 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .admin-page .primary-btn { position: relative; isolation: isolate; overflow: hidden; border: 1px solid rgba(255,255,255,.28); box-shadow: inset 0 1px 1px rgba(255,255,255,.34), inset 0 -3px 0 rgba(124,79,7,.2), 0 7px 0 #af7e23, 0 16px 24px rgba(7,31,25,.16); transform: perspective(18rem) rotateX(4deg); transition: transform .25s ease, box-shadow .25s ease; }
 .admin-page .primary-btn:hover { box-shadow: inset 0 1px 1px rgba(255,255,255,.34), inset 0 -3px 0 rgba(124,79,7,.2), 0 10px 0 #af7e23, 0 22px 28px rgba(7,31,25,.2); transform: perspective(18rem) translateY(-.25rem) rotateX(7deg); }
 .admin-page .primary-btn:active { box-shadow: inset 0 2px 5px rgba(0,0,0,.28), 0 2px 0 #af7e23; transform: translateY(.3rem) perspective(18rem) rotateX(2deg); }
+.admin-page { overflow: hidden; }
+.admin-page .soft-card { min-width: 0; }
+.admin-page .field-label { min-width: 0; }
+.admin-page .field { min-width: 0; }
+.admin-page .grid.lg\:grid-cols-\[420px_1fr\] { align-items: start; }
+.admin-page table { border-collapse: separate; border-spacing: 0; }
+.admin-page th { font-weight: 800; }
+.admin-page .primary-btn, .admin-page .secondary-dark-btn { min-height: 2.9rem; }
+.admin-page aside .flex.gap-2 { align-items: stretch; }
+.admin-page aside .flex.gap-2 > button { min-width: 0; }
+.admin-page .admin-program-points-form { min-width: 0; }
+.admin-page .admin-program-points-form .field { width: 100%; }
 .admin-login .primary-btn { position: relative; isolation: isolate; overflow: hidden; border: 1px solid rgba(255,255,255,.28); box-shadow: inset 0 1px 1px rgba(255,255,255,.34), inset 0 -3px 0 rgba(124,79,7,.2), 0 7px 0 #af7e23, 0 16px 24px rgba(7,31,25,.16); transform: perspective(18rem) rotateX(4deg); transition: transform .25s ease, box-shadow .25s ease; }
 .admin-login .primary-btn:hover { box-shadow: inset 0 1px 1px rgba(255,255,255,.34), inset 0 -3px 0 rgba(124,79,7,.2), 0 10px 0 #af7e23, 0 22px 28px rgba(7,31,25,.2); transform: perspective(18rem) translateY(-.25rem) rotateX(7deg); }
 .admin-login .primary-btn:active { box-shadow: inset 0 2px 5px rgba(0,0,0,.28), 0 2px 0 #af7e23; transform: translateY(.3rem) perspective(18rem) rotateX(2deg); }
