@@ -200,6 +200,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 }
 
 @media (max-width: 639px) {
+  main > .page-hero:first-child { padding-top: 8rem !important; }
+  main > section:first-child:not(.page-hero) { padding-top: 7rem; }
   .site-header > div { min-height: 4rem; height: 4rem; }
   .site-header .menu-toggle { min-height: 2.75rem; min-width: 2.75rem; }
   .mobile-nav { max-height: calc(100svh - 4rem); overflow-y: auto; }
