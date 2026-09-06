@@ -114,6 +114,8 @@ input[type='date']:active { transform: perspective(20rem) translateY(.18rem) rot
   .admin-page > .mx-auto > .soft-card.mt-6 { width: calc(50% - .625rem); float: left; }
   .admin-page > .mx-auto > .admin-gallery-inline { width: calc(50% - .625rem); float: right; margin-top: 1.5rem; }
   .admin-page > .mx-auto::after { display: block; clear: both; content: ''; }
+  .admin-page > .mx-auto > .soft-card.mt-6, .admin-page > .mx-auto > .admin-gallery-inline { width: 100%; float: none; }
+  .admin-page > .mx-auto > .admin-gallery-inline { margin-top: 1.5rem; }
   .admin-page > .mx-auto > .grid.lg\:grid-cols-\[420px_1fr\] > .grid.min-w-0 { display: block; }
   .admin-page > .mx-auto > .grid.lg\:grid-cols-\[420px_1fr\] > .grid.min-w-0 > * { margin-bottom: 1.25rem; }
   .admin-page > .mx-auto > .grid.lg\:grid-cols-\[420px_1fr\] > .grid.min-w-0 { grid-template-columns: minmax(0, 1fr); align-items: stretch; }
