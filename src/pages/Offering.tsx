@@ -2,6 +2,22 @@ import PageHero from '../components/PageHero'
 import { Download, HeartHandshake, Sparkles } from 'lucide-react'
 
 export default function Offering() {
+  const downloadQrOnly = () => {
+    const image = new Image()
+    image.onload = () => {
+      const cropSize = Math.min(image.naturalWidth - 160, 560)
+      const canvas = document.createElement('canvas')
+      canvas.width = cropSize
+      canvas.height = cropSize
+      canvas.getContext('2d')?.drawImage(image, (image.naturalWidth - cropSize) / 2, 290, cropSize, cropSize, 0, 0, cropSize, cropSize)
+      const link = document.createElement('a')
+      link.download = 'jsc-ydm-offering-qr.png'
+      link.href = canvas.toDataURL('image/png')
+      link.click()
+    }
+    image.src = '/assets/offering-screenshot.jpeg'
+  }
+
   return (
     <>
       <PageHero
@@ -38,13 +54,9 @@ export default function Offering() {
                     alt="Offering QR code screenshot"
                     className="offering-qr max-h-[760px] w-full rounded-[1.5rem] object-contain shadow-xl"
                   />
-                  <a
-                    href="/assets/offering-screenshot.jpeg"
-                    download="offering-qr-code.jpeg"
-                    className="dark-btn w-full max-w-xs"
-                  >
+                  <button type="button" onClick={downloadQrOnly} className="dark-btn w-full max-w-xs">
                     <Download size={17} /> Download QR code
-                  </a>
+                  </button>
                 </div>
               </div>
             </div>
