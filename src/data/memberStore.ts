@@ -6,6 +6,7 @@ export type Member = {
   phone: string
   address: string
   gender: string
+  seniority: 'Junior' | 'Senior' | ''
   dateOfBirth: string
   focus: string
   photo: string

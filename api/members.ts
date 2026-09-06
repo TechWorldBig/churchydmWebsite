@@ -12,13 +12,13 @@ export default async function handler(req: any, res: any) {
     else await ensureSchema()
     const sql = getSql()
     if (req.method === 'GET') {
-      const rows = await sql`SELECT id, name, role, email, phone, address, gender, date_of_birth AS "dateOfBirth", focus, photo FROM members ORDER BY created_at DESC`
+      const rows = await sql`SELECT id, name, role, email, phone, address, gender, seniority, date_of_birth AS "dateOfBirth", focus, photo FROM members ORDER BY created_at DESC`
       return res.status(200).json(rows)
     }
     if (req.method === 'POST') {
-      await sql`INSERT INTO members (id, name, role, email, phone, address, gender, date_of_birth, focus, photo) VALUES (${body.id}, ${body.name}, ${body.role || 'YDM Member'}, ${body.email || ''}, ${body.phone || ''}, ${body.address || ''}, ${body.gender || ''}, ${body.dateOfBirth || ''}, ${body.focus || ''}, ${body.photo || ''})`
+      await sql`INSERT INTO members (id, name, role, email, phone, address, gender, seniority, date_of_birth, focus, photo) VALUES (${body.id}, ${body.name}, ${body.role || 'YDM Member'}, ${body.email || ''}, ${body.phone || ''}, ${body.address || ''}, ${body.gender || ''}, ${body.seniority || ''}, ${body.dateOfBirth || ''}, ${body.focus || ''}, ${body.photo || ''})`
     } else if (req.method === 'PUT') {
-      await sql`UPDATE members SET name=${body.name}, role=${body.role || 'YDM Member'}, email=${body.email || ''}, phone=${body.phone || ''}, address=${body.address || ''}, gender=${body.gender || ''}, date_of_birth=${body.dateOfBirth || ''}, focus=${body.focus || ''}, photo=${body.photo || ''} WHERE id=${body.id}`
+      await sql`UPDATE members SET name=${body.name}, role=${body.role || 'YDM Member'}, email=${body.email || ''}, phone=${body.phone || ''}, address=${body.address || ''}, gender=${body.gender || ''}, seniority=${body.seniority || ''}, date_of_birth=${body.dateOfBirth || ''}, focus=${body.focus || ''}, photo=${body.photo || ''} WHERE id=${body.id}`
     } else if (req.method === 'DELETE') {
       await sql`DELETE FROM members WHERE id=${body.id}`
     } else return res.status(405).json({ error: 'Method not allowed' })
