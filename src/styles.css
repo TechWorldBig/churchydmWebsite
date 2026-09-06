@@ -106,6 +106,7 @@ input[type='date']:active { transform: perspective(20rem) translateY(.18rem) rot
 .admin-page .admin-program-points-form { min-width: 0; }
 .admin-page .admin-program-points-form .field { width: 100%; }
 .admin-page > .mx-auto > .grid.lg\:grid-cols-\[420px_1fr\] > .grid.min-w-0 > .soft-card:last-child { max-height: 35rem; overflow-y: auto; }
+.admin-page .grid.min-w-0 > .soft-card:last-child { height: 32rem; max-height: 32rem; overflow-y: auto; }
 .admin-program-points-form .flex.min-w-0 > .field { min-width: 0; flex: 1 1 auto; }
 .admin-program-points-form .flex.min-w-0 > .primary-btn { flex: 0 0 5rem; min-width: 0; padding-left: .75rem; padding-right: .75rem; }
 .admin-program-points-form table tbody { display: block; max-height: 13.5rem; overflow-y: auto; }
