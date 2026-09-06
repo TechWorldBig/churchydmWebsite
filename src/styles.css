@@ -38,9 +38,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .site-header nav a { position: relative; }
 .site-header nav a:not([aria-current="page"])::after { position: absolute; left: 1rem; right: 1rem; bottom: .3rem; height: 2px; transform: scaleX(0); transform-origin: center; background: var(--gold); content: ""; transition: transform .25s ease; }
 .site-header nav a:not([aria-current="page"]):hover::after { transform: scaleX(1); }
-.verse-ticker { overflow: hidden; border-top: 1px solid rgba(255,255,255,.1); border-bottom: 1px solid rgba(227,188,98,.18); background: rgba(4,21,17,.64); color: rgba(255,255,255,.9); white-space: nowrap; }
-.verse-ticker-track { width: max-content; padding-left: 100%; animation: verse-ticker-scroll 18s linear infinite; }
-.verse-ticker-track span { display: inline-block; padding: .46rem 3rem .48rem 1.5rem; font-family: "Noto Sans Tamil", "Latha", system-ui, sans-serif; font-size: .8rem; letter-spacing: .015em; }
+.verse-ticker { display: flex; height: 2rem; align-items: center; overflow: hidden; border-top: 1px solid rgba(255,255,255,.1); border-bottom: 1px solid rgba(227,188,98,.18); background: rgba(4,21,17,.64); color: rgba(255,255,255,.9); white-space: nowrap; }
+.verse-ticker-track { width: max-content; padding-left: 100%; line-height: 1; animation: verse-ticker-scroll 18s linear infinite; }
+.verse-ticker-track span { display: inline-block; padding: .32rem 3rem .32rem 1.5rem; font-family: "Noto Sans Tamil", "Latha", system-ui, sans-serif; font-size: .8rem; letter-spacing: .015em; }
 .verse-ticker-track b { margin-left: .65rem; color: var(--gold); font-weight: 800; }
 @keyframes verse-ticker-scroll { from { transform: translateX(0); } to { transform: translateX(-100%); } }
 .page-hero { isolation: isolate; background-image: radial-gradient(circle at 82% 25%, rgba(227,188,98,.12), transparent 18rem), linear-gradient(120deg, #041511, #071f19 55%, #0c3428); }
@@ -249,6 +249,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   footer .grid { gap: 1.75rem; }
   footer { font-size: .95rem; }
   footer .grid { grid-template-columns: 1fr 1fr; }
+  .site-footer .footer-content { grid-template-columns: 1fr; gap: 1.25rem; }
+  .site-footer .footer-explore > div { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem 1.25rem; }
+  .site-footer .footer-explore > div > div { grid-template-columns: 1fr; gap: .35rem; }
   #panorama-stage { height: calc(min(60vw, 420px) + 96px); min-height: 336px; }
   #panorama-stage > img { height: min(60vw, 420px); bottom: auto; object-fit: contain; background: #031611; }
   #panorama-stage > div:nth-of-type(1), #panorama-stage > div:nth-of-type(2) { height: min(60vw, 420px); bottom: auto; }
@@ -277,6 +280,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .site-header .group > span:last-child { min-width: 0; }
   .site-header .group > span:last-child > span:first-child { white-space: nowrap; }
   .site-footer > div:first-child { grid-template-columns: 1fr; }
+  .site-footer .footer-explore > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .site-footer .footer-explore > div > div { grid-template-columns: 1fr; }
   .admin-page .grid.lg\:grid-cols-\[420px_1fr\] { grid-template-columns: minmax(0, 1fr); }
   .admin-page .grid.md\:grid-cols-\[1fr_180px_150px_1fr_auto\] { grid-template-columns: minmax(0, 1fr); }
   .admin-page .grid.md\:grid-cols-\[1fr_180px_150px_1fr_auto\] > .primary-btn { width: 100%; }
