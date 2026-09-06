@@ -274,10 +274,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .site-footer .footer-brand > div:first-child { margin-bottom: .35rem; }
   .site-footer .footer-brand p { font-size: .75rem; line-height: 1.35; }
   .site-footer h3 { margin-bottom: .25rem; font-size: .7rem; }
-  #panorama-stage { height: calc(min(60vw, 420px) + 96px); min-height: 336px; }
-  #panorama-stage > img { height: min(60vw, 420px); bottom: auto; object-fit: contain; background: #031611; }
-  #panorama-stage > div:nth-of-type(1), #panorama-stage > div:nth-of-type(2) { height: min(60vw, 420px); bottom: auto; }
-  #panorama-stage > div:last-child { top: min(60vw, 420px); bottom: auto; height: 96px; padding: 12px 20px; background: #071f19; }
+  #panorama-stage { height: calc(min(56vw, 350px) + 76px); min-height: 0; }
+  #panorama-stage .panorama-image { height: min(56vw, 350px); object-fit: cover; background: #031611; }
+  #panorama-stage .panorama-controls { height: 76px; padding: 10px 20px 12px; background: #071f19; }
+  #panorama-stage .panorama-controls .mt-5 { margin-top: .7rem; }
+  #panorama-stage .panorama-controls .panorama-button { height: 2.75rem; width: 2.75rem; }
   .attendance-search-panel { transform: none; }
   .attendance-page > .mx-auto > div:first-child { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .attendance-page > .mx-auto > div:first-child > article:last-child { grid-column: 1 / -1; }
