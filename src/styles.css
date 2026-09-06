@@ -202,6 +202,12 @@ input[type='date']:active { transform: perspective(20rem) translateY(.18rem) rot
 .attendance-member-card > .attendance-member-banner + div { padding-top: .35rem; }
 .attendance-member-card > .attendance-member-visual { min-height: 8.5rem; }
 .attendance-member-card > .attendance-search-summary { margin-top: .25rem; }
+.attendance-member-card { display: flex; flex-direction: column; gap: 0; }
+.attendance-member-card > .attendance-member-banner { order: 1; width: 100%; height: 22rem; min-height: 22rem; margin: 0 0 1.5rem; border-radius: 1.5rem; }
+.attendance-member-card > .attendance-member-banner + div { order: 2; }
+.attendance-member-card > .attendance-member-visual { order: 3; }
+.attendance-member-card > .attendance-search-summary { order: 4; }
+.attendance-member-card > div:last-child { order: 5; }
 @media (max-width: 639px) { .attendance-member-card { display: flex; flex-direction: column; gap: 0; } .attendance-member-card > * { grid-column: auto; } .attendance-member-card > .attendance-member-banner { order: 1; position: relative; min-height: 18rem; margin: -1.25rem -1.25rem 1.25rem; width: auto; height: 18rem; border-radius: 1.5rem 1.5rem 0 0; } .attendance-member-card > .attendance-member-banner + div { order: 2; } .attendance-member-card > .attendance-member-visual { order: 3; } .attendance-member-card > .attendance-search-summary { order: 4; } .attendance-member-card > div:last-child { order: 5; } }
 .member-gif-figure { display: grid; width: 7.75rem; height: 8rem; place-items: end center; overflow: hidden; background: transparent; }
 .member-gif-figure img { display: block; width: auto; height: 8rem; max-width: none; mix-blend-mode: multiply; }
