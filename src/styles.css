@@ -268,9 +268,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   footer .grid { gap: 1.75rem; }
   footer { font-size: .95rem; }
   footer .grid { grid-template-columns: 1fr 1fr; }
-  .site-footer .footer-content { grid-template-columns: 1fr; gap: 1.25rem; }
-  .site-footer .footer-explore > div { grid-template-columns: 1fr; gap: .35rem; }
+  .site-footer .footer-content { grid-template-columns: 1fr; gap: .7rem; padding-top: .5rem; padding-bottom: .5rem; }
+  .site-footer .footer-explore > div { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .2rem 1rem; }
   .site-footer .footer-explore > div > div { grid-template-columns: 1fr; gap: .35rem; }
+  .site-footer .footer-brand > div:first-child { margin-bottom: .35rem; }
+  .site-footer .footer-brand p { font-size: .75rem; line-height: 1.35; }
+  .site-footer h3 { margin-bottom: .25rem; font-size: .7rem; }
   #panorama-stage { height: calc(min(60vw, 420px) + 96px); min-height: 336px; }
   #panorama-stage > img { height: min(60vw, 420px); bottom: auto; object-fit: contain; background: #031611; }
   #panorama-stage > div:nth-of-type(1), #panorama-stage > div:nth-of-type(2) { height: min(60vw, 420px); bottom: auto; }
@@ -299,7 +302,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .site-header .group > span:last-child { min-width: 0; }
   .site-header .group > span:last-child > span:first-child { white-space: nowrap; }
   .site-footer > div:first-child { grid-template-columns: 1fr; }
-  .site-footer .footer-explore > div { grid-template-columns: 1fr; }
+  .site-footer .footer-explore > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .site-footer .footer-explore > div > div { grid-template-columns: 1fr; }
   .admin-page .grid.lg\:grid-cols-\[420px_1fr\] { grid-template-columns: minmax(0, 1fr); }
   .admin-page .grid.md\:grid-cols-\[1fr_180px_150px_1fr_auto\] { grid-template-columns: minmax(0, 1fr); }
@@ -345,7 +348,8 @@ input, select, textarea { min-width: 0; }
   .admin-page .grid.lg\:grid-cols-\[420px_1fr\], .admin-gallery-inline .lg\:grid-cols-\[340px_1fr\] { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 639px) {
-  .footer-link { min-height: 44px; display: flex; align-items: center; }
+  .footer-link { min-height: 32px; display: flex; align-items: center; font-size: .8rem; }
+  .site-footer .social-icon { min-height: 2.5rem; min-width: 2.5rem; }
 }
 @media (max-height: 500px) {
   .church-assistant-panel { top: max(.5rem, env(safe-area-inset-top)); bottom: .5rem; height: auto; min-height: 0; }
