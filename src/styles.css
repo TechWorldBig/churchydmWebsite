@@ -289,6 +289,26 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .no-record-3d-panel { min-height: 7.5rem; padding-right: .75rem; }
   .no-record-3d-panel img { width: 5.25rem; height: 6rem; }
   .home-cta a.dark-btn { width: 100%; }
+  .site-header .group { gap: .65rem; }
+  .site-header .group > span:first-child { height: 2.75rem; width: 2.75rem; border-radius: .9rem; }
+  .site-header .group > span:last-child > span:first-child { font-size: .85rem; letter-spacing: .06em; }
+  .verse-ticker { height: 1.75rem; }
+  .verse-ticker-track span { padding: .25rem 2rem .25rem 1rem; font-size: .7rem; }
+  .page-hero { padding-top: 6.25rem; padding-bottom: 2rem; }
+  .page-hero .relative { padding-left: 1rem; padding-right: 1rem; }
+  .page-hero h1 { font-size: clamp(2rem, 11vw, 2.75rem); }
+  .page-hero p { margin-top: .75rem; font-size: .875rem; line-height: 1.55; }
+  .home-hero-content h1 { max-width: 19rem; font-size: clamp(2.5rem, 15vw, 4rem); }
+  .home-hero-content > p { max-width: 21rem; }
+  .home-cta > div { gap: 1.5rem; }
+  .home-cta > div > div:first-child, .home-cta iframe { min-height: 13rem; }
+  .home-cta > div > div:last-child { padding-top: 0; }
+  .home-cta h2 { font-size: 1.75rem; }
+  .attendance-search-card { border-radius: 1.35rem; }
+  .attendance-search-summary { border-radius: 1rem; padding: .8rem 1rem; }
+  .no-record-3d-panel { border-radius: 1rem; }
+  .admin-page .soft-card, .attendance-search-panel { border-radius: 1.35rem; }
+  .church-assistant-panel { box-shadow: 0 20px 50px rgba(0,0,0,.35); }
 }
 
 @media (min-width: 640px) and (max-width: 1023px) {
