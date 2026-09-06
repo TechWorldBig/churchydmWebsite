@@ -8,6 +8,7 @@ import { Member, ProgramPoint } from '../data/memberStore'
 import holyBibleGif from '../assets/holy-bible.gif'; import missionaryStoryWebp from '../assets/missionary-story.webp'; import musicGif from '../assets/music.gif'; import bibleQuizPng from '../assets/bible-quiz.png'; import bibleMessageGif from '../assets/bible-message.gif'; import memberMaleGif from '../assets/member-male.gif'; import memberFemaleGif from '../assets/member-female.gif'
 
 const icons = [BookOpen, UsersRound, Music2, HeartHandshake, Sparkles, CalendarDays]
+const pointPrograms = ['Bible Reference', 'Bible Quiz', 'Song Survey']
 const scoreStyle = (score: number) => ({ background: `conic-gradient(#0b9f72 ${(score / 5) * 100}%, #e5484d 0)` })
 
 export default function Programs() {
