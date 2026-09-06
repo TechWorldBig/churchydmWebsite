@@ -92,6 +92,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .home-program-symbol { display: grid; width: 4.25rem; height: 4.25rem; place-items: center; }
 .home-program-symbol img { display: block; width: 5.25rem; height: 5.25rem; object-fit: contain; filter: drop-shadow(0 6px 0 rgba(77,38,20,.18)) drop-shadow(0 14px 16px rgba(7,31,25,.16)); transform: perspective(12rem) rotateX(6deg) rotateY(-5deg); animation: program-symbol-float 3.2s ease-in-out infinite; transition: transform .25s ease, filter .25s ease; }
 .program-bible-icon img:hover, .home-program-symbol img:hover { animation-play-state: paused; }
+[alt="Bible Quiz"], [alt="Bible message"] { width: 4.65rem; height: 4.65rem; border-radius: 1rem; transform: none; animation: none; filter: drop-shadow(0 4px 0 rgba(7,31,25,.14)) drop-shadow(0 8px 12px rgba(7,31,25,.12)); }
 @keyframes program-symbol-float { 0%, 100% { transform: perspective(12rem) translateY(0) rotateX(6deg) rotateY(-5deg) rotateZ(-1deg); } 50% { transform: perspective(12rem) translateY(-.35rem) rotateX(9deg) rotateY(4deg) rotateZ(1deg); } }
 .program-card:hover .home-program-symbol img { filter: drop-shadow(0 7px 0 rgba(77,38,20,.18)) drop-shadow(0 16px 18px rgba(7,31,25,.18)); transform: perspective(12rem) translateY(-.2rem) rotateX(8deg) rotateY(-6deg); }
 .program-card:hover { background: linear-gradient(145deg, #fff, #f2faf6); }
