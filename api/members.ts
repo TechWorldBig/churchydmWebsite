@@ -3,7 +3,7 @@ import { readMutation } from './_lib/validation.js'
 import { ensureMemberGenderColumn, ensureSchema, getSql, sendError } from './_lib/db.js'
 
 export default async function handler(req: any, res: any) {
-  res.setHeader?.('Cache-Control', req.method === 'GET' ? 'public, max-age=30, stale-while-revalidate=120' : 'no-store')
+  res.setHeader?.('Cache-Control', 'no-store, no-cache, must-revalidate')
   try {
     if (req.method !== 'GET' && !await authorizeMutation(req, res)) return
     const body = req.method === 'GET' ? null : readMutation(req, res, 'members')
