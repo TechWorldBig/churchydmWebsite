@@ -33,8 +33,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .soft-card.group > .icon-box { position: relative; width: 3.5rem; height: 3.5rem; border: 1px solid rgba(5,150,105,.12); box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -4px 0 rgba(5,150,105,.1), 0 5px 0 #b6decb, 0 12px 18px rgba(7,31,25,.12); transform: perspective(12rem) rotateX(5deg) rotateY(-3deg); transition: transform .25s ease, box-shadow .25s ease; }
 .soft-card.group > .icon-box svg { width: 1.65rem; height: 1.65rem; }
 .soft-card.group:hover > .icon-box { box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -4px 0 rgba(5,150,105,.1), 0 8px 0 #94cbb0, 0 18px 24px rgba(7,31,25,.16); transform: perspective(12rem) translateY(-.2rem) rotateX(8deg) rotateY(-5deg); }
-.program-bible-icon { display: grid; width: 3.5rem; height: 3.5rem; place-items: center; }
-.program-bible-icon img { display: block; width: 4.25rem; height: 4.25rem; object-fit: contain; filter: drop-shadow(0 5px 0 rgba(77,38,20,.2)) drop-shadow(0 10px 12px rgba(7,31,25,.16)); transform: perspective(12rem) rotateX(5deg) rotateY(-4deg); transition: transform .25s ease, filter .25s ease; }
+.program-bible-icon { display: grid; width: 4.25rem; height: 4.25rem; place-items: center; }
+.program-bible-icon img { display: block; width: 5.25rem; height: 5.25rem; object-fit: contain; filter: drop-shadow(0 6px 0 rgba(77,38,20,.2)) drop-shadow(0 14px 16px rgba(7,31,25,.18)); transform: perspective(12rem) rotateX(6deg) rotateY(-5deg); animation: program-symbol-float 3.2s ease-in-out infinite; transition: transform .25s ease, filter .25s ease; }
 .soft-card.group:hover .program-bible-icon img { filter: drop-shadow(0 7px 0 rgba(77,38,20,.2)) drop-shadow(0 16px 18px rgba(7,31,25,.2)); transform: perspective(12rem) translateY(-.2rem) rotateX(8deg) rotateY(-7deg) rotateZ(-2deg); }
   .glass-dark { @apply border border-white/15 bg-black/30 backdrop-blur-xl; }
   .panorama-button { @apply grid h-12 w-12 place-items-center rounded-full border border-white/15 bg-black/35 text-white backdrop-blur-xl transition hover:bg-white hover:text-[#071f19]; }
@@ -89,8 +89,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .home-purpose .soft-card::before { position: absolute; left: 0; top: 0; height: 3px; width: 0; background: var(--gold); content: ""; transition: width .35s ease; }
 .home-purpose .soft-card:hover::before { width: 100%; }
 .program-card { background: linear-gradient(145deg, #fff, #f8faf9); }
-.home-program-symbol { display: grid; width: 3.5rem; height: 3.5rem; place-items: center; }
-.home-program-symbol img { display: block; width: 4.25rem; height: 4.25rem; object-fit: contain; filter: drop-shadow(0 5px 0 rgba(77,38,20,.18)) drop-shadow(0 10px 12px rgba(7,31,25,.14)); transform: perspective(12rem) rotateX(5deg) rotateY(-4deg); transition: transform .25s ease, filter .25s ease; }
+.home-program-symbol { display: grid; width: 4.25rem; height: 4.25rem; place-items: center; }
+.home-program-symbol img { display: block; width: 5.25rem; height: 5.25rem; object-fit: contain; filter: drop-shadow(0 6px 0 rgba(77,38,20,.18)) drop-shadow(0 14px 16px rgba(7,31,25,.16)); transform: perspective(12rem) rotateX(6deg) rotateY(-5deg); animation: program-symbol-float 3.2s ease-in-out infinite; transition: transform .25s ease, filter .25s ease; }
+.program-bible-icon img:hover, .home-program-symbol img:hover { animation-play-state: paused; }
+@keyframes program-symbol-float { 0%, 100% { transform: perspective(12rem) translateY(0) rotateX(6deg) rotateY(-5deg) rotateZ(-1deg); } 50% { transform: perspective(12rem) translateY(-.35rem) rotateX(9deg) rotateY(4deg) rotateZ(1deg); } }
 .program-card:hover .home-program-symbol img { filter: drop-shadow(0 7px 0 rgba(77,38,20,.18)) drop-shadow(0 16px 18px rgba(7,31,25,.18)); transform: perspective(12rem) translateY(-.2rem) rotateX(8deg) rotateY(-6deg); }
 .program-card:hover { background: linear-gradient(145deg, #fff, #f2faf6); }
 .home-cta { position: relative; overflow: hidden; }
@@ -152,7 +154,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 @keyframes member-figure-halo { 0%,100% { opacity: .4; transform: translateZ(-1rem) rotateX(65deg) scale(.86); } 50% { opacity: .8; transform: translateZ(-1rem) rotateX(65deg) scale(1.08); } }
 @keyframes member-figure-wave-left { 0%,100% { transform: rotate(25deg); } 50% { transform: rotate(62deg); } }
 @keyframes member-figure-wave-right { 0%,100% { transform: rotate(-25deg); } 50% { transform: rotate(-62deg); } }
-@media (prefers-reduced-motion: reduce) { .member-figure, .member-figure-halo, .member-figure-arm { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .member-figure, .member-figure-halo, .member-figure-arm, .program-bible-icon img, .home-program-symbol img { animation: none; } }
 .location-pin-3d { position: relative; display: grid; flex: 0 0 auto; place-items: center; width: 2.7rem; height: 2.7rem; margin-top: .1rem; border: 1px solid rgba(255,255,255,.5); border-radius: 1rem 1rem 1.25rem; color: #e3bc62; background: linear-gradient(145deg, #17483b, #061c17); box-shadow: inset 0 1px 1px rgba(255,255,255,.18), inset 0 -5px 8px rgba(0,0,0,.25), 0 9px 0 #092a22, 0 16px 19px rgba(7,31,25,.26); transform: perspective(180px) rotateX(8deg) rotateY(-10deg); animation: location-pin-float 2.7s ease-in-out infinite; }
 .location-pin-3d::after { position: absolute; bottom: -1rem; left: .4rem; width: 1.9rem; height: .4rem; border-radius: 999px; background: rgba(7,31,25,.28); content: ""; filter: blur(2px); animation: location-pin-shadow 2.7s ease-in-out infinite; }
 .location-pin-3d svg { position: relative; z-index: 1; filter: drop-shadow(0 2px 1px rgba(0,0,0,.3)); }
