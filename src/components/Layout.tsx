@@ -64,8 +64,8 @@ export default function Layout({ children }: { children: ReactNode }) {
         </div>
         <div className="verse-ticker verse-ticker-updated" role="marquee" aria-label="Psalm 127:5 in English, Tamil, and Malayalam">
           <div className="verse-ticker-track" aria-hidden="true">
-            <span>Happy is the man that hath his quiver full of them: they shall not be ashamed, but they shall speak with the enemies in the gate. <b>Psalm 127:5</b> &nbsp;|&nbsp; ஆதவயதின் குமாரர் பலவான் கையிலுள்ள அம்புகளுக்கு ஒப்பாயிருக்கிறார்கள். <b>சங்கீதம் 127:5</b> &nbsp;|&nbsp; ആവനാഴി നിറഞ്ഞിരിക്കുന്ന മനുഷ്യൻ ഭാഗ്യവാൻ. പടിവാതിൽക്കൽവെച്ചു ശത്രുക്കളോടു തർക്കിക്കുമ്പോൾ അവർ ലജ്ജിച്ചുപോകയില്ല. <b>സങ്കീർത്തനങ്ങൾ 127:5</b></span>
-            <span aria-hidden="true">Happy is the man that hath his quiver full of them: they shall not be ashamed, but they shall speak with the enemies in the gate. <b>Psalm 127:5</b> &nbsp;|&nbsp; ஆதவயதின் குமாரர் பலவான் கையிலுள்ள அம்புகளுக்கு ஒப்பாயிருக்கிறார்கள். <b>சங்கீதம் 127:5</b> &nbsp;|&nbsp; ആവനാഴി നിറഞ്ഞിരിക്കുന്ന മനുഷ്യൻ ഭാഗ്യവാൻ. പടിവാതിൽക്കൽവെച്ചു ശത്രുക്കളോടു തർക്കിക്കുമ്പോൾ അവർ ലജ്ജിച്ചുപോകയില്ല. <b>സങ്കീർത്തനങ്ങൾ 127:5</b></span>
+            <span>Happy is the man that hath his quiver full of them: they shall not be ashamed, but they shall speak with the enemies in the gate. <b>Psalm 127:5</b> &nbsp;|&nbsp; வாலவயதின் குமாரர் பலவான் கையிலுள்ள அம்புகளுக்கு ஒப்பாயிருக்கிறார்கள். <b>சங்கீதம் 127:5</b> &nbsp;|&nbsp; ആവനാഴி നിറഞ്ഞിരിക്കുന്ന മനുഷ്യൻ ഭാഗ്യവാൻ. പടിവാതിൽക്കൽവെച്ചു ശത്രുക്കളോടു തർക്കിക്കുമ്പോൾ അവർ ലജ്ജിച്ചുപോകയില്ല. <b>സങ്കീർത്തനങ്ങൾ 127:5</b></span>
+            <span aria-hidden="true">Happy is the man that hath his quiver full of them: they shall not be ashamed, but they shall speak with the enemies in the gate. <b>Psalm 127:5</b> &nbsp;|&nbsp; வாலவயதின் குமாரர் பலவான் கையிலுள்ள அம்புகளுக்கு ஒப்பாயிருக்கிறார்கள். <b>சங்கீதம் 127:5</b> &nbsp;|&nbsp; ആവനാഴി നിറഞ്ഞിരിക്കുന്ന മനുഷ്യൻ ഭാഗ്യവാൻ. പടിവാതിൽക്കൽവെച്ചു ശത്രുക്കളോടു തർക്കിക്കുമ്പോൾ അവർ ലജ്ജിച്ചുപോകയില്ല. <b>സങ്കീർത്തനങ്ങൾ 127:5</b></span>
           </div>
         </div>
         <AnimatePresence>
