@@ -5,7 +5,8 @@
 .grid > * { min-width: 0; }
 img { display: block; max-width: 100%; }
 html { scroll-behavior: smooth; }
-body { margin: 0; min-width: 320px; background: radial-gradient(circle at 10% 10%, rgba(227,188,98,.13), transparent 28rem), radial-gradient(circle at 90% 35%, rgba(16,185,129,.06), transparent 32rem), #faf9f6; }
+html, body, #root { min-height: 100%; }
+body { margin: 0; min-width: 320px; min-height: 100dvh; background: radial-gradient(circle at 10% 10%, rgba(227,188,98,.13), transparent 28rem), radial-gradient(circle at 90% 35%, rgba(16,185,129,.06), transparent 32rem), #faf9f6; }
 body { overflow-x: hidden; }
 button, a, input, textarea, select { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
@@ -57,6 +58,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .home-cta { position: relative; overflow: hidden; }
 .home-cta::after { position: absolute; right: -5rem; top: -8rem; height: 22rem; width: 22rem; border: 1px solid rgba(7,31,25,.12); border-radius: 9999px; content: ""; }
 .home-cta > div { position: relative; z-index: 1; }
+.home-cta a.dark-btn { border: 1px solid rgba(255,255,255,.22); box-shadow: inset 0 1px 1px rgba(255,255,255,.18), 0 7px 0 #0a382d, 0 16px 24px rgba(7,31,25,.22); transform: perspective(18rem) rotateX(4deg); transition: transform .25s ease, box-shadow .25s ease, background-color .25s ease; }
+.home-cta a.dark-btn:hover { box-shadow: inset 0 1px 1px rgba(255,255,255,.18), 0 10px 0 #0a382d, 0 22px 28px rgba(7,31,25,.25); transform: perspective(18rem) translateY(-.2rem) rotateX(6deg); }
+.home-cta a.dark-btn:active { box-shadow: inset 0 2px 5px rgba(0,0,0,.28), 0 2px 0 #0a382d; transform: translateY(.3rem) perspective(18rem) rotateX(3deg); }
 .attendance-search-panel { position: relative; overflow: hidden; transform: perspective(1000px) rotateX(.35deg); }
 .attendance-search-panel > * { position: relative; z-index: 1; }
 .calendar-control-3d { position: relative; display: block; transform: perspective(18rem) rotateX(2deg); transition: transform .25s ease; }
@@ -122,6 +126,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .site-footer > div { position: relative; z-index: 1; }
 .site-footer > div:first-child { padding-top: .75rem; padding-bottom: .75rem; }
 .site-footer > div:first-child > div { align-self: start; }
+.footer-content { grid-template-columns: minmax(0, 1fr); align-items: start; }
+.footer-brand { max-width: 42rem; }
+.footer-explore > div { align-items: start; }
+.footer-connect { justify-self: start; }
 .site-footer h3 { margin-bottom: .45rem; }
 .site-footer .footer-link { line-height: 1.35; }
 .site-footer p { line-height: 1.55; }
@@ -245,6 +253,17 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   #panorama-stage > img { height: min(60vw, 420px); bottom: auto; object-fit: contain; background: #031611; }
   #panorama-stage > div:nth-of-type(1), #panorama-stage > div:nth-of-type(2) { height: min(60vw, 420px); bottom: auto; }
   #panorama-stage > div:last-child { top: min(60vw, 420px); bottom: auto; height: 96px; padding: 12px 20px; background: #071f19; }
+  .attendance-search-panel { transform: none; }
+  .attendance-page > .mx-auto > div:first-child { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .attendance-page > .mx-auto > div:first-child > article:last-child { grid-column: 1 / -1; }
+  .attendance-member-visual { gap: .85rem; min-height: 8rem; }
+  .member-gif-figure { width: 6.25rem; height: 6.75rem; }
+  .member-gif-figure img { height: 6.75rem; }
+  .attendance-year-chart { width: 5rem; height: 5rem; }
+  .attendance-year-chart span { width: 3.55rem; height: 3.55rem; }
+  .no-record-3d-panel { min-height: 7.5rem; padding-right: .75rem; }
+  .no-record-3d-panel img { width: 5.25rem; height: 6rem; }
+  .home-cta a.dark-btn { width: 100%; }
 }
 
 @media (min-width: 640px) and (max-width: 1023px) {
@@ -269,6 +288,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 @media (min-width: 1024px) {
   .site-header nav a { letter-spacing: .01em; }
   .site-footer > div:first-child { gap: 1.25rem; padding-top: .75rem; padding-bottom: .75rem; }
+  .footer-content { grid-template-columns: minmax(0, 1.45fr) minmax(20rem, .95fr) minmax(9rem, .42fr); column-gap: clamp(2rem, 5vw, 5rem); }
   .page-hero h1 { max-width: 56rem; }
   .home-cta { padding-top: 1.75rem; padding-bottom: 1.75rem; }
   main > section:not(.page-hero) { padding-top: 5rem; padding-bottom: 5rem; }
@@ -306,4 +326,18 @@ input, select, textarea { min-width: 0; }
 @media (max-height: 500px) {
   .church-assistant-panel { top: max(.5rem, env(safe-area-inset-top)); bottom: .5rem; height: auto; min-height: 0; }
   .church-assistant-fab:has(+ .church-assistant-panel) { visibility: hidden; }
+}
+
+@media (max-width: 374px) {
+  .content-wrap { padding-left: .875rem; padding-right: .875rem; }
+  .attendance-page > .mx-auto { padding-left: .875rem; padding-right: .875rem; }
+  .attendance-page .soft-card { padding: .8rem; }
+  .attendance-page .soft-card p:first-of-type { font-size: 1.35rem; }
+  .attendance-member-visual { gap: .5rem; }
+  .member-gif-figure { width: 5.65rem; }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .soft-card:hover, .attendance-search-card:hover, .member-gif-figure:hover, .member-name-field-3d:hover, .calendar-control-3d:hover { transform: none; }
+  .soft-card:hover, .attendance-search-card:hover { box-shadow: 0 10px 0 rgba(15,23,42,.035), 0 18px 30px rgba(7,31,25,.07); }
 }
