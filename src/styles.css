@@ -196,6 +196,7 @@ input[type='date']:active { transform: perspective(20rem) translateY(.18rem) rot
 .attendance-member-card { display: grid; grid-template-columns: minmax(11rem, 32%) minmax(0, 1fr); gap: 1.75rem; align-items: start; }
 .attendance-member-card > .attendance-member-banner { grid-column: 1; grid-row: 1 / span 4; width: 100%; height: 100%; min-height: 22rem; margin: 0; border-radius: 1.25rem; }
 .attendance-member-card > .attendance-member-banner img { height: 100%; width: 100%; object-fit: cover; }
+.attendance-member-card > .attendance-member-banner img, .soft-card.overflow-hidden.p-0 > div.h-52 img { object-fit: contain; background: #eef3f5; }
 .attendance-member-card > .attendance-member-banner + div, .attendance-member-card > .attendance-member-visual, .attendance-member-card > .attendance-search-summary, .attendance-member-card > div:last-child { grid-column: 2; }
 .attendance-member-card > .attendance-member-banner + div { padding-top: .35rem; }
 .attendance-member-card > .attendance-member-visual { min-height: 8.5rem; }
