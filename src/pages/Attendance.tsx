@@ -11,7 +11,7 @@ import noRecordFemale from '../assets/no-record-female.png'
 const formatDate = (value: string) => new Date(`${value}T00:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
 const formatDateTime = (value: string) => new Date(value).toLocaleString(undefined, { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' })
 const memberInitials = (name: string) => name.split(/\s+/u).filter(Boolean).slice(0, 2).map(part => part[0]).join('').toUpperCase()
-const isFemale = (gender: string) => gender.trim().toLocaleLowerCase() === 'female'
+const memberGender = (gender: string): 'female' | 'male' => gender.trim().toLocaleLowerCase() === 'female' ? 'female' : 'male'
 
 export default function Attendance() {
   const [members, setMembers] = useState<Member[]>([])
@@ -116,7 +116,7 @@ export default function Attendance() {
               </div>
               <div className="attendance-member-visual mt-5">
                 <div className="member-gif-figure">
-                  <img src={isFemale(member.gender) ? memberFemaleGif : memberMaleGif} alt={`${isFemale(member.gender) ? 'Female' : 'Male'} member animation`} />
+                  <img src={memberGender(member.gender) === 'female' ? memberFemaleGif : memberMaleGif} alt={`${memberGender(member.gender) === 'female' ? 'Female' : 'Male'} member animation`} />
                 </div>
                 <div className="flex flex-col items-center gap-2">
                   <div className="attendance-year-chart" style={{ background: `conic-gradient(#059669 0 ${annualPercentage}%, #ef4444 ${annualPercentage}% 100%)` }} aria-label={`${year} attendance: ${annualPercentage}% present`}><span>{annualPercentage}%</span></div>
@@ -125,7 +125,7 @@ export default function Attendance() {
               </div>
               <div className="attendance-search-summary mt-5 flex flex-wrap justify-center gap-4 text-xs font-bold"><span className="text-emerald-700">Present: {present}</span><span className="text-rose-600">Absent: {absent}</span></div>
               <div className="mt-5 border-t border-slate-200 pt-4"><p className="mb-3 text-xs font-bold uppercase tracking-[.14em] text-slate-500">Attendance history</p>
-                {matchingRecords.length === 0 ? <div className="no-record-3d-panel"><img src={isFemale(member.gender) ? noRecordFemale : noRecordMale} alt="No attendance record illustration" /><div><p className="text-sm font-black text-white">No attendance record found</p><p className="mt-1 text-xs leading-5 text-white/65">There is no saved attendance for the selected date range.</p></div></div> : <div className="grid max-h-56 gap-2 overflow-y-auto pr-1">{matchingRecords.map(record => <div key={record.id} className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm font-semibold ${record.present ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-700'}`}><span>{formatDate(record.date)}</span><span>{record.present ? 'Present' : 'Absent'}</span></div>)}</div>}
+                {matchingRecords.length === 0 ? <div className="no-record-3d-panel"><img src={memberGender(member.gender) === 'female' ? noRecordFemale : noRecordMale} alt={`${memberGender(member.gender) === 'female' ? 'Female' : 'Male'} member has no attendance record`} /><div><p className="text-sm font-black text-white">No attendance record found</p><p className="mt-1 text-xs leading-5 text-white/65">There is no saved attendance for the selected date range.</p></div></div> : <div className="grid max-h-56 gap-2 overflow-y-auto pr-1">{matchingRecords.map(record => <div key={record.id} className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm font-semibold ${record.present ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-700'}`}><span>{formatDate(record.date)}</span><span>{record.present ? 'Present' : 'Absent'}</span></div>)}</div>}
               </div>
             </article>)}
           </div>}

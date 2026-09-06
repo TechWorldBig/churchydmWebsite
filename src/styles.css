@@ -105,8 +105,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .attendance-member-visual { display: flex; align-items: center; justify-content: center; gap: 1.5rem; min-height: 9.4rem; }
 .member-gif-figure { display: grid; width: 7.75rem; height: 8rem; place-items: end center; overflow: hidden; background: transparent; }
 .member-gif-figure img { display: block; width: auto; height: 8rem; max-width: none; mix-blend-mode: multiply; }
-.no-record-3d-panel { display: flex; min-height: 8.5rem; align-items: center; gap: .85rem; overflow: hidden; border-radius: 1.25rem; background: radial-gradient(circle at 15% 50%, #57413b, transparent 45%), #100d0e; padding: .75rem 1rem .75rem .6rem; box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 9px 18px rgba(7,31,25,.13); }
-.no-record-3d-panel img { width: 6.1rem; height: 7rem; flex: 0 0 auto; object-fit: cover; object-position: center; mix-blend-mode: screen; }
+.no-record-3d-panel { display: flex; min-height: 10rem; align-items: center; gap: 1rem; overflow: hidden; border-radius: 1.25rem; background: radial-gradient(circle at 15% 50%, #57413b, transparent 45%), #100d0e; padding: .6rem 1.25rem .6rem .65rem; box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 9px 18px rgba(7,31,25,.13); }
+.no-record-3d-panel img { width: 7rem; height: 9rem; flex: 0 0 auto; object-fit: contain; object-position: center; mix-blend-mode: screen; }
 .member-figure { position: relative; width: 6.2rem; height: 8.35rem; filter: drop-shadow(0 .65rem .45rem rgba(7,31,25,.22)); transform-style: preserve-3d; animation: member-figure-bounce 2.8s ease-in-out infinite; }
 .member-figure span { position: absolute; display: block; }
 .member-figure-halo { inset: .5rem .3rem 1.1rem; border: 1px solid rgba(227,188,98,.52); border-radius: 999px; transform: translateZ(-1rem) rotateX(65deg); animation: member-figure-halo 2.8s ease-in-out infinite; }
@@ -287,8 +287,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .member-gif-figure img { height: 6.75rem; }
   .attendance-year-chart { width: 5rem; height: 5rem; }
   .attendance-year-chart span { width: 3.55rem; height: 3.55rem; }
-  .no-record-3d-panel { min-height: 7.5rem; padding-right: .75rem; }
-  .no-record-3d-panel img { width: 5.25rem; height: 6rem; }
+  .no-record-3d-panel { min-height: 8rem; gap: .7rem; padding: .5rem .75rem .5rem .45rem; }
+  .no-record-3d-panel img { width: 5.75rem; height: 7rem; }
   .home-cta a.dark-btn { width: 100%; }
   .site-header .group { gap: .65rem; }
   .site-header .group > span:first-child { height: 2.75rem; width: 2.75rem; border-radius: .9rem; }
