@@ -107,7 +107,7 @@ export default function Attendance() {
           {searchNotice && <p role="alert" className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">{searchNotice}</p>}
 
           {hasSearched && <div className="mt-7 grid gap-5 lg:grid-cols-2">
-            {searchedMembers.length === 0 ? <p className="rounded-2xl border border-dashed border-slate-300 p-5 text-sm text-slate-500">No member matches this name.</p> : searchedMembers.map(({ member, matchingRecords, present, absent, percentage: annualPercentage }) => <article key={member.id} className="attendance-search-card overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 sm:p-6">
+            {searchedMembers.length === 0 ? <p className="rounded-2xl border border-dashed border-slate-300 p-5 text-sm text-slate-500">No member matches this name.</p> : searchedMembers.map(({ member, matchingRecords, present, absent, percentage: annualPercentage }) => <article key={member.id} className="attendance-search-card attendance-member-card overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 sm:p-6">
               <div className="attendance-member-banner -m-5 mb-5 grid h-40 place-items-center sm:-m-6 sm:mb-6 sm:h-48">{member.photo ? <img src={member.photo} alt={`${member.name} profile`} className="h-full w-full object-cover" /> : <span>{memberInitials(member.name)}</span>}</div>
               <div>
                 <p className="text-center text-xs font-bold uppercase tracking-[.18em] text-emerald-700">{member.role || 'YDM member'}</p>
