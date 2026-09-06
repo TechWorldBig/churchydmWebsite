@@ -104,9 +104,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .admin-page > .mx-auto > .soft-card.mt-6 { width: calc(50% - .625rem); float: left; }
   .admin-page > .mx-auto > .admin-gallery-inline { width: calc(50% - .625rem); float: right; margin-top: 1.5rem; }
   .admin-page > .mx-auto::after { display: block; clear: both; content: ''; }
-  .admin-page > .mx-auto > .grid.lg\:grid-cols-\[420px_1fr\] > .grid.min-w-0 { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
-  .admin-page > .mx-auto > .grid.lg\:grid-cols-\[420px_1fr\] > .grid.min-w-0 > .soft-card:first-child { grid-column: 1 / -1; }
-  .admin-page > .mx-auto > .grid.lg\:grid-cols-\[420px_1fr\] > .grid.min-w-0 > .overflow-hidden { min-width: 0; }
+  .admin-page > .mx-auto > .grid.lg\:grid-cols-\[420px_1fr\] > .grid.min-w-0 { grid-template-columns: minmax(0, 1fr); align-items: stretch; }
 }
 @media (max-width: 639px) {
   .admin-page .attendance-entry-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
