@@ -92,12 +92,22 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .admin-page aside .flex.gap-2 > button { min-width: 0; }
 .admin-page .admin-program-points-form { min-width: 0; }
 .admin-page .admin-program-points-form .field { width: 100%; }
+.admin-page .attendance-entry-grid { grid-template-columns: minmax(0, 1.4fr) 150px 125px minmax(0, 1fr) auto; align-items: end; }
+.admin-page .attendance-entry-grid select, .admin-page .attendance-entry-grid input { min-width: 0; }
+.admin-page .grid.sm\:grid-cols-2.xl\:grid-cols-\[1fr_150px_120px\] { grid-template-columns: minmax(0, 1.4fr) 150px 125px minmax(0, 1fr) auto; align-items: end; }
+.admin-page .overflow-hidden > .flex.flex-col.gap-3.border-b { min-width: 0; align-items: stretch; }
+.admin-page .attendance-table-toolbar { min-width: 0; align-items: stretch; }
+.admin-page .attendance-table-toolbar > div { min-width: 0; }
 @media (min-width: 1024px) {
   .admin-page > .mx-auto > .grid.lg\:grid-cols-\[420px_1fr\] > .grid.min-w-0 { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
   .admin-page > .mx-auto > .grid.lg\:grid-cols-\[420px_1fr\] > .grid.min-w-0 > .soft-card:first-child { grid-column: 1 / -1; }
   .admin-page > .mx-auto > .grid.lg\:grid-cols-\[420px_1fr\] > .grid.min-w-0 > .overflow-hidden { min-width: 0; }
 }
 @media (max-width: 639px) {
+  .admin-page .attendance-entry-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .admin-page .attendance-entry-grid > :first-child, .admin-page .attendance-entry-grid > :nth-child(4) { grid-column: 1 / -1; }
+  .admin-page .attendance-entry-grid > button { width: 100%; }
+  .admin-page .grid.sm\:grid-cols-2.xl\:grid-cols-\[1fr_150px_120px\] { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .admin-page table { min-width: 0 !important; font-size: .68rem; }
   .admin-page th, .admin-page td { padding: .55rem .35rem; white-space: normal; overflow-wrap: anywhere; }
   .admin-page .overflow-x-auto { overflow-x: hidden; }
