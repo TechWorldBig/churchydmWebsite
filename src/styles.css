@@ -85,6 +85,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .admin-page .field { min-width: 0; }
 .admin-page .grid.lg\:grid-cols-\[420px_1fr\] { align-items: start; }
 .admin-page table { border-collapse: separate; border-spacing: 0; }
+.admin-page table { width: 100%; table-layout: fixed; }
 .admin-page th { font-weight: 800; }
 .admin-page .primary-btn, .admin-page .secondary-dark-btn { min-height: 2.9rem; }
 .admin-page aside .flex.gap-2 { align-items: stretch; }
@@ -95,6 +96,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .admin-page > .mx-auto > .grid.lg\:grid-cols-\[420px_1fr\] > .grid.min-w-0 { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
   .admin-page > .mx-auto > .grid.lg\:grid-cols-\[420px_1fr\] > .grid.min-w-0 > .soft-card:first-child { grid-column: 1 / -1; }
   .admin-page > .mx-auto > .grid.lg\:grid-cols-\[420px_1fr\] > .grid.min-w-0 > .overflow-hidden { min-width: 0; }
+}
+@media (max-width: 639px) {
+  .admin-page table { min-width: 0 !important; font-size: .68rem; }
+  .admin-page th, .admin-page td { padding: .55rem .35rem; white-space: normal; overflow-wrap: anywhere; }
+  .admin-page .overflow-x-auto { overflow-x: hidden; }
 }
 .admin-login .primary-btn { position: relative; isolation: isolate; overflow: hidden; border: 1px solid rgba(255,255,255,.28); box-shadow: inset 0 1px 1px rgba(255,255,255,.34), inset 0 -3px 0 rgba(124,79,7,.2), 0 7px 0 #af7e23, 0 16px 24px rgba(7,31,25,.16); transform: perspective(18rem) rotateX(4deg); transition: transform .25s ease, box-shadow .25s ease; }
 .admin-login .primary-btn:hover { box-shadow: inset 0 1px 1px rgba(255,255,255,.34), inset 0 -3px 0 rgba(124,79,7,.2), 0 10px 0 #af7e23, 0 22px 28px rgba(7,31,25,.2); transform: perspective(18rem) translateY(-.25rem) rotateX(7deg); }
