@@ -34,6 +34,7 @@ export async function ensureSchema() {
     `
     await sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS gender TEXT NOT NULL DEFAULT ''`
     await sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS seniority TEXT NOT NULL DEFAULT ''`
+    await sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS photo_name TEXT NOT NULL DEFAULT ''`
     await sql`
     CREATE TABLE IF NOT EXISTS attendance (
       id TEXT PRIMARY KEY,
