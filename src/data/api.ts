@@ -1,4 +1,4 @@
-import { AttendanceRecord, GalleryPhoto, Member } from './memberStore'
+import { AttendanceRecord, GalleryPhoto, Member, ProgramPoint } from './memberStore'
 
 export type AssistantTurn = {
   role: 'user' | 'assistant'
@@ -14,6 +14,8 @@ const request = async <T>(url: string, options?: RequestInit): Promise<T> => {
 
 export const getMembers = () => request<Member[]>('/api/members')
 export const getAttendance = () => request<AttendanceRecord[]>('/api/attendance')
+export const getProgramPoints = (filters?: { name?: string; program?: string; from?: string; to?: string }) => { const params = new URLSearchParams(); Object.entries(filters || {}).forEach(([key, value]) => value && params.set(key, value)); return request<ProgramPoint[]>(`/api/program-points${params.toString() ? `?${params}` : ''}`) }
+export const saveProgramPoint = (point: ProgramPoint) => request<{ ok: boolean }>('/api/program-points', { method: 'POST', body: JSON.stringify(point) })
 export const getLastUpdated = () => request<{ value: string | null }>('/api/updated')
 export const createMember = (member: Member) => request<{ ok: boolean }>('/api/members', { method: 'POST', body: JSON.stringify(member) })
 export const updateMember = (member: Member) => request<{ ok: boolean }>('/api/members', { method: 'PUT', body: JSON.stringify(member) })

@@ -46,6 +46,7 @@ export async function ensureSchema() {
       UNIQUE(member_id, date)
     )
     `
+    await sql`CREATE TABLE IF NOT EXISTS program_points (id TEXT PRIMARY KEY, member_id TEXT NOT NULL REFERENCES members(id) ON DELETE CASCADE, name TEXT NOT NULL, program TEXT NOT NULL, date TEXT NOT NULL, score INTEGER NOT NULL CHECK (score >= 0 AND score <= 5), created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`
     await sql`
     CREATE TABLE IF NOT EXISTS system_metadata (
       key TEXT PRIMARY KEY,

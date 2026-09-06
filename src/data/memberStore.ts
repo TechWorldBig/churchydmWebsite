@@ -21,6 +21,8 @@ export type AttendanceRecord = {
   note: string
 }
 
+export type ProgramPoint = { id: string; memberId: string; name: string; program: string; date: string; score: number }
+
 export type GalleryPhoto = {
   id: string
   photo: string
