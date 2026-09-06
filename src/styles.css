@@ -199,6 +199,11 @@ input[type='date']:active { transform: perspective(20rem) translateY(.18rem) rot
 .attendance-member-card > .attendance-member-banner img, .soft-card.overflow-hidden.p-0 > div.h-52 img { object-fit: contain; object-position: center; background: #eef3f5; }
 .soft-card.overflow-hidden.p-0 > div.h-52 { height: auto; min-height: 0; background: #dfeaf0; }
 .soft-card.overflow-hidden.p-0 > div.h-52 img { height: auto; max-height: none; }
+.soft-card.overflow-hidden.p-0 { display: flex; min-height: 25rem; flex-direction: column; }
+.soft-card.overflow-hidden.p-0 > div.h-52 { display: grid; height: 17rem; min-height: 17rem; place-items: center; overflow: hidden; }
+.soft-card.overflow-hidden.p-0 > div.h-52 img { height: 100%; width: 100%; max-height: 100%; object-fit: contain; }
+.soft-card.overflow-hidden.p-0 > div.p-6 { flex: 1; }
+@media (max-width: 767px) { .soft-card.overflow-hidden.p-0 { min-height: 22rem; } .soft-card.overflow-hidden.p-0 > div.h-52 { height: 14rem; min-height: 14rem; } .soft-card.overflow-hidden.p-0 > div.h-52 img { height: 100% !important; } }
 .attendance-member-card > .attendance-member-banner + div, .attendance-member-card > .attendance-member-visual, .attendance-member-card > .attendance-search-summary, .attendance-member-card > div:last-child { grid-column: 2; }
 .attendance-member-card > .attendance-member-banner + div { padding-top: .35rem; }
 .attendance-member-card > .attendance-member-visual { min-height: 8.5rem; }
