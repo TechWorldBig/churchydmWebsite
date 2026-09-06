@@ -1,4 +1,4 @@
-import { ArrowRight, BookOpen, HandHeart, MapPin, Sparkles, UsersRound } from 'lucide-react'
+import { ArrowRight, BookMarked, HandHeart, MapPin, Sparkles, UsersRound } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import PanoramaExperience from '../components/PanoramaExperience'
 import { programs } from '../data/siteData'
@@ -7,7 +7,7 @@ import missionaryStoryWebp from '../assets/missionary-story.webp'
 import musicGif from '../assets/music.gif'
 
 const pillars = [
-  { icon: BookOpen, title: 'Grow in the Word', text: 'Build a strong Biblical foundation through learning, discussion and discipleship.' },
+  { icon: BookMarked, title: 'Grow in the Word', text: 'Build a strong Biblical foundation through learning, discussion and discipleship.' },
   { icon: UsersRound, title: 'Belong Together', text: 'Create meaningful friendships and a youth community where everyone can participate.' },
   { icon: HandHeart, title: 'Serve with Purpose', text: 'Use our gifts in church and community through compassion, outreach and leadership.' },
 ]
