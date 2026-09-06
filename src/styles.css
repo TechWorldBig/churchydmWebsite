@@ -94,6 +94,11 @@ input[type='date']:active { transform: perspective(20rem) translateY(.18rem) rot
 .admin-page .grid.lg\:grid-cols-\[420px_1fr\] { align-items: start; }
 .admin-page table { border-collapse: separate; border-spacing: 0; }
 .admin-page table { width: 100%; table-layout: fixed; }
+.admin-page .attendance-table-scroll tbody { display: block; max-height: 31.5rem; overflow-y: auto; }
+.admin-page .attendance-table-scroll thead, .admin-page .attendance-table-scroll tbody tr { display: table; width: 100%; table-layout: fixed; }
+.admin-page .attendance-table-scroll tbody tr { min-height: 4.5rem; }
+.admin-page > .mx-auto > .grid.lg\:grid-cols-\[420px_1fr\] > .grid.min-w-0 > .overflow-hidden.rounded-3xl.border.border-slate-200.bg-white.shadow-sm tbody { display: block; max-height: 31.5rem; overflow-y: auto; }
+.admin-page > .mx-auto > .grid.lg\:grid-cols-\[420px_1fr\] > .grid.min-w-0 > .overflow-hidden.rounded-3xl.border.border-slate-200.bg-white.shadow-sm thead, .admin-page > .mx-auto > .grid.lg\:grid-cols-\[420px_1fr\] > .grid.min-w-0 > .overflow-hidden.rounded-3xl.border.border-slate-200.bg-white.shadow-sm tbody tr { display: table; width: 100%; table-layout: fixed; }
 .admin-page th { font-weight: 800; }
 .admin-page .primary-btn, .admin-page .secondary-dark-btn { min-height: 2.9rem; }
 .admin-page aside .flex.gap-2 { align-items: stretch; }
