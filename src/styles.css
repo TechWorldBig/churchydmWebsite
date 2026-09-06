@@ -88,6 +88,7 @@ input[type='date']::-webkit-calendar-picker-indicator { cursor: pointer; filter:
 .admin-page .field-label { min-width: 0; }
 .admin-page .field { min-width: 0; }
 .admin-page .text-slate-400 { color: #64748b; }
+.admin-page select option[value='Other'], .admin-page select option[value='Prefer not to say'] { display: none; }
 .admin-page .grid.lg\:grid-cols-\[420px_1fr\] { align-items: start; }
 .admin-page table { border-collapse: separate; border-spacing: 0; }
 .admin-page table { width: 100%; table-layout: fixed; }

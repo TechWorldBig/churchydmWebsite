@@ -10,7 +10,7 @@ export function readMutation(req: any, res: any, kind: 'members' | 'attendance' 
     if (!body || Array.isArray(body) || !text(body.id, 100, true)) throw new Error()
     if (req.method !== 'DELETE') {
       if (kind === 'members') {
-        if (!text(body.name, 100, true) || !['role', 'email', 'phone', 'address', 'focus'].every(key => body[key] === undefined || text(body[key], key === 'focus' ? 2000 : 300)) || (body.gender !== undefined && !['', 'Male', 'Female', 'Other', 'Prefer not to say'].includes(body.gender)) || (body.seniority !== undefined && !['', 'Junior', 'Senior'].includes(body.seniority)) || (body.dateOfBirth && !date(body.dateOfBirth)) || !photo(body.photo || '')) throw new Error()
+        if (!text(body.name, 100, true) || !['role', 'email', 'phone', 'address', 'focus'].every(key => body[key] === undefined || text(body[key], key === 'focus' ? 2000 : 300)) || (body.gender !== undefined && !['', 'Male', 'Female'].includes(body.gender)) || (body.seniority !== undefined && !['', 'Junior', 'Senior'].includes(body.seniority)) || (body.dateOfBirth && !date(body.dateOfBirth)) || !photo(body.photo || '')) throw new Error()
       } else if (kind === 'attendance') {
         if (typeof body.present !== 'boolean' || (body.note !== undefined && !text(body.note, 2000))) throw new Error()
         if (req.method === 'POST' && (!text(body.memberId, 100, true) || !text(body.name, 100, true) || !date(body.date))) throw new Error()
