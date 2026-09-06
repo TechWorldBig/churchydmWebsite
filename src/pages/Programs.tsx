@@ -5,7 +5,7 @@ import PageHero from '../components/PageHero'
 import { programs } from '../data/siteData'
 import { getMembers, getProgramPoints } from '../data/api'
 import { Member, ProgramPoint } from '../data/memberStore'
-import holyBibleGif from '../assets/holy-bible.gif'; import missionaryStoryWebp from '../assets/missionary-story.webp'; import musicGif from '../assets/music.gif'; import bibleQuizPng from '../assets/bible-quiz.png'; import bibleMessageGif from '../assets/bible-message.gif'; import memberMaleGif from '../assets/member-male.gif'; import memberFemaleGif from '../assets/member-female.gif'
+import holyBibleGif from '../assets/holy-bible.gif'; import missionaryStoryWebp from '../assets/missionary-story.webp'; import musicGif from '../assets/music.gif'; import bibleQuizPng from '../assets/bible-quiz.png'; import bibleMessageGif from '../assets/bible-message.gif'; import memberMaleGif from '../assets/member-male-transparent.png'; import memberFemaleGif from '../assets/member-female-transparent.png'
 const icons = [BookOpen, UsersRound, Music2, HeartHandshake, Sparkles, CalendarDays]; const scoreStyle = (score: number) => ({ background: `conic-gradient(#0b9f72 ${(score / 5) * 100}%, #e5484d 0)` })
 export default function Programs() {
   const [members, setMembers] = useState<Member[]>([]); const [points, setPoints] = useState<ProgramPoint[]>([]); const [name, setName] = useState(''); const [program, setProgram] = useState(''); const [from, setFrom] = useState(''); const [to, setTo] = useState(''); const [searched, setSearched] = useState(false); const [notice, setNotice] = useState('')
