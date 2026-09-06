@@ -49,6 +49,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .page-hero .eyebrow { text-shadow: 0 0 22px rgba(227,188,98,.25); }
 .page-hero .relative { animation: hero-rise .75s cubic-bezier(.22,1,.36,1) both; }
 .home-hero-content { text-shadow: 0 3px 28px rgba(0,0,0,.2); }
+.home-hero-content .primary-btn, .home-hero-content .secondary-btn { position: relative; isolation: isolate; overflow: hidden; border-width: 1px; transform: perspective(18rem) rotateX(4deg); transition: transform .25s ease, box-shadow .25s ease, background-color .25s ease; }
+.home-hero-content .primary-btn { border-color: rgba(255,255,255,.28); box-shadow: inset 0 1px 1px rgba(255,255,255,.34), inset 0 -3px 0 rgba(124,79,7,.2), 0 7px 0 #af7e23, 0 16px 24px rgba(0,0,0,.28); }
+.home-hero-content .secondary-btn { box-shadow: inset 0 1px 1px rgba(255,255,255,.22), inset 0 -3px 0 rgba(0,0,0,.22), 0 7px 0 rgba(0,0,0,.38), 0 16px 24px rgba(0,0,0,.25); }
+.home-hero-content .primary-btn::after, .home-hero-content .secondary-btn::after { position: absolute; z-index: -1; top: 0; left: 12%; width: 76%; height: 48%; border-radius: 999px; background: linear-gradient(to bottom, rgba(255,255,255,.2), transparent); content: ''; }
+.home-hero-content .primary-btn:hover, .home-hero-content .secondary-btn:hover { transform: perspective(18rem) translateY(-.25rem) rotateX(7deg); }
+.home-hero-content .primary-btn:hover { box-shadow: inset 0 1px 1px rgba(255,255,255,.34), inset 0 -3px 0 rgba(124,79,7,.2), 0 10px 0 #af7e23, 0 22px 28px rgba(0,0,0,.3); }
+.home-hero-content .secondary-btn:hover { box-shadow: inset 0 1px 1px rgba(255,255,255,.22), inset 0 -3px 0 rgba(0,0,0,.22), 0 10px 0 rgba(0,0,0,.38), 0 22px 28px rgba(0,0,0,.28); }
+.home-hero-content .primary-btn:active, .home-hero-content .secondary-btn:active { transform: translateY(.3rem) perspective(18rem) rotateX(2deg); }
 .home-purpose { background-image: radial-gradient(circle at 88% 18%, rgba(16,185,129,.08), transparent 24rem); }
 .home-purpose .soft-card { position: relative; overflow: hidden; }
 .home-purpose .soft-card::before { position: absolute; left: 0; top: 0; height: 3px; width: 0; background: var(--gold); content: ""; transition: width .35s ease; }
