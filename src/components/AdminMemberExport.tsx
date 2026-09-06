@@ -6,9 +6,21 @@ import { Member } from '../data/memberStore'
 const escapeHtml = (value: string) => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
 
 export default function AdminMemberExport() {
-  const [members, setMembers] = useState<Member[]>([]); const [format, setFormat] = useState('pdf'); const [message, setMessage] = useState('')
+  const [members, setMembers] = useState<Member[]>([])
+  const [format, setFormat] = useState('pdf')
+  const [message, setMessage] = useState('')
   useEffect(() => { void getMembers().then(setMembers).catch(() => setMessage('Could not load member data.')) }, [])
-  const rows = members.map(member => `<tr><td>${escapeHtml(member.name)}</td><td>${escapeHtml(member.role)}</td><td>${escapeHtml(member.seniority || '')}</td><td>${escapeHtml(member.gender)}</td><td>${escapeHtml(member.email)}</td><td>${escapeHtml(member.phone)}</td><td>${escapeHtml(member.address)}</td><td>${escapeHtml(member.dateOfBirth)}</td><td>${escapeHtml(member.focus)}</td></tr>`).join('')
-  const download = () => { if (!members.length) { setMessage('No saved members to download.'); return } const title = 'JSC YDM Member Details'; const html = `<html><head><meta charset="utf-8"><title>${title}</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#071f19}h1{color:#087f5b}table{border-collapse:collapse;width:100%;font-size:11px}th,td{border:1px solid #cbd5e1;padding:7px;text-align:left}th{background:#e8f5ef}</style></head><body><h1>${title}</h1><p>Private administrator report</p><table><thead><tr><th>Name</th><th>Role</th><th>Seniority</th><th>Gender</th><th>Email</th><th>Phone</th><th>Address</th><th>Date of birth</th><th>Focus</th></tr></thead><tbody>${rows}</tbody></table></body></html>`; if (format === 'pdf') { const printWindow = window.open('', '_blank', 'noopener,noreferrer'); if (!printWindow) { setMessage('Please allow pop-ups to create the PDF.'); return } printWindow.document.write(html); printWindow.document.close(); printWindow.focus(); printWindow.print() } else { const blob = new Blob([html], { type: 'application/msword' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'jsc-ydm-member-details.doc'; link.click(); URL.revokeObjectURL(link.href) } }
+  const download = () => {
+    if (!members.length) { setMessage('No saved members to download.'); return }
+    const rows = members.map(member => `<tr><td>${escapeHtml(member.name)}</td><td>${escapeHtml(member.role)}</td><td>${escapeHtml(member.seniority || '')}</td><td>${escapeHtml(member.gender)}</td><td>${escapeHtml(member.email)}</td><td>${escapeHtml(member.phone)}</td><td>${escapeHtml(member.address)}</td><td>${escapeHtml(member.dateOfBirth)}</td><td>${escapeHtml(member.focus)}</td></tr>`).join('')
+    const html = `<html><head><meta charset="utf-8"><title>JSC YDM Member Details</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#071f19}h1{color:#087f5b}table{border-collapse:collapse;width:100%;font-size:11px}th,td{border:1px solid #cbd5e1;padding:7px;text-align:left}th{background:#e8f5ef}</style></head><body><h1>JSC YDM Member Details</h1><p>Private administrator report</p><table><thead><tr><th>Name</th><th>Role</th><th>Seniority</th><th>Gender</th><th>Email</th><th>Phone</th><th>Address</th><th>Date of birth</th><th>Focus</th></tr></thead><tbody>${rows}</tbody></table></body></html>`
+    if (format === 'pdf') {
+      const printWindow = window.open('', '_blank')
+      if (!printWindow) { setMessage('Please allow pop-ups to create the PDF.'); return }
+      printWindow.document.open(); printWindow.document.write(html); printWindow.document.close(); printWindow.focus(); printWindow.print()
+    } else {
+      const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([html], { type: 'application/msword' })); link.download = 'jsc-ydm-member-details.doc'; document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(link.href)
+    }
+  }
   return <section className="soft-card admin-member-export mt-6"><div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-black">Download member details</h2><p className="mt-1 text-sm text-slate-500">Private Admin report · {members.length} saved members</p></div><div className="flex flex-wrap gap-2"><select aria-label="Download format" className="field" value={format} onChange={event => setFormat(event.target.value)}><option value="pdf">PDF</option><option value="word">Word</option></select><button className="primary-btn" onClick={download}><Download size={17} /> Download</button></div></div>{message && <p className="mt-3 text-sm text-rose-700">{message}</p>}</section>
 }
