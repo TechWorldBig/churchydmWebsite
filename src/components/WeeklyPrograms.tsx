@@ -25,7 +25,10 @@ export default function AdminWeeklyPrograms() {
   const [programName, setProgramName] = useState('')
   const [memberId, setMemberId] = useState('')
   const [message, setMessage] = useState('')
-  const load = () => { void Promise.all([getMembers(), getWeeklyPrograms(true)]).then(([savedMembers, savedItems]) => { setMembers(savedMembers); setItems(ordered(savedItems)) }).catch(() => setMessage('Could not load weekly programs.')) }
+  const load = () => {
+    void getMembers().then(savedMembers => setMembers([...savedMembers].sort((a, b) => a.name.localeCompare(b.name)))).catch(() => setMessage('Could not load saved members.'))
+    void getWeeklyPrograms(true).then(savedItems => setItems(ordered(savedItems))).catch(() => setMessage('Could not load weekly programs.'))
+  }
   useEffect(() => { load() }, [])
   const activeItems = useMemo(() => ordered(items.filter(item => !item.archivedAt)), [items])
   const archiveGroups = useMemo(() => groupsFor(items.filter(item => item.archivedAt)), [items])
