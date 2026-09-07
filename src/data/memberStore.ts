@@ -30,3 +30,5 @@ export type GalleryPhoto = {
   date: string
   description: string
 }
+
+export type WeeklyProgram = { id: string; date: string; serialNo: number; programName: string; memberId: string; memberName: string }

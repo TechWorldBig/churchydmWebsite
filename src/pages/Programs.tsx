@@ -1,15 +1,58 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowRight, BookOpen, CalendarDays, HeartHandshake, Music2, Search, Sparkles, UsersRound } from 'lucide-react'
+import { ArrowRight, Search, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import PageHero from '../components/PageHero'
+import { WeeklyProgramPublic } from '../components/WeeklyPrograms'
 import { programs } from '../data/siteData'
 import { getMembers, getProgramPoints } from '../data/api'
 import { Member, ProgramPoint } from '../data/memberStore'
-import holyBibleGif from '../assets/holy-bible.gif'; import missionaryStoryWebp from '../assets/missionary-story.webp'; import musicGif from '../assets/music.gif'; import bibleQuizPng from '../assets/bible-quiz.png'; import bibleMessageGif from '../assets/bible-message-transparent.png'; import memberMaleGif from '../assets/member-male.gif'; import memberFemaleGif from '../assets/member-female.gif'
-const icons = [BookOpen, UsersRound, Music2, HeartHandshake, Sparkles, CalendarDays]; const scoreStyle = (score: number) => ({ background: `conic-gradient(#0b9f72 ${(score / 5) * 100}%, #e5484d 0)` })
+import holyBibleGif from '../assets/holy-bible.gif'
+import missionaryStoryWebp from '../assets/missionary-story.webp'
+import musicGif from '../assets/music.gif'
+import bibleQuizPng from '../assets/bible-quiz.png'
+import bibleMessageGif from '../assets/bible-message-transparent.png'
+import memberMaleGif from '../assets/member-male.gif'
+import memberFemaleGif from '../assets/member-female.gif'
+
+const scoreStyle = (score: number) => ({ background: `conic-gradient(#0b9f72 ${(score / 5) * 100}%, #e5484d 0)` })
+
 export default function Programs() {
-  const [members, setMembers] = useState<Member[]>([]); const [points, setPoints] = useState<ProgramPoint[]>([]); const [name, setName] = useState(''); const [program, setProgram] = useState(''); const [from, setFrom] = useState(''); const [to, setTo] = useState(''); const [searched, setSearched] = useState(false); const [notice, setNotice] = useState('')
-  useEffect(() => { void getMembers().then(setMembers).catch(() => undefined) }, []); useEffect(() => { if (!name.trim() || !from) { setPoints([]); return }; void getProgramPoints({ name, program, from, to }).then(setPoints).catch(() => setPoints([])) }, [name, program, from, to])
-  const result = useMemo(() => { const member = members.find(item => item.name.toLowerCase().includes(name.trim().toLowerCase())); return member ? { member, rows: points } : null }, [members, points, name]); const search = () => { if (!name.trim() || !from) { setNotice('Member name and From date are required. To date is optional.'); setSearched(false); return }; setNotice(''); setSearched(true) }
-  return <><PageHero eyebrow="The Word. The worship. The walk." title="Programs rooted in Scripture" description="Meet with us during the 1st and 3rd weeks of every month to study the Bible, celebrate the gospel, learn from faithful servants and grow closer to Christ." icon={<Sparkles size={15} />} /><section className="py-20"><div className="mx-auto max-w-7xl px-5 lg:px-8"><div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">{programs.map((item, index) => { const image = item.id === 1 ? holyBibleGif : item.id === 2 ? missionaryStoryWebp : item.id === 3 ? musicGif : item.id === 4 ? bibleQuizPng : bibleMessageGif; const attachedSymbol = item.id === 4 || item.id === 5; return <article key={item.id} className="soft-card group relative overflow-hidden"><span className="absolute right-6 top-5 text-5xl font-black text-emerald-700">{item.icon}</span><span className={`program-bible-icon relative ${attachedSymbol ? 'program-symbol-attached' : ''}`}><img src={image} alt={item.title} /></span><p className="mt-7 text-xs font-bold uppercase tracking-[.16em] text-emerald-700">{item.schedule}</p><h2 className="mt-2 text-2xl font-black">{item.title}</h2><p className="mt-3 text-sm leading-7 text-slate-600">{item.description}</p></article> })}</div><section className="attendance-search-panel mt-12 rounded-3xl border border-emerald-100 bg-white p-5 shadow-sm sm:p-8"><p className="eyebrow">Program points</p><h2 className="mt-2 text-3xl font-black">Search a member’s program points</h2><div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-5"><label className="grid gap-1 text-xs font-bold text-slate-500">Member name<input aria-label="Member name" className="field" value={name} onChange={event => setName(event.target.value)} placeholder="Member name" /></label><label className="grid gap-1 text-xs font-bold text-slate-500">Program<select aria-label="Program name" className="field" value={program} onChange={event => setProgram(event.target.value)}><option value="">All programs</option><option>Bible Reference</option><option>Bible Quiz</option><option>Song Survey</option></select></label><label className="grid gap-1 text-xs font-bold text-slate-500">From date<input aria-label="From date" className="field" type="date" value={from} onChange={event => setFrom(event.target.value)} /></label><label className="grid gap-1 text-xs font-bold text-slate-500">To date<input aria-label="To date" className="field" type="date" value={to} onChange={event => setTo(event.target.value)} /></label><button className="dark-btn self-end" type="button" onClick={search}><Search size={17} /> Search</button></div>{notice && <p className="mt-3 text-sm font-semibold text-rose-600">{notice}</p>}{searched && result && <div className="program-result-card mt-7 rounded-3xl bg-slate-50 p-5"><div className="program-result-identity"><div className="member-gif-figure program-result-character"><img src={result.member.gender?.toLowerCase() === 'female' ? memberFemaleGif : memberMaleGif} alt={`${result.member.gender?.toLowerCase() === 'female' ? 'Female' : 'Male'} member illustration`} /></div><div><p className="eyebrow">{result.member.seniority || 'Member'}</p><h3 className="mt-2 text-2xl font-black">{result.member.name}</h3><p className="text-sm text-slate-500">{result.member.role}</p></div></div>{result.rows.length === 0 ? <p className="mt-5 rounded-xl bg-white p-4 text-sm text-slate-500">No program points found for the selected dates.</p> : <div className="mt-5 grid gap-3">{result.rows.map(row => <div key={row.id} className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-white p-4"><div><p className="font-bold">{row.program}</p><p className="text-sm text-slate-500">{row.date}</p></div><div className="program-score-ring" style={scoreStyle(row.questionsAnswered)}><span>{row.questionsAnswered}/5</span></div></div>)}</div>}</div>}</section><div className="mt-12 flex items-center justify-between rounded-3xl bg-[#071f19] p-8 text-white"><div><p className="eyebrow text-[#e3bc62]">Find your place</p><h2 className="mt-2 text-3xl font-black">Grow with us.</h2></div><Link to="/about" className="primary-btn">Learn about us <ArrowRight size={17} /></Link></div></div></section></>
+  const [members, setMembers] = useState<Member[]>([])
+  const [points, setPoints] = useState<ProgramPoint[]>([])
+  const [name, setName] = useState('')
+  const [program, setProgram] = useState('')
+  const [from, setFrom] = useState('')
+  const [to, setTo] = useState('')
+  const [searched, setSearched] = useState(false)
+  const [notice, setNotice] = useState('')
+
+  useEffect(() => { void getMembers().then(setMembers).catch(() => undefined) }, [])
+  useEffect(() => { if (!name.trim() || !from) { setPoints([]); return }; void getProgramPoints({ name, program, from, to }).then(setPoints).catch(() => setPoints([])) }, [name, program, from, to])
+  const result = useMemo(() => { const member = members.find(item => item.name.toLowerCase().includes(name.trim().toLowerCase())); return member ? { member, rows: points } : null }, [members, points, name])
+  const search = () => { if (!name.trim() || !from) { setNotice('Member name and From date are required. To date is optional.'); setSearched(false); return }; setNotice(''); setSearched(true) }
+
+  return (
+    <>
+      <PageHero eyebrow="The Word. The worship. The walk." title="Programs rooted in Scripture" description="Meet with us during the 1st and 3rd weeks of every month to study the Bible, celebrate the gospel, learn from faithful servants and grow closer to Christ." icon={<Sparkles size={15} />} />
+      <section className="py-20">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {programs.map(item => {
+              const image = item.id === 1 ? holyBibleGif : item.id === 2 ? missionaryStoryWebp : item.id === 3 ? musicGif : item.id === 4 ? bibleQuizPng : bibleMessageGif
+              const attachedSymbol = item.id === 4 || item.id === 5
+              return <article key={item.id} className="soft-card group relative overflow-hidden"><span className="absolute right-6 top-5 text-5xl font-black text-emerald-700">{item.icon}</span><span className={`program-bible-icon relative ${attachedSymbol ? 'program-symbol-attached' : ''}`}><img src={image} alt={item.title} /></span><p className="mt-7 text-xs font-bold uppercase tracking-[.16em] text-emerald-700">{item.schedule}</p><h2 className="mt-2 text-2xl font-black">{item.title}</h2><p className="mt-3 text-sm leading-7 text-slate-600">{item.description}</p></article>
+            })}
+          </div>
+          <WeeklyProgramPublic />
+          <section className="attendance-search-panel mt-12 rounded-3xl border border-emerald-100 bg-white p-5 shadow-sm sm:p-8">
+            <p className="eyebrow">Program points</p><h2 className="mt-2 text-3xl font-black">Search a member’s program points</h2>
+            <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-5"><label className="grid gap-1 text-xs font-bold text-slate-500">Member name<input aria-label="Member name" className="field" value={name} onChange={event => setName(event.target.value)} placeholder="Member name" /></label><label className="grid gap-1 text-xs font-bold text-slate-500">Program<select aria-label="Program name" className="field" value={program} onChange={event => setProgram(event.target.value)}><option value="">All programs</option><option>Bible Reference</option><option>Bible Quiz</option><option>Song Survey</option></select></label><label className="grid gap-1 text-xs font-bold text-slate-500">From date<input aria-label="From date" className="field" type="date" value={from} onChange={event => setFrom(event.target.value)} /></label><label className="grid gap-1 text-xs font-bold text-slate-500">To date<input aria-label="To date" className="field" type="date" value={to} onChange={event => setTo(event.target.value)} /></label><button className="dark-btn self-end" type="button" onClick={search}><Search size={17} /> Search</button></div>
+            {notice && <p className="mt-3 text-sm font-semibold text-rose-600">{notice}</p>}
+            {searched && result && <div className="program-result-card mt-7 rounded-3xl bg-slate-50 p-5"><div className="program-result-identity"><div className="member-gif-figure program-result-character"><img src={result.member.gender?.toLowerCase() === 'female' ? memberFemaleGif : memberMaleGif} alt="Member illustration" /></div><div><p className="eyebrow">{result.member.seniority || 'Member'}</p><h3 className="mt-2 text-2xl font-black">{result.member.name}</h3><p className="text-sm text-slate-500">{result.member.role}</p></div></div>{result.rows.length === 0 ? <p className="mt-5 rounded-xl bg-white p-4 text-sm text-slate-500">No program points found for the selected dates.</p> : <div className="mt-5 grid gap-3">{result.rows.map(row => <div key={row.id} className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-white p-4"><div><p className="font-bold">{row.program}</p><p className="text-sm text-slate-500">{row.date}</p></div><div className="program-score-ring" style={scoreStyle(row.questionsAnswered)}><span>{row.questionsAnswered}/5</span></div></div>)}</div>}</div>}
+          </section>
+          <div className="mt-12 flex items-center justify-between rounded-3xl bg-[#071f19] p-8 text-white"><div><p className="eyebrow text-[#e3bc62]">Find your place</p><h2 className="mt-2 text-3xl font-black">Grow with us.</h2></div><Link to="/about" className="primary-btn">Learn about us <ArrowRight size={17} /></Link></div>
+        </div>
+      </section>
+    </>
+  )
 }
