@@ -1,4 +1,4 @@
-import { ArrowRight, BookMarked, HandHeart, MapPin, Sparkles, UsersRound } from 'lucide-react'
+import { ArrowRight, HandHeart, MapPin, Sparkles, UsersRound } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import PanoramaExperience from '../components/PanoramaExperience'
 import { programs } from '../data/siteData'
@@ -7,9 +7,9 @@ import missionaryStoryWebp from '../assets/missionary-story.webp'
 import musicGif from '../assets/music.gif'
 
 const pillars = [
-  { icon: BookMarked, title: 'Grow in the Word', text: 'Build a strong Biblical foundation through learning, discussion and discipleship.' },
-  { icon: UsersRound, title: 'Belong Together', text: 'Create meaningful friendships and a youth community where everyone can participate.' },
-  { icon: HandHeart, title: 'Serve with Purpose', text: 'Use our gifts in church and community through compassion, outreach and leadership.' },
+  { icon: null, image: holyBibleGif, title: 'Grow in the Word', text: 'Build a strong Biblical foundation through learning, discussion and discipleship.' },
+  { icon: UsersRound, image: null, title: 'Belong Together', text: 'Create meaningful friendships and a youth community where everyone can participate.' },
+  { icon: HandHeart, image: null, title: 'Serve with Purpose', text: 'Use our gifts in church and community through compassion, outreach and leadership.' },
 ]
 
 export default function Home() {
@@ -33,7 +33,7 @@ export default function Home() {
       <section className="home-purpose bg-stone-50 py-24">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <div className="grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:items-end"><div><p className="eyebrow">Our purpose</p><h2 className="section-title">Rooted in faith.<br/>Ready to serve.</h2></div><p className="max-w-2xl text-lg leading-8 text-slate-600">We want every young person to know Christ personally, discover their gifts, grow in character and become a positive influence in church, family and community.</p></div>
-          <div className="mt-14 grid gap-5 md:grid-cols-3">{pillars.map((p) => <article key={p.title} className="soft-card"><span className="icon-box"><p.icon size={23}/></span><h3 className="mt-6 text-xl font-black">{p.title}</h3><p className="mt-3 text-sm leading-7 text-slate-600">{p.text}</p></article>)}</div>
+          <div className="mt-14 grid gap-5 md:grid-cols-3">{pillars.map((p) => <article key={p.title} className="soft-card"><span className="icon-box">{p.image ? <img src={p.image} alt="Bible Reference" className="h-11 w-11 object-contain" /> : p.icon ? <p.icon size={23}/> : null}</span><h3 className="mt-6 text-xl font-black">{p.title}</h3><p className="mt-3 text-sm leading-7 text-slate-600">{p.text}</p></article>)}</div>
         </div>
       </section>
 
