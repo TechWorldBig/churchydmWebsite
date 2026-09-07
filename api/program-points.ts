@@ -7,7 +7,7 @@ export default async function handler(req: any, res: any) {
     const sql = getSql()
     if (req.method === 'GET') {
       const query = req.query || {}
-      if (!query.name) { if (!await getSessionExpiry(req)) return res.status(401).json({ error: 'Please sign in as an administrator.' }); const rows = await sql`SELECT id, member_id AS "memberId", name, program, seniority, date, questions_answered AS "questionsAnswered" FROM program_points ORDER BY date DESC, created_at DESC`; return res.status(200).json(rows) }
+      if (!query.name) { if (!await getSessionExpiry(req)) return res.status(401).json({ error: 'Please sign in as an administrator.' }); const rows = await sql`SELECT DISTINCT ON (member_id, program, date) id, member_id AS "memberId", name, program, seniority, date, questions_answered AS "questionsAnswered" FROM program_points ORDER BY member_id, program, date, created_at ASC, id ASC`; return res.status(200).json(rows) }
       const rows = await sql`SELECT DISTINCT ON (member_id, program, date) id, member_id AS "memberId", name, program, seniority, date, questions_answered AS "questionsAnswered" FROM program_points WHERE LOWER(TRIM(name)) LIKE LOWER('%' || TRIM(${query.name}) || '%') AND (${query.program || ''} = '' OR TRIM(program) = TRIM(${query.program || ''})) AND (${query.from || ''} = '' OR date >= ${query.from || ''}) AND (${query.to || ''} = '' OR date <= ${query.to || ''}) ORDER BY member_id, program, date, created_at DESC`
       return res.status(200).json(rows)
     }
