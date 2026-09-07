@@ -8,7 +8,7 @@ const printOrWord = (html: string, format: string, filename: string, setMessage:
   if (format === 'word') { const url = URL.createObjectURL(new Blob([html], { type: 'application/msword' })); const link = document.createElement('a'); link.href = url; link.download = `${filename}.doc`; document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000); return }
   const url = URL.createObjectURL(new Blob([html], { type: 'text/html' })); const popup = window.open(url, '_blank'); if (!popup) { URL.revokeObjectURL(url); setMessage('Please allow pop-ups to create the PDF.'); return }; popup.addEventListener('load', () => { popup.focus(); popup.print(); setTimeout(() => URL.revokeObjectURL(url), 1000) })
 }
-const shell = (title: string, body: string) => `<html><head><meta charset="utf-8"><title>${esc(title)}</title><style>body{font-family:Arial;padding:24px;color:#071f19}h1,h2{color:#087f5b}h1{border-bottom:2px solid #087f5b;padding-bottom:8px}h2{margin-top:28px}table{border-collapse:collapse;width:100%;font-size:11px;margin-bottom:16px}th,td{border:1px solid #cbd5e1;padding:7px;text-align:left}th{background:#e8f5ef}.empty{color:#64748b;font-style:italic}</style></head><body><h1>${esc(title)}</h1>${body}</body></html>`
+const shell = (title: string, body: string) => `<html><head><meta charset="utf-8"><title>${esc(title)}</title><style>@page{margin:18mm 14mm 25mm}body{font-family:Arial;padding:8px 18px 90px;color:#071f19}header{text-align:center;margin-bottom:24px}header .blessing{font-size:13px;margin:0 0 5px}header .church{font-size:20px;font-weight:700;margin:0 0 5px}header .report-title{font-size:13px;margin:0}h1,h2{color:#087f5b}h1{border-bottom:2px solid #087f5b;padding-bottom:8px}h2{margin-top:28px}table{border-collapse:collapse;width:100%;font-size:11px;margin-bottom:16px}th,td{border:1px solid #cbd5e1;padding:7px;text-align:left}th{background:#e8f5ef}.empty{color:#64748b;font-style:italic}.signatures{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-between;align-items:flex-end;font-size:12px;padding:10px 18px 0;background:#fff}.presidents{line-height:1.5}.pastor{text-align:right;min-width:170px}.signature-line{border-top:1px solid #071f19;margin-top:28px;padding-top:4px}@media print{.signatures{position:fixed}}</style></head><body><header><p class="blessing">கர்த்தருக்கு ஸ்தோத்திரம்</p><p class="church">JSC YDM Kollemcode</p><p class="report-title">2026 - ${esc(title)}</p></header>${body}<footer class="signatures"><div class="presidents">YDM President 1<br>YDM President 2</div><div class="pastor"><div class="signature-line">Pastor Signature</div></div></footer></body></html>`
 const groupLabel = (seniority: string, absent: number) => `${seniority} members · ${absent === 0 ? 'Present every day' : `${absent} day${absent === 1 ? '' : 's'} absent`}`
 
 type AttendanceSummary = { member: Member; seniority: string; absent: number; percentage: number }
@@ -26,7 +26,7 @@ const attendanceReport = (members: Member[], records: AttendanceRecord[]) => {
     if (!rows.length) return ''
     return `<h2>${groupLabel(seniority, absent)}</h2><table><thead><tr><th>Name</th><th>Seniority</th><th>Overall percentage</th></tr></thead><tbody>${rows.map(row => `<tr><td>${esc(row.member.name)}</td><td>${esc(row.seniority)}</td><td>${row.percentage}%</td></tr>`).join('')}</tbody></table>`
   })).join('')
-  return shell('JSC YDM Attendance Report', sections || '<p class="empty">No members match the attendance report criteria.</p>')
+  return shell('Attendance', sections || '<p class="empty">No members match the attendance report criteria.</p>')
 }
 
 const programReport = (points: ProgramPoint[]) => {
@@ -38,7 +38,7 @@ const programReport = (points: ProgramPoint[]) => {
     if (!rows.length) return ''
     return `<h2>${esc(program)} · ${esc(seniority)}</h2><table><thead><tr><th>Rank</th><th>Name</th><th>Seniority</th><th>Total points</th></tr></thead><tbody>${rows.map((row, index) => `<tr><td>${index + 1}</td><td>${esc(row.name)}</td><td>${esc(row.seniority)}</td><td>${row.points}</td></tr>`).join('')}</tbody></table>`
   })).join('')
-  return shell('JSC YDM Program Points Report', sections || '<p class="empty">No program points are available.</p>')
+  return shell('Programs', sections || '<p class="empty">No program points are available.</p>')
 }
 
 function ReportCard({ title, description, format, setFormat, download, message }: { title: string; description: string; format: string; setFormat: (value: string) => void; download: () => void; message: string }) {
