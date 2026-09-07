@@ -12,7 +12,6 @@ const links = [
   ['Attendance', '/attendance'],
   ['Offering', '/offering'],
   ['About', '/about'],
-  ['Admin', '/admin'],
 ] as const
 
 export default function Layout({ children }: { children: ReactNode }) {
