@@ -1,15 +1,26 @@
-import { authorizeMutation } from './_lib/security.js'
+import { authorizeMutation, getSessionExpiry } from './_lib/security.js'
 import { ensureSchema, getSql, sendError } from './_lib/db.js'
 
 const validDate = (value: unknown) => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/u.test(value) && Number.isFinite(Date.parse(value))
 const validText = (value: unknown, max: number) => typeof value === 'string' && value.trim().length > 0 && value.length <= max
+const indiaDate = () => {
+  const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date())
+  const value = (type: string) => parts.find(part => part.type === type)?.value || ''
+  return `${value('year')}-${value('month')}-${value('day')}`
+}
 
 export default async function handler(req: any, res: any) {
   try {
     await ensureSchema()
     const sql = getSql()
     if (req.method === 'GET') {
-      const rows = await sql`SELECT id, date, serial_no AS "serialNo", program_name AS "programName", member_id AS "memberId", member_name AS "memberName" FROM weekly_programs ORDER BY date DESC, serial_no ASC`
+      const today = indiaDate()
+      await sql`UPDATE weekly_programs SET archived_at=COALESCE(archived_at, NOW()) WHERE date < ${today}`
+      const includeArchived = req.query?.includeArchived === '1'
+      if (includeArchived && !await getSessionExpiry(req)) return res.status(401).json({ error: 'Please sign in as an administrator.' })
+      const rows = includeArchived
+        ? await sql`SELECT id, date, serial_no AS "serialNo", program_name AS "programName", member_id AS "memberId", member_name AS "memberName", archived_at AS "archivedAt" FROM weekly_programs ORDER BY date DESC, serial_no ASC`
+        : await sql`SELECT id, date, serial_no AS "serialNo", program_name AS "programName", member_id AS "memberId", member_name AS "memberName" FROM weekly_programs WHERE date >= ${today} AND archived_at IS NULL ORDER BY date ASC, serial_no ASC`
       return res.status(200).json(rows)
     }
     if (!await authorizeMutation(req, res)) return

@@ -31,4 +31,4 @@ export type GalleryPhoto = {
   description: string
 }
 
-export type WeeklyProgram = { id: string; date: string; serialNo: number; programName: string; memberId: string; memberName: string }
+export type WeeklyProgram = { id: string; date: string; serialNo: number; programName: string; memberId: string; memberName: string; archivedAt?: string | null }
