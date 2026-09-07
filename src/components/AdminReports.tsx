@@ -5,6 +5,7 @@ import { AttendanceRecord, Member, ProgramPoint } from '../data/memberStore'
 
 const esc = (value: unknown) => String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
 const addGeneratedOn = (html: string) => html.replace('</header>', `<p style="position:absolute;right:18px;top:18px;margin:0;font-size:12px">Generated on ${new Intl.DateTimeFormat('en-IN', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date())}</p></header>`)
+const fixSignatureFooter = (html: string) => html.replace("content:'SignatureA YDM President 1 -----------------A YDM President 2 -----------------'", "content:'Signature,\\\\A 1) YDM President 1 -----------------\\\\A 2) YDM President 2 -----------------'")
 const printOrWord = (html: string, format: string, filename: string, setMessage: (message: string) => void) => {
   if (format === 'word') { const url = URL.createObjectURL(new Blob([html], { type: 'application/msword' })); const link = document.createElement('a'); link.href = url; link.download = `${filename}.doc`; document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000); return }
   const url = URL.createObjectURL(new Blob([html], { type: 'text/html' })); const popup = window.open(url, '_blank'); if (!popup) { URL.revokeObjectURL(url); setMessage('Please allow pop-ups to create the PDF.'); return }; popup.addEventListener('load', () => { popup.focus(); popup.print(); setTimeout(() => URL.revokeObjectURL(url), 1000) })
@@ -51,7 +52,7 @@ export default function AdminReports() {
   const [attendanceFormat, setAttendanceFormat] = useState('pdf'); const [programFormat, setProgramFormat] = useState('pdf'); const [attendanceMessage, setAttendanceMessage] = useState(''); const [programMessage, setProgramMessage] = useState('')
   useEffect(() => { void Promise.all([getMembers(), getAttendance(), getProgramPoints()]).then(([savedMembers, savedRecords, savedPoints]) => { setMembers(savedMembers); setRecords(savedRecords); setPoints(savedPoints) }).catch(() => { setAttendanceMessage('Could not load saved attendance data.'); setProgramMessage('Could not load saved program points.') }) }, [])
   const attendanceCount = useMemo(() => attendanceReport(members, records).match(/<tr><td>/g)?.length || 0, [members, records])
-  const downloadAttendance = () => printOrWord(addGeneratedOn(attendanceReport(members, records)), attendanceFormat, 'jsc-ydm-attendance-report', setAttendanceMessage)
-  const downloadPrograms = () => printOrWord(addGeneratedOn(programReport(points)), programFormat, 'jsc-ydm-program-points-report', setProgramMessage)
+  const downloadAttendance = () => printOrWord(fixSignatureFooter(addGeneratedOn(attendanceReport(members, records))), attendanceFormat, 'jsc-ydm-attendance-report', setAttendanceMessage)
+  const downloadPrograms = () => printOrWord(fixSignatureFooter(addGeneratedOn(programReport(points))), programFormat, 'jsc-ydm-program-points-report', setProgramMessage)
   return <><ReportCard title="Download attendance report" description={`${attendanceCount} qualifying members · grouped by seniority and absent days`} format={attendanceFormat} setFormat={setAttendanceFormat} download={downloadAttendance} message={attendanceMessage} /><ReportCard title="Download program points report" description="Top two Junior and Senior members for Bible Quiz, Bible Reference and Song Survey" format={programFormat} setFormat={setProgramFormat} download={downloadPrograms} message={programMessage} /></>
 }
