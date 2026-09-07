@@ -116,6 +116,7 @@ input[type='date']:active { transform: perspective(20rem) translateY(.18rem) rot
 .admin-program-points-form table tbody tr { min-height: 4.5rem; }
 .admin-page .attendance-entry-grid { grid-template-columns: minmax(0, 1.4fr) 150px 125px minmax(0, 1fr) auto; align-items: end; }
 .admin-page .attendance-entry-grid select, .admin-page .attendance-entry-grid input { min-width: 0; }
+.admin-gallery-photo-list { max-height: 38rem; align-content: start; overflow-y: auto; padding-right: .35rem; scrollbar-gutter: stable; }
 .admin-page .grid.sm\:grid-cols-2.xl\:grid-cols-\[1fr_150px_120px\] { grid-template-columns: minmax(0, 1.4fr) 150px 125px minmax(0, 1fr) auto; align-items: end; }
 .admin-page .overflow-hidden > .flex.flex-col.gap-3.border-b { min-width: 0; align-items: stretch; }
 .admin-page .attendance-table-toolbar { min-width: 0; align-items: stretch; }

@@ -111,7 +111,7 @@ export default function AdminGallery() {
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="admin-gallery-photo-list grid gap-4 sm:grid-cols-2">
           {photos.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500 sm:col-span-2">No event photos added yet.</div>
           ) : photos.map(item => (
