@@ -30,6 +30,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .soft-card { @apply rounded-3xl border border-slate-200/70 bg-white p-7 shadow-[0_15px_45px_rgba(15,23,42,0.05)] transition duration-300; }
   .soft-card:hover { @apply -translate-y-1 border-emerald-100 shadow-[0_22px_55px_rgba(15,23,42,0.11)]; }
 .icon-box { @apply grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-emerald-50 to-emerald-100 text-emerald-800 shadow-inner; }
+.icon-box.icon-box-artwork { width: 4.25rem; height: 4.25rem; border-radius: 0; background: transparent; box-shadow: none; }
+.icon-box.icon-box-artwork img { width: 4.25rem; height: 4.25rem; }
 .soft-card.group > .icon-box { position: relative; width: 3.5rem; height: 3.5rem; border: 1px solid rgba(5,150,105,.12); box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -4px 0 rgba(5,150,105,.1), 0 5px 0 #b6decb, 0 12px 18px rgba(7,31,25,.12); transform: perspective(12rem) rotateX(5deg) rotateY(-3deg); transition: transform .25s ease, box-shadow .25s ease; }
 .soft-card.group > .icon-box svg { width: 1.65rem; height: 1.65rem; }
 .soft-card.group:hover > .icon-box { box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -4px 0 rgba(5,150,105,.1), 0 8px 0 #94cbb0, 0 18px 24px rgba(7,31,25,.16); transform: perspective(12rem) translateY(-.2rem) rotateX(8deg) rotateY(-5deg); }
