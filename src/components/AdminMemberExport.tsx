@@ -4,7 +4,7 @@ import { getMembers } from '../data/api'
 import { Member } from '../data/memberStore'
 
 const esc = (value: string) => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
-const roleRank = (role: string) => { const normalized = role.trim().toLowerCase().replace(/^ydm\s+/, ''); const roles = ['president', 'vice president', 'secretary', 'joint secretary', 'treasury', 'advisor', 'elder', 'member']; const match = roles.findIndex(item => normalized.includes(item)); return match === -1 ? roles.length : match }
+const roleRank = (role: string) => { const normalized = role.trim().toLowerCase().replace(/^ydm\s+/, ''); if (normalized.includes('vice president')) return 1; if (normalized.includes('president')) return 0; const roles = ['secretary', 'joint secretary', 'treasury', 'advisor', 'elder', 'member']; const match = roles.findIndex(item => normalized.includes(item)); return match === -1 ? roles.length + 1 : match + 2 }
 const seniorityRank = (seniority: Member['seniority']) => seniority === 'Senior' ? 0 : seniority === 'Junior' ? 1 : 2
 const genderRank = (gender: string) => gender.trim().toLowerCase() === 'male' ? 0 : gender.trim().toLowerCase() === 'female' ? 1 : 2
 const orderedMembers = (members: Member[]) => [...members].sort((a, b) => roleRank(a.role) - roleRank(b.role) || genderRank(a.gender) - genderRank(b.gender) || a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }) || seniorityRank(a.seniority) - seniorityRank(b.seniority))
