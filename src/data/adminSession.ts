@@ -1,7 +1,7 @@
 type AdminSession = { authenticated: boolean; expiresAt: number | null }
 
 async function sessionRequest(method: string, body?: unknown): Promise<AdminSession> {
-  const response = await fetch('/api/auth', {
+  const response = await fetch(method === 'POST' ? '/api/auth/login' : '/api/auth', {
     method, credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
     body: body === undefined ? undefined : JSON.stringify(body),
   })

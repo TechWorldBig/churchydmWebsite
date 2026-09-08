@@ -1,6 +1,9 @@
 import { neonConfig } from '@neondatabase/serverless'
+import bcrypt from 'bcryptjs'
 import { expect, test } from '@playwright/test'
+import adminDashboard from '../api/admin/dashboard'
 import auth from '../api/auth'
+import login from '../api/auth/login'
 import members from '../api/members'
 import attendance from '../api/attendance'
 import gallery from '../api/gallery'
@@ -15,6 +18,7 @@ function request(method = 'POST', body: unknown = {}) {
       status(status: number) { result.status = status; return this },
       json(body: unknown) { result.body = body; return body },
       setHeader(name: string, value: string) { result.headers[name] = value },
+      end() { return undefined },
     },
     result,
   }
@@ -54,7 +58,7 @@ test('admin cookie is HttpOnly, Secure, host-scoped and SameSite in production',
   }
 })
 
-test('rejects malformed cookies and compares credentials without length-dependent errors', () => {
+test('rejects malformed cookies and compares secrets without length-dependent errors', () => {
   const call = request()
   call.req.headers.cookie = 'ydm-session=forged'
   expect(sessionToken(call.req)).toBeNull()
@@ -62,28 +66,32 @@ test('rejects malformed cookies and compares credentials without length-dependen
   expect(sameSecret('short', 'different-long-secret')).toBe(false)
 })
 
-test('unauthenticated session check reveals no credentials', async () => {
-  const call = request('GET')
-  await auth(call.req, call.res)
-  expect(call.result.body).toEqual({ authenticated: false, expiresAt: null })
+test('unauthenticated session check and protected dashboard reveal no credentials', async () => {
+  const session = request('GET')
+  await auth(session.req, session.res)
+  expect(session.result.body).toEqual({ authenticated: false, expiresAt: null })
+  const dashboard = request('GET')
+  await adminDashboard(dashboard.req, dashboard.res)
+  expect(dashboard.result.status).toBe(401)
+  expect(dashboard.result.body).toEqual({ error: 'Unauthorized' })
 })
 
 test('rejects cross-origin login and malformed JSON', async () => {
   const crossOrigin = request()
   crossOrigin.req.headers.origin = 'https://attacker.test'
-  await auth(crossOrigin.req, crossOrigin.res)
+  await login(crossOrigin.req, crossOrigin.res)
   expect(crossOrigin.result.status).toBe(403)
   const malformed = request('POST', '{broken')
-  await auth(malformed.req, malformed.res)
+  await login(malformed.req, malformed.res)
   expect(malformed.result.status).toBe(400)
 })
 
-test('admin stays disabled without configured server credentials', async () => {
+test('admin sign-in stays disabled without configured bootstrap credentials', async () => {
   const previous = process.env.ADMIN_PASSWORD
   delete process.env.ADMIN_PASSWORD
   try {
     const call = request('POST', { username: 'admin', password: 'anything' })
-    await auth(call.req, call.res)
+    await login(call.req, call.res)
     expect(call.result.status).toBe(503)
     expect(call.result.headers['Set-Cookie']).toBeUndefined()
   } finally { if (previous !== undefined) process.env.ADMIN_PASSWORD = previous }
@@ -98,24 +106,40 @@ test('rejects executable images and invalid attendance dates', () => {
   expect(record.result.status).toBe(400)
 })
 
-test('login, authenticated write, password rotation and logout use revocable server sessions (mock Neon)', async () => {
+test('login uses a bcrypt password_hash in Neon, rate limits attempts, and creates revocable sessions', async () => {
   const originalFetch = neonConfig.fetchFunction
   const originalEnv = { DATABASE_URL: process.env.DATABASE_URL, ADMIN_USERNAME: process.env.ADMIN_USERNAME, ADMIN_PASSWORD: process.env.ADMIN_PASSWORD }
   process.env.DATABASE_URL = 'postgresql://test:test@database.example.test/test'
   process.env.ADMIN_USERNAME = 'test-admin'
   process.env.ADMIN_PASSWORD = 'long-test-password-123456'
-  const sessions = new Map<string, { version: string; expires: string }>()
+  const sessions = new Map<string, { username: string; version: string; expires: string }>()
+  const rateLimits = new Map<string, number>()
+  let passwordHash = ''
   const mutations: string[] = []
   neonConfig.fetchFunction = async (_url, init) => {
     const { query, params } = JSON.parse(String(init?.body))
     let fields: Array<{ name: string; dataTypeID: number }> = []
     let rows: string[][] = []
-    if (query.startsWith('INSERT INTO api_rate_limits')) { fields = [{ name: 'count', dataTypeID: 23 }]; rows = [['1']] }
-    if (query.startsWith('INSERT INTO admin_sessions')) sessions.set(params[0], { version: params[1], expires: params[2] })
-    if (query.startsWith('SELECT expires_at')) {
+    if (query.startsWith('INSERT INTO api_rate_limits')) {
+      const count = (rateLimits.get(params[0]) || 0) + 1
+      rateLimits.set(params[0], count)
+      fields = [{ name: 'count', dataTypeID: 23 }]
+      rows = [[String(count)]]
+    }
+    if (query.startsWith('SELECT password_hash FROM admin_credentials')) {
+      fields = [{ name: 'password_hash', dataTypeID: 25 }]
+      if (passwordHash) rows = [[passwordHash]]
+    }
+    if (query.startsWith('INSERT INTO admin_credentials')) passwordHash = params[1]
+    if (query.startsWith('SELECT username, password_hash FROM admin_credentials')) {
+      fields = [{ name: 'username', dataTypeID: 25 }, { name: 'password_hash', dataTypeID: 25 }]
+      if (passwordHash) rows = [['test-admin', passwordHash]]
+    }
+    if (query.startsWith('INSERT INTO admin_sessions')) sessions.set(params[0], { username: params[1], version: params[2], expires: params[3] })
+    if (query.startsWith('SELECT expires_at, username, credential_version')) {
       const stored = sessions.get(params[0])
-      fields = [{ name: 'expires_at', dataTypeID: 25 }]
-      if (stored && stored.version === params[1] && Date.parse(stored.expires) > Date.now()) rows = [[stored.expires]]
+      fields = [{ name: 'expires_at', dataTypeID: 25 }, { name: 'username', dataTypeID: 25 }, { name: 'credential_version', dataTypeID: 25 }]
+      if (stored && Date.parse(stored.expires) > Date.now()) rows = [[stored.expires, stored.username, stored.version]]
     }
     if (query.startsWith('DELETE FROM admin_sessions WHERE token_hash')) sessions.delete(params[0])
     if (query.startsWith('DELETE FROM members')) mutations.push(params[0])
@@ -123,24 +147,24 @@ test('login, authenticated write, password rotation and logout use revocable ser
   }
   try {
     const invalid = request('POST', { username: 'test-admin', password: 'incorrect-password' })
-    await auth(invalid.req, invalid.res)
+    await login(invalid.req, invalid.res)
     expect(invalid.result.status).toBe(401)
-    const login = request('POST', { username: 'test-admin', password: process.env.ADMIN_PASSWORD })
-    await auth(login.req, login.res)
-    expect(login.result.status).toBe(200)
-    expect(login.result.body.authenticated).toBe(true)
-    const cookie = login.result.headers['Set-Cookie'].split(';')[0]
+    const signIn = request('POST', { username: 'test-admin', password: process.env.ADMIN_PASSWORD })
+    await login(signIn.req, signIn.res)
+    expect(signIn.result.status).toBe(200)
+    expect(signIn.result.body.authenticated).toBe(true)
+    expect(await bcrypt.compare(process.env.ADMIN_PASSWORD!, passwordHash)).toBe(true)
+    const cookie = signIn.result.headers['Set-Cookie'].split(';')[0]
     expect([...sessions.keys()]).not.toContain(cookie.split('=')[1])
     const mutation = request('DELETE', { id: 'test-member' })
     mutation.req.headers.cookie = cookie
     await members(mutation.req, mutation.res)
     expect(mutation.result.status).toBe(200)
     expect(mutations).toEqual(['test-member'])
-    process.env.ADMIN_PASSWORD = 'rotated-test-password-123456'
+    passwordHash = await bcrypt.hash('rotated-test-password-123456', 12)
     const rotated = request('GET'); rotated.req.headers.cookie = cookie
     await auth(rotated.req, rotated.res)
     expect(rotated.result.body.authenticated).toBe(false)
-    process.env.ADMIN_PASSWORD = 'long-test-password-123456'
     const logout = request('DELETE'); logout.req.headers.cookie = cookie
     await auth(logout.req, logout.res)
     expect(logout.result.status).toBe(200)
@@ -149,6 +173,11 @@ test('login, authenticated write, password rotation and logout use revocable ser
     await members(replay.req, replay.res)
     expect(replay.result.status).toBe(401)
     expect(mutations).toHaveLength(1)
+    for (let index = 0; index < 4; index += 1) await login(request('POST', { username: 'test-admin', password: 'bad-password' }).req, request().res)
+    const limited = request('POST', { username: 'test-admin', password: 'bad-password' })
+    await login(limited.req, limited.res)
+    expect(limited.result.status).toBe(429)
+    expect(limited.result.headers['Retry-After']).toBe('900')
   } finally {
     neonConfig.fetchFunction = originalFetch
     for (const [key, value] of Object.entries(originalEnv)) {

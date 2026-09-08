@@ -93,7 +93,7 @@ export async function installApiMocks(
   state: MockState,
   assistantReply: (request: AssistantRequest) => string = (request) => `Mock ${request.language} answer`,
 ) {
-  await page.route('**/api/auth', async route => {
+  await page.route(/\/api\/auth(?:\/login)?$/, async route => {
     const method = route.request().method()
     if (method === 'POST') state.adminAuthenticated = true
     if (method === 'DELETE') state.adminAuthenticated = false

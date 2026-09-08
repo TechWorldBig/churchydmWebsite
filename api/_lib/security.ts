@@ -1,18 +1,27 @@
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto'
+import bcrypt from 'bcryptjs'
 import { getSql } from './db.js'
 
 export const SESSION_SECONDS = 8 * 60 * 60
 const cookieName = () => process.env.NODE_ENV === 'production' ? '__Host-ydm-session' : 'ydm-session'
 export const digest = (value: string) => createHash('sha256').update(value).digest('hex')
-export const credentialsConfigured = () => Boolean(process.env.ADMIN_USERNAME && (process.env.ADMIN_PASSWORD?.length || 0) >= 16)
-export const credentialVersion = () => digest(`${process.env.ADMIN_USERNAME}:${process.env.ADMIN_PASSWORD}`)
+const canonicalUsername = (value: string) => value.trim().toLocaleLowerCase('en-US')
+
+// Environment credentials only bootstrap the first Neon record. Neon stores a bcrypt hash, never the password.
+export const credentialsConfigured = () => Boolean(
+  process.env.ADMIN_USERNAME && (process.env.ADMIN_PASSWORD?.length || 0) >= 16,
+)
 
 export function sameSecret(left: string, right: string): boolean {
   return timingSafeEqual(Buffer.from(digest(left), 'hex'), Buffer.from(digest(right), 'hex'))
 }
 
 export function sessionToken(req: any): string | null {
-  const value = String(req.headers.cookie || '').split(';').map(part => part.trim()).find(part => part.startsWith(`${cookieName()}=`))?.slice(cookieName().length + 1)
+  const value = String(req.headers.cookie || '')
+    .split(';')
+    .map(part => part.trim())
+    .find(part => part.startsWith(`${cookieName()}=`))
+    ?.slice(cookieName().length + 1)
   return value && /^[a-f0-9]{64}$/u.test(value) ? value : null
 }
 
@@ -22,26 +31,54 @@ export function sessionCookie(value: string, maxAge = SESSION_SECONDS): string {
 
 export async function ensureSecuritySchema() {
   const sql = getSql()
-  await sql`CREATE TABLE IF NOT EXISTS admin_sessions (token_hash TEXT PRIMARY KEY, credential_version TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL)`
+  await sql`CREATE TABLE IF NOT EXISTS admin_credentials (username TEXT PRIMARY KEY, password_hash TEXT NOT NULL, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`
+  await sql`CREATE TABLE IF NOT EXISTS admin_sessions (token_hash TEXT PRIMARY KEY, username TEXT NOT NULL DEFAULT '', credential_version TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL)`
+  await sql`ALTER TABLE admin_sessions ADD COLUMN IF NOT EXISTS username TEXT NOT NULL DEFAULT ''`
   await sql`CREATE TABLE IF NOT EXISTS api_rate_limits (bucket TEXT PRIMARY KEY, count INTEGER NOT NULL, expires_at TIMESTAMPTZ NOT NULL)`
 }
 
-export async function createSession(): Promise<{ token: string; expiresAt: number }> {
+async function ensureBootstrapCredential() {
+  if (!credentialsConfigured()) return
+  const username = canonicalUsername(process.env.ADMIN_USERNAME!)
+  const sql = getSql()
+  const existing = await sql`SELECT password_hash FROM admin_credentials WHERE username=${username}`
+  if (existing[0]) return
+  const passwordHash = await bcrypt.hash(process.env.ADMIN_PASSWORD!, 12)
+  await sql`INSERT INTO admin_credentials (username, password_hash) VALUES (${username}, ${passwordHash}) ON CONFLICT (username) DO NOTHING`
+}
+
+export async function verifyAdminCredentials(username: string, password: string): Promise<{ username: string; credentialVersion: string } | null> {
+  if (!credentialsConfigured() || !username.trim() || !password) return null
+  await ensureSecuritySchema()
+  await ensureBootstrapCredential()
+  const canonical = canonicalUsername(username)
+  const rows = await getSql()`SELECT username, password_hash FROM admin_credentials WHERE username=${canonical}`
+  const credential = rows[0]
+  if (!credential || !await bcrypt.compare(password, credential.password_hash)) return null
+  return { username: credential.username, credentialVersion: digest(credential.password_hash) }
+}
+
+export async function createSession(username: string, credentialVersion: string): Promise<{ token: string; expiresAt: number }> {
   await ensureSecuritySchema()
   const sql = getSql()
   await sql`DELETE FROM admin_sessions WHERE expires_at <= NOW()`
   const token = randomBytes(32).toString('hex')
   const expiresAt = Date.now() + SESSION_SECONDS * 1000
-  await sql`INSERT INTO admin_sessions (token_hash, credential_version, expires_at) VALUES (${digest(token)}, ${credentialVersion()}, ${new Date(expiresAt).toISOString()})`
+  await sql`INSERT INTO admin_sessions (token_hash, username, credential_version, expires_at) VALUES (${digest(token)}, ${username}, ${credentialVersion}, ${new Date(expiresAt).toISOString()})`
   return { token, expiresAt }
 }
 
 export async function getSessionExpiry(req: any): Promise<number | null> {
   const token = sessionToken(req)
-  if (!token || !credentialsConfigured()) return null
+  if (!token) return null
   await ensureSecuritySchema()
-  const rows = await getSql()`SELECT expires_at FROM admin_sessions WHERE token_hash=${digest(token)} AND credential_version=${credentialVersion()} AND expires_at > NOW()`
-  return rows[0] ? new Date(rows[0].expires_at).getTime() : null
+  const sql = getSql()
+  const sessions = await sql`SELECT expires_at, username, credential_version FROM admin_sessions WHERE token_hash=${digest(token)} AND expires_at > NOW()`
+  const session = sessions[0]
+  if (!session?.username) return null
+  const credentials = await sql`SELECT password_hash FROM admin_credentials WHERE username=${session.username}`
+  if (!credentials[0] || !sameSecret(session.credential_version, digest(credentials[0].password_hash))) return null
+  return new Date(session.expires_at).getTime()
 }
 
 export async function revokeSession(req: any) {
