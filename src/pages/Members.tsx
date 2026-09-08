@@ -8,7 +8,10 @@ export default function Members() {
   const [members, setMembers] = useState<Member[]>([])
 
   useEffect(() => {
-    getMembers().then(setMembers).catch(() => setMembers([]))
+    const load = () => { void getMembers().then(setMembers).catch(() => undefined) }
+    load()
+    const timer = window.setInterval(load, 15_000)
+    return () => window.clearInterval(timer)
   }, [])
 
   return <><PageHero eyebrow="Our people" title="YDM Members" description="Meet the young people serving together with different gifts and one purpose — to glorify Christ and strengthen the youth community." icon={<Users size={15} />} /><section className="py-20"><div className="mx-auto max-w-7xl px-5 lg:px-8">

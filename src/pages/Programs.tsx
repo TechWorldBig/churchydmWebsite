@@ -29,8 +29,19 @@ export default function Programs() {
   const [searched, setSearched] = useState(false)
   const [notice, setNotice] = useState('')
 
-  useEffect(() => { void getMembers().then(setMembers).catch(() => undefined) }, [])
-  useEffect(() => { if (!name.trim() || !from || (to && to < from)) { setPoints([]); return }; void getProgramPoints({ name, program, from, to }).then(setPoints).catch(() => setPoints([])) }, [name, program, from, to])
+  useEffect(() => {
+    const load = () => { void getMembers().then(setMembers).catch(() => undefined) }
+    load()
+    const timer = window.setInterval(load, 15_000)
+    return () => window.clearInterval(timer)
+  }, [])
+  useEffect(() => {
+    if (!name.trim() || !from || (to && to < from)) { setPoints([]); return }
+    const load = () => { void getProgramPoints({ name, program, from, to }).then(setPoints).catch(() => setPoints([])) }
+    load()
+    const timer = window.setInterval(load, 15_000)
+    return () => window.clearInterval(timer)
+  }, [name, program, from, to])
   const result = useMemo(() => { const member = members.find(item => item.name.trim().toLowerCase() === name.trim().toLowerCase()); return member ? { member, rows: points } : null }, [members, points, name])
   const summaries = useMemo(() => summarizeProgramPoints(result?.rows || []), [result])
   const search = () => { if (!name.trim() || !from) { setNotice('Member name and From date are required. To date is optional.'); setSearched(false); return }; if (to && to < from) { setNotice('To date must be on or after the From date.'); setSearched(false); return }; setNotice(''); setSearched(true) }

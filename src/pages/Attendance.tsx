@@ -26,13 +26,16 @@ export default function Attendance() {
   const [searchNotice, setSearchNotice] = useState('')
 
   useEffect(() => {
-    Promise.all([getMembers(), getAttendance(), getLastUpdated()])
+    const load = () => Promise.all([getMembers(), getAttendance(), getLastUpdated()])
       .then(([savedMembers, savedRecords, updated]) => {
         setMembers(savedMembers)
         setRecords(savedRecords)
         setLastUpdatedValue(updated.value)
       })
-      .catch(() => { setMembers([]); setRecords([]); setLastUpdatedValue(null) })
+      .catch(() => undefined)
+    void load()
+    const timer = window.setInterval(() => { void load() }, 15_000)
+    return () => window.clearInterval(timer)
   }, [])
 
   const month = new Date().toISOString().slice(0, 7)

@@ -12,7 +12,12 @@ export default function Gallery() {
   const closeRef = useRef<HTMLButtonElement>(null)
   const [photos, setPhotos] = useState<GalleryPhoto[]>([])
   const [active, setActive] = useState<GalleryPhoto | null>(null)
-  useEffect(() => { getGallery().then(setPhotos).catch(() => setPhotos([])) }, [])
+  useEffect(() => {
+    const load = () => { void getGallery().then(setPhotos).catch(() => undefined) }
+    load()
+    const timer = window.setInterval(load, 15_000)
+    return () => window.clearInterval(timer)
+  }, [])
   useEffect(() => {
     if (!active) return
     const previousFocus = document.activeElement as HTMLElement | null
