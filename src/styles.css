@@ -38,8 +38,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .program-bible-icon { display: grid; width: 4.25rem; height: 4.25rem; place-items: center; }
 .program-bible-icon img { display: block; width: 5.25rem; height: 5.25rem; object-fit: contain; filter: drop-shadow(0 6px 0 rgba(77,38,20,.2)) drop-shadow(0 14px 16px rgba(7,31,25,.18)); transform: perspective(12rem) rotateX(6deg) rotateY(-5deg); animation: program-symbol-float 3.2s ease-in-out infinite; transition: transform .25s ease, filter .25s ease; }
 .soft-card.group:hover .program-bible-icon img { filter: drop-shadow(0 7px 0 rgba(77,38,20,.2)) drop-shadow(0 16px 18px rgba(7,31,25,.2)); transform: perspective(12rem) translateY(-.2rem) rotateX(8deg) rotateY(-7deg) rotateZ(-2deg); }
-  .glass-dark { @apply border border-white/15 bg-black/30 backdrop-blur-xl; }
-  .panorama-button { @apply grid h-12 w-12 place-items-center rounded-full border border-white/15 bg-black/35 text-white backdrop-blur-xl transition hover:bg-white hover:text-[#071f19]; }
   .social-icon { @apply grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-white/65; }
   .footer-link { @apply transition hover:translate-x-1 hover:text-[#e3bc62]; }
   .field-label { @apply grid gap-2 text-xs font-bold uppercase tracking-[0.12em] text-slate-500; }
@@ -283,7 +281,6 @@ main > section + section .soft-card.overflow-hidden.p-0 > div.h-52 img { height:
 .site-footer p { line-height: 1.55; }
 .social-icon { transition: transform .25s ease, background-color .25s ease, color .25s ease; }
 .social-icon:hover { transform: translateY(-3px); background: rgba(227,188,98,.15); color: var(--gold); }
-.panorama-button { box-shadow: 0 10px 25px rgba(0,0,0,.18); }
 .church-assistant-fab {
   right: max(1.25rem, env(safe-area-inset-right));
   bottom: max(1.25rem, env(safe-area-inset-bottom));
@@ -411,9 +408,6 @@ main > section + section .soft-card.overflow-hidden.p-0 > div.h-52 img { height:
   .site-footer h3 { margin-bottom: .25rem; font-size: .7rem; }
   #panorama-stage { height: min(76vw, 350px); min-height: 0; }
   #panorama-stage .panorama-image { height: 100%; object-fit: cover; background: #031611; }
-  #panorama-stage .panorama-controls { height: auto; padding: 10px 20px 12px; background: linear-gradient(to top, rgba(3,22,17,.88), transparent); }
-  #panorama-stage .panorama-controls .mt-5 { margin-top: .7rem; }
-  #panorama-stage .panorama-controls .panorama-button { height: 2.75rem; width: 2.75rem; }
   .weekly-program-section table { min-width: 0 !important; table-layout: fixed; }
   .weekly-program-section table th, .weekly-program-section table td { overflow-wrap: anywhere; white-space: normal; }
   .weekly-program-section table th:first-child, .weekly-program-section table td:first-child { width: 16%; }
