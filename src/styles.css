@@ -291,8 +291,9 @@ main > section + section .soft-card.overflow-hidden.p-0 > div.h-52 img { height:
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
-.church-assistant-fab .church-assistant-dove { width: 2.8rem; height: 2.8rem; object-fit: contain; filter: drop-shadow(1px 3px 1px rgba(7,31,25,.2)); transform: rotate(-6deg); }
+.church-assistant-fab .church-assistant-dove { width: 2.8rem; height: 2.8rem; object-fit: contain; filter: drop-shadow(1px 3px 1px rgba(0,0,0,.5)); transform: rotate(-6deg); animation: dove-float 3s ease-in-out infinite; }
 .church-assistant-fab.bird-quacking .church-assistant-dove { animation: dove-flutter .14s ease-in-out 3; }
+@keyframes dove-float { 0%, 100% { transform: translateY(0) rotate(-6deg) scale(1); } 50% { transform: translateY(-.22rem) rotate(4deg) scale(1.05); } }
 @keyframes dove-flutter { 0%, 100% { transform: rotate(-6deg) scale(1); } 50% { transform: rotate(-10deg) scale(1.08); } }
 .church-assistant-fab.bird-quacking { animation: bird-quack-wobble .56s cubic-bezier(.22, 1, .36, 1); transform-style: preserve-3d; }
 .church-assistant-fab.bird-quacking svg { animation: bird-quack-flap .14s ease-in-out 3; filter: drop-shadow(2px 4px 0 rgba(7,31,25,.18)); transform-origin: 42% 55%; }

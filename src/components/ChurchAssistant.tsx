@@ -491,7 +491,7 @@ export default function ChurchAssistant() {
         type="button"
         aria-label={open ? 'Close church assistant' : 'Open church assistant'}
         onClick={() => { quack(); setOpen((value) => !value) }}
-        className={`church-assistant-fab fixed z-[70] grid h-14 w-14 place-items-center rounded-full bg-[#e3bc62] text-[#071f19] shadow-[0_18px_40px_rgba(4,21,17,.25)] transition hover:-translate-y-1 ${isQuacking ? 'bird-quacking' : ''}`}
+        className={`church-assistant-fab fixed z-[70] grid h-14 w-14 place-items-center rounded-full bg-black text-white shadow-[0_18px_40px_rgba(4,21,17,.4)] transition hover:-translate-y-1 ${isQuacking ? 'bird-quacking' : ''}`}
       >
         <img src={dove3d} alt="" aria-hidden="true" className="church-assistant-dove" />
       </button>
