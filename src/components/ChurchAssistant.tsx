@@ -7,11 +7,13 @@ import { getBibleReply, isBibleRequest } from '../data/bibleApi'
 import type { BibleLanguage } from '../data/bibleApi'
 import type { AttendanceRecord, Member } from '../data/memberStore'
 import dove3d from '../assets/dove-3d.png'
+import ydmLogo from '../assets/jsc-ydm-logo.png'
 
 type Message = {
   id: string
   role: 'bot' | 'user'
   text: string
+  attachment?: { href: string; label: string; downloadName: string }
 }
 
 const initialMessages: Message[] = [
@@ -153,6 +155,24 @@ function getRequestedLanguage(input: string): BibleLanguage | null {
 
   if (!isLanguageCommand) return null
   return getMentionedLanguage(input)
+}
+
+function isLogoRequest(input: string): boolean {
+  const lower = input.toLocaleLowerCase()
+  const logoTerms = ['logo', 'symbol', 'emblem', 'brand mark', '\u0b9a\u0bbf\u0ba9\u0bcd\u0ba9\u0bae\u0bcd', '\u0d32\u0d4b\u0d17\u0d4b']
+  return logoTerms.some((term) => lower.includes(term))
+}
+
+function getLogoReply(language: BibleLanguage): string {
+  return {
+    en: 'Faith — a Bible-centered life that helps young people grow, serve and lead.',
+    ta: '\u0ba8\u0bae\u0bcd\u0baa\u0bbf\u0b95\u0bcd\u0b95\u0bc8 — \u0b87\u0bb3\u0bae\u0bcd \u0baa\u0baf\u0ba9\u0bcd\u0b95\u0bb3\u0bc8 \u0bb5\u0bb3\u0bb0\u0bcd\u0ba4\u0bcd\u0ba4\u0bc1, \u0b9a\u0bc7\u0bb5\u0bc8 \u0b9a\u0bc6\u0baf\u0bcd\u0baf \u0bae\u0bb1\u0bcd\u0bb1\u0bc1\u0bae\u0bcd \u0ba4\u0bb2\u0bc8\u0bae\u0bc8 \u0ba4\u0bbe\u0b99\u0bcd\u0b95 \u0b89\u0ba4\u0bb5\u0bc1\u0bae\u0bcd.',
+    ml: '\u0d35\u0d3f\u0d36\u0d4d\u0d35\u0d3e\u0d38\u0d02 — \u0d2f\u0d41\u0d35\u0d3e\u0d15\u0d4d\u0d15\u0d33\u0d46 \u0d35\u0d33\u0d7c\u0d24\u0d4d\u0d24\u0d3f, \u0d38\u0d47\u0d35\u0d28\u0d24\u0d4d\u0d24\u0d3f\u0d28\u0d41\u0d02 \u0d28\u0d47\u0d24\u0d43\u0d24\u0d4d\u0d35\u0d24\u0d4d\u0d24\u0d3f\u0d28\u0d41\u0d02 \u0d38\u0d39\u0d3e\u0d2f\u0d3f\u0d15\u0d4d\u0d15\u0d41\u0d28\u0d4d\u0d28 \u0d2c\u0d48\u0d2c\u0d3f\u0d33\u0d4d \u0d05\u0d27\u0d3f\u0d37\u0d4d\u0d20\u0d3f\u0d24 \u0d1c\u0d40\u0d35\u0d3f\u0d24\u0d02.',
+  }[language]
+}
+
+function getLogoDownloadLabel(language: BibleLanguage): string {
+  return { en: 'Download the YDM logo', ta: '\u0b8e\u0b99\u0bcd\u0b95\u0bb3\u0bcd YDM \u0b9a\u0bbf\u0ba9\u0bcd\u0ba9\u0ba4\u0bcd\u0ba4\u0bc8\u0baa\u0bcd \u0baa\u0ba4\u0bbf\u0bb5\u0bbf\u0bb1\u0b95\u0bcd\u0b95\u0bc1\u0bb5\u0bc1\u0bae\u0bcd', ml: 'YDM \u0d32\u0d4b\u0d17\u0d4b \u0d21\u0d57\u0d7a\u0d7a\u0d4d\u0d32\u0d4b\u0d21\u0d4d \u0d1a\u0d46\u0d2f\u0d4d\u0d2f\u0d41\u0d15' }[language]
 }
 
 function normalizeName(value: string): string {
@@ -431,6 +451,15 @@ export default function ChurchAssistant() {
     const responseLanguage = inlineLanguage ?? preferredLanguage
     if (inlineLanguage && inlineLanguage !== preferredLanguage) setPreferredLanguage(inlineLanguage)
 
+    if (isLogoRequest(text)) {
+      setMessages((current) => [...current, userMessage, {
+        id: crypto.randomUUID(),
+        role: 'bot',
+        text: getLogoReply(responseLanguage),
+        attachment: { href: ydmLogo, label: getLogoDownloadLabel(responseLanguage), downloadName: 'jsc-ydm-logo.png' },
+      }])
+      return
+    }
 
     if (isAttendanceCorrectionRequest(text)) {
       setMessages((current) => [
@@ -517,6 +546,7 @@ export default function ChurchAssistant() {
               <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`church-assistant-message max-w-[85%] whitespace-pre-wrap rounded-2xl px-3 py-2 text-sm leading-6 ${message.role === 'user' ? 'bg-[#e3bc62] text-[#071f19]' : 'bg-white/8 text-white/88'}`}>
                   {message.text}
+                  {message.attachment && <div className="mt-2 grid gap-2"><img src={message.attachment.href} alt="YDM logo" className="h-28 w-28 rounded-xl bg-white/95 object-contain p-2" /><a href={message.attachment.href} download={message.attachment.downloadName} className="inline-flex w-fit rounded-xl bg-[#e3bc62] px-3 py-2 text-xs font-black text-[#071f19] transition hover:bg-[#f0cf82] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e3bc62]">{message.attachment.label}</a></div>}
                 </div>
               </div>
             ))}
