@@ -410,6 +410,10 @@ main > section + section .soft-card.overflow-hidden.p-0 > div.h-52 img { height:
   #panorama-stage .panorama-controls { height: auto; padding: 10px 20px 12px; background: linear-gradient(to top, rgba(3,22,17,.88), transparent); }
   #panorama-stage .panorama-controls .mt-5 { margin-top: .7rem; }
   #panorama-stage .panorama-controls .panorama-button { height: 2.75rem; width: 2.75rem; }
+  .weekly-program-section table { min-width: 0 !important; table-layout: fixed; }
+  .weekly-program-section table th, .weekly-program-section table td { overflow-wrap: anywhere; white-space: normal; }
+  .weekly-program-section table th:first-child, .weekly-program-section table td:first-child { width: 16%; }
+  .weekly-program-section table th:nth-child(2), .weekly-program-section table td:nth-child(2), .weekly-program-section table th:nth-child(3), .weekly-program-section table td:nth-child(3) { width: 42%; }
   .attendance-search-panel { transform: none; }
   .attendance-page > .mx-auto > div:first-child { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .attendance-page > .mx-auto > div:first-child > article:last-child { grid-column: 1 / -1; }
