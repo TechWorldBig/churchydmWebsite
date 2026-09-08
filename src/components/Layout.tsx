@@ -3,7 +3,7 @@ import { Menu, X, Instagram, Youtube } from 'lucide-react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import ChurchAssistant from './ChurchAssistant'
-import ydmLogo from '../assets/jsc-ydm-logo.png'
+import ydmLogo from '../assets/jsc-ydm-logo.gif'
 
 const links = [
   ['Home', '/'],
