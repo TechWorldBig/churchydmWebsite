@@ -3,6 +3,7 @@ import { CalendarCheck, CalendarDays, Clock3, Search, TrendingUp, Users } from '
 import PageHero from '../components/PageHero'
 import { AttendanceRecord, Member } from '../data/memberStore'
 import { getAttendance, getLastUpdated, getMembers } from '../data/api'
+import { currentYearDateBounds } from '../data/dateBounds'
 import memberMaleGif from '../assets/member-male.gif'
 import memberFemaleGif from '../assets/member-female.gif'
 import noRecordMale from '../assets/no-record-male.png'
@@ -14,6 +15,7 @@ const memberInitials = (name: string) => name.split(/\s+/u).filter(Boolean).slic
 const memberGender = (gender: string): 'female' | 'male' => gender.trim().toLocaleLowerCase() === 'female' ? 'female' : 'male'
 
 export default function Attendance() {
+  const yearBounds = currentYearDateBounds()
   const [members, setMembers] = useState<Member[]>([])
   const [records, setRecords] = useState<AttendanceRecord[]>([])
   const [lastUpdatedValue, setLastUpdatedValue] = useState<string | null>(null)
@@ -97,10 +99,10 @@ export default function Attendance() {
               <input value={memberSearch} onChange={event => { setMemberSearch(event.target.value); resetSearch() }} className="field member-name-field-3d" placeholder="Search by name" />
             </label>
             <label className="field-label md:col-span-1">From date
-              <span className="calendar-control-3d"><input value={fromDate} onChange={event => { setFromDate(event.target.value); resetSearch() }} type="date" className="field" /><CalendarDays aria-hidden="true" size={17} /></span>
+              <span className="calendar-control-3d"><input value={fromDate} min={yearBounds.min} max={yearBounds.max} onChange={event => { setFromDate(event.target.value); resetSearch() }} type="date" className="field" /><CalendarDays aria-hidden="true" size={17} /></span>
             </label>
             <label className="field-label md:col-span-1"><span className="date-label-heading">To date <small>(optional)</small></span>
-              <span className="calendar-control-3d"><input value={toDate} min={fromDate || undefined} onChange={event => { setToDate(event.target.value); resetSearch() }} type="date" className="field" /><CalendarDays aria-hidden="true" size={17} /></span>
+              <span className="calendar-control-3d"><input value={toDate} min={fromDate || yearBounds.min} max={yearBounds.max} onChange={event => { setToDate(event.target.value); resetSearch() }} type="date" className="field" /><CalendarDays aria-hidden="true" size={17} /></span>
             </label>
             <button type="button" onClick={runSearch} className="dark-btn search-button-3d self-end md:col-span-1"><Search size={17} /> Search</button>
           </div>

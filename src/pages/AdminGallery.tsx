@@ -2,14 +2,16 @@ import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { CalendarDays, ImagePlus, Pencil, Trash2 } from 'lucide-react'
 import { createGalleryPhoto, deleteGalleryPhoto, getGallery, updateGalleryPhoto } from '../data/api'
 import { GalleryPhoto } from '../data/memberStore'
+import { currentYearDateBounds, todayDate } from '../data/dateBounds'
 
 const emptyPhoto: Omit<GalleryPhoto, 'id'> = {
   photo: '',
-  date: new Date().toISOString().slice(0, 10),
+  date: todayDate(),
   description: '',
 }
 
 export default function AdminGallery() {
+  const yearBounds = currentYearDateBounds()
   const [photos, setPhotos] = useState<GalleryPhoto[]>([])
   const [photo, setPhoto] = useState(emptyPhoto)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -97,7 +99,7 @@ export default function AdminGallery() {
             {photo.photo && <img src={photo.photo} alt="Selected event" className="h-36 w-full rounded-xl object-cover" />}
             <label className="field-label">
               Event date
-              <input type="date" value={photo.date} onChange={event => setPhoto(current => ({ ...current, date: event.target.value }))} className="field" />
+              <input type="date" min={yearBounds.min} max={yearBounds.max} value={photo.date} onChange={event => setPhoto(current => ({ ...current, date: event.target.value }))} className="field" />
             </label>
             <label className="field-label">
               Description

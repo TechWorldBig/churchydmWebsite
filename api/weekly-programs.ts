@@ -2,6 +2,7 @@ import { authorizeMutation, getSessionExpiry } from './_lib/security.js'
 import { ensureSchema, getSql, sendError } from './_lib/db.js'
 
 const validDate = (value: unknown) => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/u.test(value) && Number.isFinite(Date.parse(value))
+const currentYearDate = (value: unknown) => validDate(value) && (value as string).slice(0, 4) === String(new Date().getFullYear())
 const validText = (value: unknown, max: number) => typeof value === 'string' && value.trim().length > 0 && value.length <= max
 const indiaDate = () => {
   const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date())
@@ -30,7 +31,7 @@ export default async function handler(req: any, res: any) {
       await sql`DELETE FROM weekly_programs WHERE id=${body.id}`
       return res.status(200).json({ ok: true })
     }
-    if (req.method !== 'POST' || !validText(body.id, 100) || !validDate(body.date) || !Number.isInteger(body.serialNo) || body.serialNo < 1 || body.serialNo > 15 || !validText(body.programName, 200) || !validText(body.memberId, 100) || !validText(body.memberName, 100)) return res.status(400).json({ error: 'Invalid weekly program data.' })
+    if (req.method !== 'POST' || !validText(body.id, 100) || !currentYearDate(body.date) || !Number.isInteger(body.serialNo) || body.serialNo < 1 || body.serialNo > 15 || !validText(body.programName, 200) || !validText(body.memberId, 100) || !validText(body.memberName, 100)) return res.status(400).json({ error: 'Invalid weekly program data.' })
     const count = await sql`SELECT COUNT(*)::int AS count FROM weekly_programs WHERE date=${body.date}`
     if (count[0].count >= 15) return res.status(409).json({ error: 'A date can contain a maximum of 15 weekly programs.' })
     const existing = await sql`SELECT id FROM weekly_programs WHERE date=${body.date} AND serial_no=${body.serialNo} LIMIT 1`

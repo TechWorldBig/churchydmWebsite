@@ -2,6 +2,7 @@ import { authorizeMutation, getSessionExpiry } from './_lib/security.js'
 import { ensureSchema, getSql, sendError } from './_lib/db.js'
 
 const validDate = (value: unknown) => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/u.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value
+const currentYearDate = (value: unknown) => validDate(value) && (value as string).slice(0, 4) === String(new Date().getFullYear())
 const queryText = (value: unknown) => typeof value === 'string' ? value.trim() : ''
 const allowedPrograms = new Set(['Bible Reference', 'Bible Quiz', 'Song Survey'])
 const currentDate = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date())
@@ -17,7 +18,7 @@ export default async function handler(req: any, res: any) {
       const selectedProgram = queryText(query.program)
       const from = queryText(query.from)
       const to = queryText(query.to)
-      if (!name || name.length > 100 || (selectedProgram && !allowedPrograms.has(selectedProgram)) || (from && !validDate(from)) || (to && !validDate(to)) || (from && to && to < from)) return res.status(400).json({ error: 'Invalid program points search range.' })
+      if (!name || name.length > 100 || (selectedProgram && !allowedPrograms.has(selectedProgram)) || (from && !currentYearDate(from)) || (to && !currentYearDate(to)) || (from && to && to < from)) return res.status(400).json({ error: 'Invalid program points search range.' })
       const throughDate = to || currentDate()
       const rows = await sql`SELECT DISTINCT ON (member_id, program, date) id, member_id AS "memberId", name, program, seniority, date, questions_answered AS "questionsAnswered" FROM program_points WHERE LOWER(TRIM(name)) LIKE LOWER('%' || TRIM(${name}) || '%') AND (${selectedProgram} = '' OR TRIM(program) = TRIM(${selectedProgram})) AND (${from} = '' OR date >= ${from}) AND date <= ${throughDate} ORDER BY member_id, program, date, created_at DESC`
       return res.status(200).json(rows)
@@ -30,7 +31,7 @@ export default async function handler(req: any, res: any) {
       if (!deleted[0]) return res.status(404).json({ error: 'Program point was not found.' })
       return res.status(200).json({ ok: true })
     }
-    if (typeof body.id !== 'string' || !body.id.trim() || typeof body.memberId !== 'string' || !body.memberId.trim() || typeof body.name !== 'string' || !body.name.trim() || !allowedPrograms.has(body.program) || !['', 'Junior', 'Senior'].includes(body.seniority) || !validDate(body.date) || !Number.isInteger(body.questionsAnswered) || body.questionsAnswered < 0 || body.questionsAnswered > 5) return res.status(400).json({ error: 'Invalid program point data' })
+    if (typeof body.id !== 'string' || !body.id.trim() || typeof body.memberId !== 'string' || !body.memberId.trim() || typeof body.name !== 'string' || !body.name.trim() || !allowedPrograms.has(body.program) || !['', 'Junior', 'Senior'].includes(body.seniority) || !currentYearDate(body.date) || !Number.isInteger(body.questionsAnswered) || body.questionsAnswered < 0 || body.questionsAnswered > 5) return res.status(400).json({ error: 'Invalid program point data' })
     if (req.method === 'PUT') {
       const duplicate = await sql`SELECT id FROM program_points WHERE member_id=${body.memberId} AND program=${body.program} AND date=${body.date} AND id<>${body.id} LIMIT 1`
       if (duplicate[0]) return res.status(409).json({ error: 'A program point already exists for this member, program, and date.' })

@@ -2,11 +2,13 @@ import { useEffect, useMemo, useState } from 'react'
 import { Pencil, Trash2, X } from 'lucide-react'
 import { deleteProgramPoint, getMembers, getProgramPoints, saveProgramPoint, updateProgramPoint } from '../data/api'
 import { Member, ProgramPoint } from '../data/memberStore'
+import { currentYearDateBounds } from '../data/dateBounds'
 
 const pointPrograms = ['Bible Reference', 'Bible Quiz', 'Song Survey']
 const uniquePoints = (items: ProgramPoint[]) => Array.from(new Map([...items].reverse().map(item => [`${item.memberId}-${item.program}-${item.date}`, item])).values()).reverse()
 
 export default function AdminProgramPoints() {
+  const yearBounds = currentYearDateBounds()
   const [members, setMembers] = useState<Member[]>([])
   const [points, setPoints] = useState<ProgramPoint[]>([])
   const [memberId, setMemberId] = useState('')
@@ -76,7 +78,7 @@ export default function AdminProgramPoints() {
     <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
       <label className="field-label">Member name<select aria-label="Program member" className="field" value={memberId} onChange={event => setMemberId(event.target.value)}><option value="">Select member</option>{members.map(member => <option key={member.id} value={member.id}>{member.name}</option>)}</select></label>
       <label className="field-label">Program name<select aria-label="Program name" className="field" value={program} onChange={event => setProgram(event.target.value)}><option value="">Select program</option>{pointPrograms.map(item => <option key={item}>{item}</option>)}</select></label>
-      <label className="field-label">Date<input aria-label="Program date" className="field" type="date" value={date} onChange={event => setDate(event.target.value)} /></label>
+      <label className="field-label">Date<input aria-label="Program date" className="field" type="date" min={yearBounds.min} max={yearBounds.max} value={date} onChange={event => setDate(event.target.value)} /></label>
       <label className="field-label">Questions answered<div className="flex min-w-0 gap-2"><input aria-label="Questions answered" className="field min-w-0" type="number" min="0" max="5" value={questionsAnswered} onChange={event => setQuestionsAnswered(event.target.value)} placeholder="0–5" /><button className="primary-btn shrink-0" onClick={() => void save()}>{editingId ? 'Update' : 'Save'}</button>{editingId && <button type="button" className="shrink-0 rounded-xl border border-slate-200 bg-white p-3 text-slate-600 shadow-sm transition hover:bg-slate-50" aria-label="Cancel editing program point" title="Cancel editing" onClick={clearForm}><X size={18} /></button>}</div></label>
     </div>
     {message && <p className="mt-3 text-sm text-emerald-700">{message}</p>}
