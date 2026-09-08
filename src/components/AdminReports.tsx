@@ -16,16 +16,23 @@ const groupLabel = (seniority: string, absent: number) => `${seniority} members 
 
 type AttendanceSummary = { member: Member; seniority: string; absent: number; percentage: number }
 const attendanceReport = (members: Member[], records: AttendanceRecord[]) => {
-  const days = [...new Set(records.map(record => record.date))]
+  const dailyAttendance = new Map<string, AttendanceRecord>()
+  records.forEach(record => {
+    const key = `${record.memberId || record.name}-${record.date}`
+    const existing = dailyAttendance.get(key)
+    if (!existing || record.present) dailyAttendance.set(key, record)
+  })
+  const deduplicatedRecords = [...dailyAttendance.values()]
+  const days = [...new Set(deduplicatedRecords.map(record => record.date))].sort()
   const summaries: AttendanceSummary[] = members.flatMap(member => {
-    const rows = records.filter(record => record.memberId === member.id)
+    const rows = deduplicatedRecords.filter(record => record.memberId === member.id || (!record.memberId && record.name === member.name))
     if (!rows.length || !days.length || !member.seniority) return []
     const presentDays = new Set(rows.filter(record => record.present).map(record => record.date))
     const absent = days.filter(day => !presentDays.has(day)).length
     return [{ member, seniority: member.seniority, absent, percentage: Math.round((presentDays.size / days.length) * 100) }]
   }).filter(item => item.absent <= 2)
-  const sections = [0, 1, 2].flatMap(absent => ['Junior', 'Senior'].map(seniority => {
-    const rows = summaries.filter(item => item.absent === absent && item.seniority === seniority)
+  const sections = ['Senior', 'Junior'].flatMap(seniority => [0, 1, 2].map(absent => {
+    const rows = summaries.filter(item => item.absent === absent && item.seniority === seniority).sort((a, b) => a.member.name.localeCompare(b.member.name))
     if (!rows.length) return ''
     return `<h2>${groupLabel(seniority, absent)}</h2><table><thead><tr><th>Name</th><th>Seniority</th><th>Overall percentage</th></tr></thead><tbody>${rows.map(row => `<tr><td>${esc(row.member.name)}</td><td>${esc(row.seniority)}</td><td>${row.percentage}%</td></tr>`).join('')}</tbody></table>`
   })).join('')
