@@ -405,9 +405,9 @@ main > section + section .soft-card.overflow-hidden.p-0 > div.h-52 img { height:
   .site-footer .footer-brand > div:first-child { margin-bottom: .35rem; }
   .site-footer .footer-brand p { font-size: .75rem; line-height: 1.35; }
   .site-footer h3 { margin-bottom: .25rem; font-size: .7rem; }
-  #panorama-stage { height: calc(min(56vw, 350px) + 76px); min-height: 0; }
-  #panorama-stage .panorama-image { height: min(56vw, 350px); object-fit: cover; background: #031611; }
-  #panorama-stage .panorama-controls { height: 76px; padding: 10px 20px 12px; background: #071f19; }
+  #panorama-stage { height: min(76vw, 350px); min-height: 0; }
+  #panorama-stage .panorama-image { height: 100%; object-fit: cover; background: #031611; }
+  #panorama-stage .panorama-controls { height: auto; padding: 10px 20px 12px; background: linear-gradient(to top, rgba(3,22,17,.88), transparent); }
   #panorama-stage .panorama-controls .mt-5 { margin-top: .7rem; }
   #panorama-stage .panorama-controls .panorama-button { height: 2.75rem; width: 2.75rem; }
   .attendance-search-panel { transform: none; }
