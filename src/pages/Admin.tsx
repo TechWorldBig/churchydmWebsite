@@ -12,7 +12,7 @@ import AdminWeeklyPrograms from '../components/WeeklyPrograms'
 import { currentYearDateBounds, todayDate } from '../data/dateBounds'
 
 const emptyMember: Omit<Member, 'id'> = { name: '', role: '', email: '', phone: '', address: '', gender: '', seniority: '', dateOfBirth: '', focus: '', photo: '' }
-const uniqueMembers = (items: Member[]) => Array.from(new Map(items.map(item => [item.name.trim().toLowerCase(), item])).values())
+const uniqueMembers = (items: Member[]) => Array.from(new Map(items.map(item => [item.name.trim().toLowerCase(), item])).values()).sort((a, b) => a.name.localeCompare(b.name))
 const uniqueRecords = (items: AttendanceRecord[]) => Array.from(new Map(items.map(item => [`${item.memberId}-${item.date}`, item])).values())
 
 export default function Admin() {
