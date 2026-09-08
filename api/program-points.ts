@@ -4,6 +4,7 @@ import { ensureSchema, getSql, sendError } from './_lib/db.js'
 const validDate = (value: unknown) => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/u.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value
 const queryText = (value: unknown) => typeof value === 'string' ? value.trim() : ''
 const allowedPrograms = new Set(['Bible Reference', 'Bible Quiz', 'Song Survey'])
+const currentDate = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date())
 
 export default async function handler(req: any, res: any) {
   try {
@@ -17,7 +18,8 @@ export default async function handler(req: any, res: any) {
       const from = queryText(query.from)
       const to = queryText(query.to)
       if (!name || name.length > 100 || (selectedProgram && !allowedPrograms.has(selectedProgram)) || (from && !validDate(from)) || (to && !validDate(to)) || (from && to && to < from)) return res.status(400).json({ error: 'Invalid program points search range.' })
-      const rows = await sql`SELECT DISTINCT ON (member_id, program, date) id, member_id AS "memberId", name, program, seniority, date, questions_answered AS "questionsAnswered" FROM program_points WHERE LOWER(TRIM(name)) LIKE LOWER('%' || TRIM(${name}) || '%') AND (${selectedProgram} = '' OR TRIM(program) = TRIM(${selectedProgram})) AND (${from} = '' OR date >= ${from}) AND (${to} = '' OR date <= ${to}) ORDER BY member_id, program, date, created_at DESC`
+      const throughDate = to || currentDate()
+      const rows = await sql`SELECT DISTINCT ON (member_id, program, date) id, member_id AS "memberId", name, program, seniority, date, questions_answered AS "questionsAnswered" FROM program_points WHERE LOWER(TRIM(name)) LIKE LOWER('%' || TRIM(${name}) || '%') AND (${selectedProgram} = '' OR TRIM(program) = TRIM(${selectedProgram})) AND (${from} = '' OR date >= ${from}) AND date <= ${throughDate} ORDER BY member_id, program, date, created_at DESC`
       return res.status(200).json(rows)
     }
     if (!['POST', 'PUT', 'DELETE'].includes(req.method) || !await authorizeMutation(req, res)) return
