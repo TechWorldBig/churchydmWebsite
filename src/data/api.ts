@@ -16,6 +16,8 @@ export const getMembers = () => request<Member[]>('/api/members')
 export const getAttendance = () => request<AttendanceRecord[]>('/api/attendance')
 export const getProgramPoints = (filters?: { name?: string; program?: string; from?: string; to?: string }) => { const params = new URLSearchParams(); Object.entries(filters || {}).forEach(([key, value]) => { const normalized = value?.trim(); if (normalized) params.set(key, normalized) }); return request<ProgramPoint[]>(`/api/program-points${params.toString() ? `?${params}` : ''}`) }
 export const saveProgramPoint = (point: ProgramPoint) => request<{ ok: boolean; id?: string }>('/api/program-points', { method: 'POST', body: JSON.stringify(point) })
+export const updateProgramPoint = (point: ProgramPoint) => request<{ ok: boolean; id?: string }>('/api/program-points', { method: 'PUT', body: JSON.stringify(point) })
+export const deleteProgramPoint = (id: string) => request<{ ok: boolean }>('/api/program-points', { method: 'DELETE', body: JSON.stringify({ id }) })
 export const getLastUpdated = () => request<{ value: string | null }>('/api/updated')
 export const createMember = (member: Member) => request<{ ok: boolean }>('/api/members', { method: 'POST', body: JSON.stringify(member) })
 export const updateMember = (member: Member) => request<{ ok: boolean }>('/api/members', { method: 'PUT', body: JSON.stringify(member) })
