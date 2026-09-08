@@ -1,11 +1,12 @@
 import { isSensitiveRequest, isInstructionOverride, SENSITIVE_REPLY, OUT_OF_SCOPE_REPLY } from '../../shared/assistantPolicy'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Bird, Bot, Send, X } from 'lucide-react'
+import { Bot, Send, X } from 'lucide-react'
 import { askChurchAssistant, getAttendance, getMembers } from '../data/api'
 import type { AssistantTurn } from '../data/api'
 import { getBibleReply, isBibleRequest } from '../data/bibleApi'
 import type { BibleLanguage } from '../data/bibleApi'
 import type { AttendanceRecord, Member } from '../data/memberStore'
+import dove3d from '../assets/dove-3d.png'
 
 type Message = {
   id: string
@@ -492,7 +493,7 @@ export default function ChurchAssistant() {
         onClick={() => { quack(); setOpen((value) => !value) }}
         className={`church-assistant-fab fixed z-[70] grid h-14 w-14 place-items-center rounded-full bg-[#e3bc62] text-[#071f19] shadow-[0_18px_40px_rgba(4,21,17,.25)] transition hover:-translate-y-1 ${isQuacking ? 'bird-quacking' : ''}`}
       >
-        <Bird size={22} />
+        <img src={dove3d} alt="" aria-hidden="true" className="church-assistant-dove" />
       </button>
 
       {open && (
