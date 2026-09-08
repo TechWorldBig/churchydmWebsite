@@ -1,8 +1,9 @@
 import { type ReactNode, useEffect, useState } from 'react'
-import { Menu, X, Cross, Instagram, Youtube } from 'lucide-react'
+import { Menu, X, Instagram, Youtube } from 'lucide-react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import ChurchAssistant from './ChurchAssistant'
+import ydmLogo from '../assets/jsc-ydm-logo.png'
 
 const links = [
   ['Home', '/'],
@@ -30,8 +31,8 @@ export default function Layout({ children }: { children: ReactNode }) {
       <header className="site-header fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#071f19]/88 text-white backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:h-14 sm:px-5 lg:px-8">
           <Link to="/" className="group flex items-center gap-3" onClick={() => setOpen(false)}>
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#e3bc62] text-[#071f19] shadow-lg shadow-black/15 transition group-hover:rotate-3 sm:h-10 sm:w-10 sm:rounded-2xl">
-              <Cross size={20} strokeWidth={2.4} />
+            <span className="grid h-9 w-9 shrink-0 place-items-center transition group-hover:rotate-3 sm:h-10 sm:w-10">
+              <img src={ydmLogo} alt="" aria-hidden="true" className="h-full w-full object-contain drop-shadow-[0_2px_3px_rgba(0,0,0,0.3)]" />
             </span>
             <span className="leading-tight">
               <span className="block text-sm font-black tracking-[0.08em] sm:text-base">JSC YDM</span>
@@ -87,7 +88,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       <footer className="site-footer bg-[#041511] text-white">
         <div className="footer-content mx-auto grid max-w-7xl gap-5 px-5 py-3 lg:px-8">
           <div className="footer-brand">
-            <div className="mb-3 flex items-center gap-3 text-sm font-black sm:text-base"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#e3bc62] text-[#071f19]"><Cross size={19} /></span><span>JSC Youth Development Ministry</span></div>
+            <div className="mb-3 flex items-center gap-3 text-sm font-black sm:text-base"><span className="grid h-9 w-9 shrink-0 place-items-center"><img src={ydmLogo} alt="" aria-hidden="true" className="h-full w-full object-contain drop-shadow-[0_2px_3px_rgba(0,0,0,0.3)]" /></span><span>JSC Youth Development Ministry</span></div>
             <p className="max-w-md text-sm leading-7 text-white/55">A Christ-centered youth community growing together through worship, Scripture, fellowship, service and leadership.</p>
           </div>
           <div className="footer-explore">
