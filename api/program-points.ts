@@ -20,7 +20,7 @@ export default async function handler(req: any, res: any) {
       const to = queryText(query.to)
       if (!name || name.length > 100 || (selectedProgram && !allowedPrograms.has(selectedProgram)) || (from && !currentYearDate(from)) || (to && !currentYearDate(to)) || (from && to && to < from)) return res.status(400).json({ error: 'Invalid program points search range.' })
       const throughDate = to || currentDate()
-      const rows = await sql`SELECT DISTINCT ON (member_id, program, date) id, member_id AS "memberId", name, program, seniority, date, questions_answered AS "questionsAnswered" FROM program_points WHERE LOWER(TRIM(name)) LIKE LOWER('%' || TRIM(${name}) || '%') AND (${selectedProgram} = '' OR TRIM(program) = TRIM(${selectedProgram})) AND (${from} = '' OR date >= ${from}) AND date <= ${throughDate} ORDER BY member_id, program, date, created_at DESC`
+      const rows = await sql`SELECT DISTINCT ON (member_id, program, date) id, member_id AS "memberId", name, program, seniority, date, questions_answered AS "questionsAnswered" FROM program_points WHERE LOWER(TRIM(name)) = LOWER(TRIM(${name})) AND (${selectedProgram} = '' OR TRIM(program) = TRIM(${selectedProgram})) AND (${from} = '' OR date >= ${from}) AND date <= ${throughDate} ORDER BY member_id, program, date, created_at DESC`
       return res.status(200).json(rows)
     }
     if (!['POST', 'PUT', 'DELETE'].includes(req.method) || !await authorizeMutation(req, res)) return

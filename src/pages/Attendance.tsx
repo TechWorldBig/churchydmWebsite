@@ -52,7 +52,7 @@ export default function Attendance() {
   const searchedMembers = useMemo(() => {
     const search = memberSearch.trim().toLocaleLowerCase()
     if (!search || !fromDate) return []
-    return members.filter(member => member.name.toLocaleLowerCase().includes(search)).map(member => {
+    return members.filter(member => member.name.trim().toLocaleLowerCase() === search).map(member => {
       const isMemberRecord = (record: AttendanceRecord) => record.memberId === member.id || (!record.memberId && record.name === member.name)
       const matchingRecords = records.filter(record => {
         return isMemberRecord(record) && (toDate ? record.date >= fromDate && record.date <= toDate : record.date === fromDate)
