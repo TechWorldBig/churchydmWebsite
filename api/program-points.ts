@@ -1,6 +1,10 @@
 import { authorizeMutation, getSessionExpiry } from './_lib/security.js'
 import { ensureSchema, getSql, sendError } from './_lib/db.js'
 
+const validDate = (value: unknown) => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/u.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value
+const queryText = (value: unknown) => typeof value === 'string' ? value.trim() : ''
+const allowedPrograms = new Set(['Bible Reference', 'Bible Quiz', 'Song Survey'])
+
 export default async function handler(req: any, res: any) {
   try {
     await ensureSchema()
@@ -8,7 +12,12 @@ export default async function handler(req: any, res: any) {
     if (req.method === 'GET') {
       const query = req.query || {}
       if (!query.name) { if (!await getSessionExpiry(req)) return res.status(401).json({ error: 'Please sign in as an administrator.' }); const rows = await sql`SELECT DISTINCT ON (member_id, program, date) id, member_id AS "memberId", name, program, seniority, date, questions_answered AS "questionsAnswered" FROM program_points ORDER BY member_id, program, date, created_at ASC, id ASC`; return res.status(200).json(rows) }
-      const rows = await sql`SELECT DISTINCT ON (member_id, program, date) id, member_id AS "memberId", name, program, seniority, date, questions_answered AS "questionsAnswered" FROM program_points WHERE LOWER(TRIM(name)) LIKE LOWER('%' || TRIM(${query.name}) || '%') AND (${query.program || ''} = '' OR TRIM(program) = TRIM(${query.program || ''})) AND (${query.from || ''} = '' OR date >= ${query.from || ''}) AND (${query.to || ''} = '' OR date <= ${query.to || ''}) ORDER BY member_id, program, date, created_at DESC`
+      const name = queryText(query.name)
+      const selectedProgram = queryText(query.program)
+      const from = queryText(query.from)
+      const to = queryText(query.to)
+      if (!name || name.length > 100 || (selectedProgram && !allowedPrograms.has(selectedProgram)) || (from && !validDate(from)) || (to && !validDate(to)) || (from && to && to < from)) return res.status(400).json({ error: 'Invalid program points search range.' })
+      const rows = await sql`SELECT DISTINCT ON (member_id, program, date) id, member_id AS "memberId", name, program, seniority, date, questions_answered AS "questionsAnswered" FROM program_points WHERE LOWER(TRIM(name)) LIKE LOWER('%' || TRIM(${name}) || '%') AND (${selectedProgram} = '' OR TRIM(program) = TRIM(${selectedProgram})) AND (${from} = '' OR date >= ${from}) AND (${to} = '' OR date <= ${to}) ORDER BY member_id, program, date, created_at DESC`
       return res.status(200).json(rows)
     }
     if (req.method !== 'POST' || !await authorizeMutation(req, res)) return
