@@ -55,7 +55,6 @@ export default function Attendance() {
     ['Active members', String(members.length), Users],
     ['Meetings this month', String(new Set(monthRecords.map(record => record.date)).size), CalendarCheck],
     ['Meetings this year', String(new Set(yearRecords.map(record => record.date)).size), CalendarCheck],
-    ['Monthly attendance', `${percentage(monthRecords)}%`, TrendingUp],
     ['Yearly attendance', `${percentage(yearRecords)}%`, TrendingUp],
     ['Last updated', lastUpdatedValue ? formatDateTime(lastUpdatedValue) : 'Not updated yet', Clock3],
   ]
