@@ -1,4 +1,5 @@
 import { ensureSchema, getSql, sendError } from './_lib/db.js'
+import { getSessionExpiry } from './_lib/security.js'
 import { createHash } from 'node:crypto'
 
 const getClientIp = (req: any) => {
@@ -13,6 +14,7 @@ export default async function handler(req: any, res: any) {
     const sql = getSql()
 
     if (req.method === 'GET') {
+      if (!await getSessionExpiry(req)) return res.status(401).json({ error: 'Unauthorized' })
       const rows = await sql`SELECT COUNT(*)::int AS total FROM website_visitor_ips`
       return res.status(200).json({ total: rows[0].total })
     }
@@ -22,8 +24,7 @@ export default async function handler(req: any, res: any) {
       if (!ip) return res.status(400).json({ error: 'Unable to determine visitor IP.' })
       const ipHash = createHash('sha256').update(ip).digest('hex')
       await sql`INSERT INTO website_visitor_ips (ip_hash) VALUES (${ipHash}) ON CONFLICT (ip_hash) DO NOTHING`
-      const rows = await sql`SELECT COUNT(*)::int AS total FROM website_visitor_ips`
-      return res.status(200).json({ total: rows[0].total })
+      return res.status(200).json({ ok: true })
     }
 
     res.setHeader('Allow', 'GET, POST')
