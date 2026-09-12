@@ -6,6 +6,7 @@ import { currentYearDateBounds } from '../data/dateBounds'
 
 const pointPrograms = ['Bible Reference', 'Bible Quiz', 'Song Survey']
 const uniquePoints = (items: ProgramPoint[]) => Array.from(new Map([...items].reverse().map(item => [`${item.memberId}-${item.program}-${item.date}`, item])).values()).reverse()
+const memberNameCollator = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true })
 
 export default function AdminProgramPoints() {
   const yearBounds = currentYearDateBounds()
@@ -23,7 +24,7 @@ export default function AdminProgramPoints() {
     void getProgramPoints().then(rows => setPoints(uniquePoints(rows))).catch(() => setMessage('Could not load program points.'))
   }, [])
 
-  const displayedPoints = useMemo(() => uniquePoints(points), [points])
+  const displayedPoints = useMemo(() => uniquePoints(points).sort((a, b) => memberNameCollator.compare(a.name.trim(), b.name.trim()) || a.name.localeCompare(b.name) || a.id.localeCompare(b.id)), [points])
 
   const clearForm = () => {
     setMemberId('')
