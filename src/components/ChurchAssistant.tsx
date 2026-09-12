@@ -1,7 +1,7 @@
 import { isSensitiveRequest, isInstructionOverride, SENSITIVE_REPLY, OUT_OF_SCOPE_REPLY } from '../../shared/assistantPolicy'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Bot, Send, X } from 'lucide-react'
-import { askChurchAssistant, getAttendance, getMembers } from '../data/api'
+import { askChurchAssistant, getAttendance, getMembers, getProgramPoints } from '../data/api'
 import type { AssistantTurn } from '../data/api'
 import { getBibleReply, isBibleRequest } from '../data/bibleApi'
 import type { BibleLanguage } from '../data/bibleApi'
@@ -214,6 +214,15 @@ function isAttendanceRequest(input: string): boolean {
     || lower.includes('ഹാജർ')
 }
 
+const pointPrograms = ['Bible Reference', 'Bible Quiz', 'Song Survey']
+
+function isProgramPointsRequest(input: string): boolean {
+  const lower = input.toLocaleLowerCase()
+  const asksForPoints = lower.includes('point') || lower.includes('score')
+  const asksForTopicIdeas = lower.includes('about') || lower.includes('preaching') || lower.includes('sermon')
+  return asksForPoints && !asksForTopicIdeas
+}
+
 function isAttendanceCorrectionRequest(input: string): boolean {
   const normalized = input.toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim()
   const correctionTerms = [
@@ -340,6 +349,39 @@ async function buildAttendanceReply(input: string, conversationName: string, lan
     return `${summary}\n${copy.attendanceJoke(member.name, percentage)}`
   } catch {
     return copy.attendanceUnavailable
+  }
+}
+
+async function buildProgramPointsReply(input: string, conversationName: string, language: BibleLanguage): Promise<string> {
+  try {
+    const members = await getMembers()
+    const member = findMemberFromQuestion(members, input, conversationName)
+    if (!member || member === 'multiple') return member === 'multiple' ? assistantCopy[language].attendanceMultiple : assistantCopy[language].attendanceMissing
+
+    const currentYear = new Date().getFullYear()
+    const today = new Date().toISOString().slice(0, 10)
+    const selectedProgram = pointPrograms.find(program => input.toLocaleLowerCase().includes(program.toLocaleLowerCase()))
+    const points = await getProgramPoints({ name: member.name, program: selectedProgram || '', from: `${currentYear}-01-01`, to: today })
+    const filteredPoints = points
+      .filter(point => !selectedProgram || point.program === selectedProgram)
+      .sort((a, b) => a.date.localeCompare(b.date) || a.program.localeCompare(b.program))
+
+    if (filteredPoints.length === 0) return `${member.name} has no recorded ${selectedProgram ? `${selectedProgram} ` : ''}program points yet.`
+
+    const totals = new Map<string, { points: number; maximum: number }>()
+    for (const point of filteredPoints) {
+      const current = totals.get(point.program) || { points: 0, maximum: 0 }
+      current.points += point.questionsAnswered
+      current.maximum += 5
+      totals.set(point.program, current)
+    }
+    const details = filteredPoints.map(point => `- ${formatAttendanceDate(point.date, language)} · ${point.program} · ${point.questionsAnswered}/5${point.seniority ? ` · ${point.seniority}` : ''}`).join('\n')
+    const programTotals = [...totals.entries()].map(([program, total]) => `${program}: ${total.points}/${total.maximum}`).join('\n')
+    const totalPoints = filteredPoints.reduce((sum, point) => sum + point.questionsAnswered, 0)
+    const maximumPoints = filteredPoints.length * 5
+    return `${member.name}'s ${selectedProgram || 'program'} points\n\nDetails:\n${details}\n\nPoints by program:\n${programTotals}\n\nTotal points obtained: ${totalPoints}/${maximumPoints}`
+  } catch {
+    return 'Sorry, I could not load the program points right now. Please try again in a moment or open the Programs page.'
   }
 }
 
@@ -471,13 +513,16 @@ export default function ChurchAssistant() {
     }
 
     const attendanceRequest = isAttendanceRequest(text)
+    const pointsRequest = isProgramPointsRequest(text)
     const memberRequest = isMemberRequest(text)
     const bibleRequest = isBibleRequest(text)
-    if (attendanceRequest || memberRequest || bibleRequest) {
+    if (attendanceRequest || pointsRequest || memberRequest || bibleRequest) {
       const pendingId = crypto.randomUUID()
       const copy = assistantCopy[responseLanguage]
       const pendingText = attendanceRequest
         ? copy.checkingAttendance
+        : pointsRequest
+          ? 'Checking program points...'
         : memberRequest
           ? copy.checkingMember
           : copy.lookingUpBible
@@ -486,6 +531,8 @@ export default function ChurchAssistant() {
 
       const reply = attendanceRequest
         ? await buildAttendanceReply(text, name, responseLanguage)
+        : pointsRequest
+          ? await buildProgramPointsReply(text, name, responseLanguage)
         : memberRequest
           ? await buildMemberReply(text, name, responseLanguage)
           : await getBibleReply(text, responseLanguage)

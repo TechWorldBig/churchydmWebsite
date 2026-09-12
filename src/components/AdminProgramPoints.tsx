@@ -25,6 +25,7 @@ export default function AdminProgramPoints() {
   }, [])
 
   const displayedPoints = useMemo(() => uniquePoints(points).sort((a, b) => memberNameCollator.compare(a.name.trim(), b.name.trim()) || a.name.localeCompare(b.name) || a.id.localeCompare(b.id)), [points])
+  const sortedMembers = useMemo(() => [...members].sort((a, b) => memberNameCollator.compare(a.name.trim(), b.name.trim()) || a.name.localeCompare(b.name) || a.id.localeCompare(b.id)), [members])
 
   const clearForm = () => {
     setMemberId('')
@@ -77,7 +78,7 @@ export default function AdminProgramPoints() {
     <h2 className="font-black">Program points</h2>
     <p className="mt-1 text-sm text-slate-500">Add and manage member questions answered.</p>
     <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-      <label className="field-label">Member name<select aria-label="Program member" className="field" value={memberId} onChange={event => setMemberId(event.target.value)}><option value="">Select member</option>{members.map(member => <option key={member.id} value={member.id}>{member.name}</option>)}</select></label>
+      <label className="field-label">Member name<select aria-label="Program member" className="field" value={memberId} onChange={event => setMemberId(event.target.value)}><option value="">Select member</option>{sortedMembers.map(member => <option key={member.id} value={member.id}>{member.name}</option>)}</select></label>
       <label className="field-label">Program name<select aria-label="Program name" className="field" value={program} onChange={event => setProgram(event.target.value)}><option value="">Select program</option>{pointPrograms.map(item => <option key={item}>{item}</option>)}</select></label>
       <label className="field-label">Date<input aria-label="Program date" className="field" type="date" min={yearBounds.min} max={yearBounds.max} value={date} onChange={event => setDate(event.target.value)} /></label>
       <label className="field-label">Questions answered<div className="flex min-w-0 gap-2"><input aria-label="Questions answered" className="field min-w-0" type="number" min="0" max="5" value={questionsAnswered} onChange={event => setQuestionsAnswered(event.target.value)} placeholder="0–5" /><button className="primary-btn shrink-0" onClick={() => void save()}>{editingId ? 'Update' : 'Save'}</button>{editingId && <button type="button" className="shrink-0 rounded-xl border border-slate-200 bg-white p-3 text-slate-600 shadow-sm transition hover:bg-slate-50" aria-label="Cancel editing program point" title="Cancel editing" onClick={clearForm}><X size={18} /></button>}</div></label>
