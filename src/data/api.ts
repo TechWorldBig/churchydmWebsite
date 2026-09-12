@@ -19,6 +19,8 @@ export const saveProgramPoint = (point: ProgramPoint) => request<{ ok: boolean; 
 export const updateProgramPoint = (point: ProgramPoint) => request<{ ok: boolean; id?: string }>('/api/program-points', { method: 'PUT', body: JSON.stringify(point) })
 export const deleteProgramPoint = (id: string) => request<{ ok: boolean }>('/api/program-points', { method: 'DELETE', body: JSON.stringify({ id }) })
 export const getLastUpdated = () => request<{ value: string | null }>('/api/updated')
+export const getVisitorTotal = () => request<{ total: number }>('/api/visitors')
+export const recordVisitor = () => request<{ total: number }>('/api/visitors', { method: 'POST' })
 export const createMember = (member: Member) => request<{ ok: boolean }>('/api/members', { method: 'POST', body: JSON.stringify(member) })
 export const updateMember = (member: Member) => request<{ ok: boolean }>('/api/members', { method: 'PUT', body: JSON.stringify(member) })
 export const deleteMember = (id: string) => request<{ ok: boolean }>('/api/members', { method: 'DELETE', body: JSON.stringify({ id }) })

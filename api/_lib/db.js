@@ -60,6 +60,13 @@ export async function ensureSchema() {
       value TEXT NOT NULL
     )
     `
+    await sql`INSERT INTO system_metadata (key, value) VALUES ('total_website_visitors', '0') ON CONFLICT (key) DO NOTHING`
+    await sql`
+    CREATE TABLE IF NOT EXISTS website_visitor_ips (
+      ip_hash TEXT PRIMARY KEY,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+    `
     await sql`
     CREATE TABLE IF NOT EXISTS gallery_photos (
       id TEXT PRIMARY KEY,

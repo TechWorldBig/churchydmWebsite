@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
 import Home from './pages/Home'
@@ -8,8 +9,12 @@ import About from './pages/About'
 import Admin from './pages/Admin'
 import Programs from './pages/Programs'
 import Offering from './pages/Offering'
+import { recordVisitor } from './data/api'
 
 export default function App() {
+  useEffect(() => {
+    recordVisitor().catch(() => undefined)
+  }, [])
   return (
     <Layout>
       <Routes>
