@@ -41,10 +41,16 @@ export default function Attendance() {
 
   const month = new Date().toISOString().slice(0, 7)
   const year = month.slice(0, 4)
-  const currentMonthIndex = Number(month.slice(5, 7)) - 1
+  const currentMonthIndex = new Date().getMonth()
   const monthRecords = records.filter(record => record.date.startsWith(month))
   const yearRecords = records.filter(record => record.date.startsWith(year))
   const percentage = (items: AttendanceRecord[]) => items.length ? Math.round(items.filter(item => item.present).length / items.length * 100) : 0
+  const activeMemberIds = new Set(members.map(member => member.id))
+  const monthlyAttendance = monthLabels.slice(0, currentMonthIndex + 1).map((label, index) => {
+    const monthValue = `${year}-${String(index + 1).padStart(2, '0')}`
+    const monthItems = records.filter(record => activeMemberIds.has(record.memberId) && record.date.startsWith(monthValue))
+    return { label, percentage: percentage(monthItems) }
+  })
   const stats: Array<[string, string, typeof Users]> = [
     ['Active members', String(members.length), Users],
     ['Meetings this month', String(new Set(monthRecords.map(record => record.date)).size), CalendarCheck],
@@ -64,12 +70,7 @@ export default function Attendance() {
       }).sort((a, b) => b.date.localeCompare(a.date))
       const yearlyRecords = records.filter(record => isMemberRecord(record) && record.date.startsWith(year))
       const present = yearlyRecords.filter(record => record.present).length
-      const monthlyAttendance = monthLabels.slice(0, currentMonthIndex + 1).map((label, index) => {
-        const monthValue = `${year}-${String(index + 1).padStart(2, '0')}`
-        const monthItems = yearlyRecords.filter(record => record.date.startsWith(monthValue))
-        return { label, percentage: percentage(monthItems) }
-      })
-      return { member, matchingRecords, present, absent: yearlyRecords.length - present, percentage: percentage(yearlyRecords), monthlyAttendance }
+      return { member, matchingRecords, present, absent: yearlyRecords.length - present, percentage: percentage(yearlyRecords) }
     })
   }, [fromDate, memberSearch, members, records, toDate, year])
 
@@ -100,6 +101,11 @@ export default function Attendance() {
           </article>)}
         </div>
 
+        <section className="mt-8 rounded-3xl border border-emerald-100 bg-white px-4 py-5 shadow-sm sm:px-6">
+          <div className="flex items-center justify-between gap-3 border-b border-slate-200 pb-4"><p className="text-sm font-black uppercase tracking-[.14em] text-slate-500">Monthly attendance</p><span className="text-sm font-bold text-slate-400">{year}</span></div>
+          <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-6 md:grid-cols-9 lg:grid-cols-12">{monthlyAttendance.map(({ label, percentage: monthPercentage }) => <div key={label} className="rounded-xl border border-emerald-100 bg-emerald-50 px-2 py-2 text-center"><p className="text-sm font-black text-emerald-800">{label}</p><p className="mt-1 text-base font-black text-emerald-700">{monthPercentage}%</p></div>)}</div>
+        </section>
+
         <section className="attendance-search-panel mt-8 rounded-3xl border border-emerald-100 bg-white p-5 shadow-[0_18px_45px_rgba(7,31,25,.1)] sm:p-7">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div><p className="eyebrow">Find attendance</p><h2 className="mt-2 text-2xl font-black">Search a member&apos;s attendance</h2></div>
@@ -119,7 +125,7 @@ export default function Attendance() {
           {searchNotice && <p role="alert" className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">{searchNotice}</p>}
 
           {hasSearched && <div className="mt-7 grid gap-5 lg:grid-cols-2">
-            {searchedMembers.length === 0 ? <p role="status" className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm font-semibold text-emerald-900 shadow-[inset_0_1px_0_rgba(255,255,255,.8),0_8px_20px_rgba(5,150,105,.08)]">No matching member found. Enter the member&apos;s full name exactly as it appears in the saved YDM member list.</p> : searchedMembers.map(({ member, matchingRecords, present, absent, percentage: annualPercentage, monthlyAttendance }) => <article key={member.id} className="attendance-search-card attendance-member-card overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 sm:p-6">
+            {searchedMembers.length === 0 ? <p role="status" className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm font-semibold text-emerald-900 shadow-[inset_0_1px_0_rgba(255,255,255,.8),0_8px_20px_rgba(5,150,105,.08)]">No matching member found. Enter the member&apos;s full name exactly as it appears in the saved YDM member list.</p> : searchedMembers.map(({ member, matchingRecords, present, absent, percentage: annualPercentage }) => <article key={member.id} className="attendance-search-card attendance-member-card overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 sm:p-6">
               <div className="attendance-member-banner -m-5 mb-5 grid h-40 place-items-center sm:-m-6 sm:mb-6 sm:h-48">{member.photo ? <img src={member.photo} alt={`${member.name} profile`} className="h-full w-full object-cover" /> : <span>{memberInitials(member.name)}</span>}</div>
               <div>
                 <p className="text-center text-xs font-bold uppercase tracking-[.18em] text-emerald-700">{member.role || 'YDM member'}</p>
@@ -136,7 +142,6 @@ export default function Attendance() {
                 </div>
               </div>
               <div className="attendance-search-summary mt-5 flex flex-wrap justify-center gap-4 text-xs font-bold"><span className="text-emerald-700">Present: {present}</span><span className="text-rose-600">Absent: {absent}</span></div>
-              <div className="mt-5 border-t border-slate-200 pt-4"><div className="flex items-center justify-between gap-3"><p className="text-xs font-bold uppercase tracking-[.14em] text-slate-500">Monthly attendance</p><span className="text-xs font-semibold text-slate-400">{year}</span></div><div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 xl:grid-cols-12">{monthlyAttendance.map(({ label, percentage: monthPercentage }) => <div key={label} className="rounded-xl border border-emerald-100 bg-emerald-50 px-2 py-2 text-center"><p className="text-xs font-black text-emerald-800">{label}</p><p className="mt-1 text-sm font-black text-emerald-700">{monthPercentage}%</p></div>)}</div></div>
               <div className="mt-5 border-t border-slate-200 pt-4"><p className="mb-3 text-xs font-bold uppercase tracking-[.14em] text-slate-500">Attendance history</p>
                 {matchingRecords.length === 0 ? <div className="no-record-3d-panel"><img src={memberGender(member.gender) === 'female' ? noRecordFemale : noRecordMale} alt={`${memberGender(member.gender) === 'female' ? 'Female' : 'Male'} member has no attendance record`} /><div><p className="text-sm font-black text-white">No attendance record found</p><p className="mt-1 text-xs leading-5 text-white/65">There is no saved attendance for the selected date range.</p></div></div> : <div className="grid max-h-56 gap-2 overflow-y-auto pr-1">{matchingRecords.map(record => <div key={record.id} className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm font-semibold ${record.present ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-700'}`}><span>{formatDate(record.date)}</span><span>{record.present ? 'Present' : 'Absent'}</span></div>)}</div>}
               </div>
