@@ -30,7 +30,7 @@ export default async function handler(req: any, res: any) {
       if (!deleted[0]) return res.status(404).json({ error: 'Program point was not found.' })
       return res.status(200).json({ ok: true })
     }
-    if (typeof body.id !== 'string' || !body.id.trim() || typeof body.memberId !== 'string' || !body.memberId.trim() || typeof body.name !== 'string' || !body.name.trim() || !allowedPrograms.has(body.program) || !['', 'Junior', 'Senior'].includes(body.seniority) || !currentYearDate(body.date) || !Number.isInteger(body.questionsAnswered) || body.questionsAnswered < 0 || body.questionsAnswered > 5) return res.status(400).json({ error: 'Invalid program point data' })
+    if (typeof body.id !== 'string' || !body.id.trim() || typeof body.memberId !== 'string' || !body.memberId.trim() || typeof body.name !== 'string' || !body.name.trim() || !allowedPrograms.has(body.program) || !['', 'Kutties', 'Junior', 'Senior'].includes(body.seniority) || !currentYearDate(body.date) || !Number.isInteger(body.questionsAnswered) || body.questionsAnswered < 0 || body.questionsAnswered > 5) return res.status(400).json({ error: 'Invalid program point data' })
     if (req.method === 'PUT') {
       const duplicate = await sql`SELECT id FROM program_points WHERE member_id=${body.memberId} AND program=${body.program} AND date=${body.date} AND id<>${body.id} LIMIT 1`
       if (duplicate[0]) return res.status(409).json({ error: 'A program point already exists for this member, program, and date.' })

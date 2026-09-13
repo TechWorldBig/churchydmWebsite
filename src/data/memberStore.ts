@@ -6,7 +6,7 @@ export type Member = {
   phone: string
   address: string
   gender: string
-  seniority: 'Junior' | 'Senior' | ''
+  seniority: 'Kutties' | 'Junior' | 'Senior' | ''
   dateOfBirth: string
   focus: string
   photo: string
@@ -22,7 +22,7 @@ export type AttendanceRecord = {
   note: string
 }
 
-export type ProgramPoint = { id: string; memberId: string; name: string; program: string; seniority: 'Junior' | 'Senior' | ''; date: string; questionsAnswered: number }
+export type ProgramPoint = { id: string; memberId: string; name: string; program: string; seniority: 'Kutties' | 'Junior' | 'Senior' | ''; date: string; questionsAnswered: number }
 
 export type GalleryPhoto = {
   id: string
