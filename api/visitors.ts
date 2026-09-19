@@ -30,12 +30,13 @@ export default async function handler(req: any, res: any) {
     if (req.method === 'GET') {
       if (!await getSessionExpiry(req)) return res.status(401).json({ error: 'Unauthorized' })
       const requestedDate = validDate(req.query?.date) ? req.query.date : indiaHourParts().date
-      const rows = await sql`SELECT RIGHT(hour_key, 2)::int AS hour, device_type AS device, COUNT(*)::int AS count FROM website_visitor_hours WHERE hour_key LIKE ${requestedDate + '-%'} GROUP BY hour, device_type ORDER BY hour`
-      const counts = Array.from({ length: 24 }, (_, hour) => ({ hour, count: Number(rows.find(row => row.hour === hour)?.count || 0) }))
-      const deviceCounts = ['mobile', 'tablet', 'desktop', 'unknown'].map(device => ({ device, count: rows.filter(row => row.device === device).reduce((sum, row) => sum + Number(row.count), 0) }))
+      const rows = await sql`SELECT RIGHT(hour_key, 2)::int AS hour, device_type AS device, COUNT(DISTINCT ip_hash)::int AS count FROM website_visitor_hours WHERE hour_key LIKE ${requestedDate + '-%'} GROUP BY hour, device_type ORDER BY hour`
+      const dayVisitors = await sql`SELECT DISTINCT ON (ip_hash) ip_hash, device_type AS device FROM website_visitor_hours WHERE hour_key LIKE ${requestedDate + '-%'} ORDER BY ip_hash, created_at DESC`
+      const counts = Array.from({ length: 24 }, (_, hour) => ({ hour, count: rows.filter(row => row.hour === hour).reduce((sum, row) => sum + Number(row.count), 0) }))
+      const deviceCounts = ['mobile', 'tablet', 'desktop', 'unknown'].map(device => ({ device, count: dayVisitors.filter(row => row.device === device).length }))
       const hourly = counts.map(item => ({ ...item, devices: Object.fromEntries(['mobile', 'tablet', 'desktop', 'unknown'].map(device => [device, Number(rows.find(row => row.hour === item.hour && row.device === device)?.count || 0)])) }))
       const lifetime = await sql`SELECT COUNT(*)::int AS total FROM website_visitor_ips`
-      return res.status(200).json({ date: requestedDate, hours: hourly, devices: deviceCounts, dailyTotal: counts.reduce((sum, item) => sum + item.count, 0), total: lifetime[0].total })
+      return res.status(200).json({ date: requestedDate, hours: hourly, devices: deviceCounts, dailyTotal: dayVisitors.length, total: lifetime[0].total })
     }
 
     if (req.method === 'POST') {
