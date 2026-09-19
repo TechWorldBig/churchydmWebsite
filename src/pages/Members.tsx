@@ -12,8 +12,10 @@ const isYdmPresident = (role: string) => {
 const memberDisplayRank = (role: string) => {
   const normalized = role.trim().toLowerCase().replace(/\s+/g, ' ')
   if (isYdmPresident(normalized)) return 0
-  if (normalized === 'ydm children' || normalized === 'children') return 2
-  return 1
+  if (normalized.includes('advisor')) return 1
+  if (normalized === 'ydm members' || normalized === 'ydm member' || normalized === 'members' || normalized === 'member') return 3
+  if (normalized === 'ydm children' || normalized === 'children') return 4
+  return 2
 }
 
 export default function Members() {
