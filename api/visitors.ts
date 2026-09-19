@@ -24,7 +24,8 @@ export default async function handler(req: any, res: any) {
       const requestedDate = validDate(req.query?.date) ? req.query.date : indiaHourParts().date
       const rows = await sql`SELECT RIGHT(hour_key, 2)::int AS hour, COUNT(*)::int AS count FROM website_visitor_hours WHERE hour_key LIKE ${requestedDate + '-%'} GROUP BY hour ORDER BY hour`
       const counts = Array.from({ length: 24 }, (_, hour) => ({ hour, count: Number(rows.find(row => row.hour === hour)?.count || 0) }))
-      return res.status(200).json({ date: requestedDate, hours: counts, total: counts.reduce((sum, item) => sum + item.count, 0) })
+      const lifetime = await sql`SELECT COUNT(*)::int AS total FROM website_visitor_ips`
+      return res.status(200).json({ date: requestedDate, hours: counts, dailyTotal: counts.reduce((sum, item) => sum + item.count, 0), total: lifetime[0].total })
     }
 
     if (req.method === 'POST') {

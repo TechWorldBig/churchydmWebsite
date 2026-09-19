@@ -21,6 +21,7 @@ export const deleteProgramPoint = (id: string) => request<{ ok: boolean }>('/api
 export const getLastUpdated = () => request<{ value: string | null }>('/api/updated')
 export const getVisitorTotal = () => request<{ total: number }>('/api/visitors')
 export const recordVisitor = () => request<{ total: number }>('/api/visitors', { method: 'POST' })
+export const getVisitorStats = (date?: string) => request<{ date: string; hours: Array<{ hour: number; count: number }>; dailyTotal: number; total: number }>(`/api/visitors${date ? `?date=${encodeURIComponent(date)}` : ''}`)
 export const createMember = (member: Member) => request<{ ok: boolean }>('/api/members', { method: 'POST', body: JSON.stringify(member) })
 export const updateMember = (member: Member) => request<{ ok: boolean }>('/api/members', { method: 'PUT', body: JSON.stringify(member) })
 export const deleteMember = (id: string) => request<{ ok: boolean }>('/api/members', { method: 'DELETE', body: JSON.stringify({ id }) })
