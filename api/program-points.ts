@@ -1,5 +1,6 @@
 import { authorizeMutation, getSessionExpiry } from './_lib/security.js'
 import { ensureSchema, getSql, sendError } from './_lib/db.js'
+import { writeAuditLog } from './_lib/audit.js'
 
 const validDate = (value: unknown) => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/u.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value
 const currentYearDate = (value: unknown) => validDate(value) && (value as string).slice(0, 4) === String(new Date().getFullYear())
@@ -28,6 +29,7 @@ export default async function handler(req: any, res: any) {
       if (typeof body.id !== 'string' || !body.id.trim()) return res.status(400).json({ error: 'A program point id is required.' })
       const deleted = await sql`DELETE FROM program_points WHERE id=${body.id} RETURNING id`
       if (!deleted[0]) return res.status(404).json({ error: 'Program point was not found.' })
+      await writeAuditLog(req, { action: 'delete', entity: 'program_point', entityId: body.id })
       return res.status(200).json({ ok: true })
     }
     if (typeof body.id !== 'string' || !body.id.trim() || typeof body.memberId !== 'string' || !body.memberId.trim() || typeof body.name !== 'string' || !body.name.trim() || !allowedPrograms.has(body.program) || !['', 'Kutties', 'Junior', 'Senior'].includes(body.seniority) || !currentYearDate(body.date) || !Number.isInteger(body.questionsAnswered) || body.questionsAnswered < 0 || body.questionsAnswered > 5) return res.status(400).json({ error: 'Invalid program point data' })
@@ -36,12 +38,14 @@ export default async function handler(req: any, res: any) {
       if (duplicate[0]) return res.status(409).json({ error: 'A program point already exists for this member, program, and date.' })
       const updated = await sql`UPDATE program_points SET member_id=${body.memberId}, name=${body.name.trim()}, program=${body.program}, seniority=${body.seniority}, date=${body.date}, questions_answered=${body.questionsAnswered}, score=${body.questionsAnswered} WHERE id=${body.id} RETURNING id`
       if (!updated[0]) return res.status(404).json({ error: 'Program point was not found.' })
+      await writeAuditLog(req, { action: 'update', entity: 'program_point', entityId: body.id, summary: `${body.name} · ${body.program} · ${body.date}` })
       return res.status(200).json({ ok: true, id: body.id })
     }
     const existing = await sql`SELECT id FROM program_points WHERE member_id=${body.memberId} AND program=${body.program} AND date=${body.date} ORDER BY created_at DESC LIMIT 1`
     const id = existing[0]?.id || body.id
     if (existing[0]) await sql`UPDATE program_points SET name=${body.name}, seniority=${body.seniority}, questions_answered=${body.questionsAnswered}, score=${body.questionsAnswered} WHERE id=${id}`
     else await sql`INSERT INTO program_points (id, member_id, name, program, seniority, date, questions_answered, score) VALUES (${id}, ${body.memberId}, ${body.name}, ${body.program}, ${body.seniority}, ${body.date}, ${body.questionsAnswered}, ${body.questionsAnswered})`
+    await writeAuditLog(req, { action: existing[0] ? 'update' : 'create', entity: 'program_point', entityId: id, summary: `${body.name} · ${body.program} · ${body.date}` })
     return res.status(200).json({ ok: true, id })
   } catch (error) { return sendError(res, error) }
 }

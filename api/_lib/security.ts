@@ -81,6 +81,14 @@ export async function getSessionExpiry(req: any): Promise<number | null> {
   return new Date(session.expires_at).getTime()
 }
 
+export async function getSessionUsername(req: any): Promise<string | null> {
+  const token = sessionToken(req)
+  if (!token) return null
+  await ensureSecuritySchema()
+  const sessions = await getSql()`SELECT username FROM admin_sessions WHERE token_hash=${digest(token)} AND expires_at > NOW()`
+  return sessions[0]?.username || null
+}
+
 export async function revokeSession(req: any) {
   const token = sessionToken(req)
   if (!token) return

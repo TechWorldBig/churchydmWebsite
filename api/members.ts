@@ -1,6 +1,7 @@
 import { authorizeMutation, getSessionExpiry } from './_lib/security.js'
 import { readMutation } from './_lib/validation.js'
 import { ensureMemberGenderColumn, ensureSchema, getSql, sendError } from './_lib/db.js'
+import { writeAuditLog } from './_lib/audit.js'
 
 export default async function handler(req: any, res: any) {
   res.setHeader?.('Cache-Control', 'no-store, no-cache, must-revalidate')
@@ -22,10 +23,13 @@ export default async function handler(req: any, res: any) {
     }
     if (req.method === 'POST') {
       await sql`INSERT INTO members (id, name, role, email, phone, address, gender, seniority, date_of_birth, focus, photo, photo_name) VALUES (${body.id}, ${body.name}, ${body.role || 'YDM Member'}, ${body.email || ''}, ${body.phone || ''}, ${body.address || ''}, ${body.gender || ''}, ${body.seniority || ''}, ${body.dateOfBirth || ''}, ${body.focus || ''}, ${body.photo || ''}, ${generatedPhotoName})`
+      await writeAuditLog(req, { action: 'create', entity: 'member', entityId: body.id, summary: body.name })
     } else if (req.method === 'PUT') {
       await sql`UPDATE members SET name=${body.name}, role=${body.role || 'YDM Member'}, email=${body.email || ''}, phone=${body.phone || ''}, address=${body.address || ''}, gender=${body.gender || ''}, seniority=${body.seniority || ''}, date_of_birth=${body.dateOfBirth || ''}, focus=${body.focus || ''}, photo=${body.photo || ''}, photo_name=${generatedPhotoName} WHERE id=${body.id}`
+      await writeAuditLog(req, { action: 'update', entity: 'member', entityId: body.id, summary: body.name })
     } else if (req.method === 'DELETE') {
       await sql`DELETE FROM members WHERE id=${body.id}`
+      await writeAuditLog(req, { action: 'delete', entity: 'member', entityId: body.id })
     } else return res.status(405).json({ error: 'Method not allowed' })
     await sql`INSERT INTO system_metadata (key, value) VALUES ('last_updated', ${new Date().toISOString()}) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value`
     return res.status(200).json({ ok: true })

@@ -1,5 +1,6 @@
 import { authorizeMutation, getSessionExpiry } from './_lib/security.js'
 import { ensureSchema, getSql, sendError } from './_lib/db.js'
+import { writeAuditLog } from './_lib/audit.js'
 
 const validDate = (value: unknown) => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/u.test(value) && Number.isFinite(Date.parse(value))
 const currentYearDate = (value: unknown) => validDate(value) && (value as string).slice(0, 4) === String(new Date().getFullYear())
@@ -29,6 +30,7 @@ export default async function handler(req: any, res: any) {
     if (req.method === 'DELETE') {
       if (!validText(body.id, 100)) return res.status(400).json({ error: 'Invalid weekly program id.' })
       await sql`DELETE FROM weekly_programs WHERE id=${body.id}`
+      await writeAuditLog(req, { action: 'delete', entity: 'weekly_program', entityId: body.id })
       return res.status(200).json({ ok: true })
     }
     if (req.method !== 'POST' || !validText(body.id, 100) || !currentYearDate(body.date) || !Number.isInteger(body.serialNo) || body.serialNo < 1 || body.serialNo > 15 || !validText(body.programName, 200) || !validText(body.memberId, 100) || !validText(body.memberName, 100)) return res.status(400).json({ error: 'Invalid weekly program data.' })
@@ -37,6 +39,7 @@ export default async function handler(req: any, res: any) {
     const existing = await sql`SELECT id FROM weekly_programs WHERE date=${body.date} AND serial_no=${body.serialNo} LIMIT 1`
     if (existing[0]) return res.status(409).json({ error: 'That serial number already exists for this date.' })
     await sql`INSERT INTO weekly_programs (id, date, serial_no, program_name, member_id, member_name) VALUES (${body.id}, ${body.date}, ${body.serialNo}, ${body.programName.trim()}, ${body.memberId}, ${body.memberName.trim()})`
+    await writeAuditLog(req, { action: 'create', entity: 'weekly_program', entityId: body.id, summary: `${body.date} · ${body.serialNo}. ${body.programName}` })
     return res.status(200).json({ ok: true, id: body.id })
   } catch (error) { return sendError(res, error) }
 }

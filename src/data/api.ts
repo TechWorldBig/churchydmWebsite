@@ -1,5 +1,15 @@
 import { AttendanceRecord, GalleryPhoto, Member, ProgramPoint, WeeklyProgram } from './memberStore'
 
+export type AuditLog = {
+  id: string
+  actor: string
+  action: string
+  entity: string
+  entityId: string
+  summary: string
+  createdAt: string
+}
+
 export type AssistantTurn = {
   role: 'user' | 'assistant'
   content: string
@@ -22,6 +32,7 @@ export const getLastUpdated = () => request<{ value: string | null }>('/api/upda
 export const getVisitorTotal = () => request<{ total: number }>('/api/visitors')
 export const recordVisitor = () => request<{ total: number }>('/api/visitors', { method: 'POST' })
 export const getVisitorStats = (date?: string) => request<{ date: string; hours: Array<{ hour: number; count: number; devices: Record<string, number> }>; devices: Array<{ device: string; count: number }>; dailyTotal: number; total: number }>(`/api/visitors${date ? `?date=${encodeURIComponent(date)}` : ''}`)
+export const getAuditLogs = () => request<AuditLog[]>('/api/audit-logs')
 export const createMember = (member: Member) => request<{ ok: boolean }>('/api/members', { method: 'POST', body: JSON.stringify(member) })
 export const updateMember = (member: Member) => request<{ ok: boolean }>('/api/members', { method: 'PUT', body: JSON.stringify(member) })
 export const deleteMember = (id: string) => request<{ ok: boolean }>('/api/members', { method: 'DELETE', body: JSON.stringify({ id }) })
