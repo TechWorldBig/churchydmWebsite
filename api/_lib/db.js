@@ -71,10 +71,12 @@ export async function ensureSchema() {
     CREATE TABLE IF NOT EXISTS website_visitor_hours (
       hour_key TEXT NOT NULL,
       ip_hash TEXT NOT NULL,
+      device_type TEXT NOT NULL DEFAULT 'unknown',
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       PRIMARY KEY (hour_key, ip_hash)
     )
     `
+    await sql`ALTER TABLE website_visitor_hours ADD COLUMN IF NOT EXISTS device_type TEXT NOT NULL DEFAULT 'unknown'`
     await sql`
     CREATE TABLE IF NOT EXISTS gallery_photos (
       id TEXT PRIMARY KEY,
