@@ -4,18 +4,20 @@ import PageHero from '../components/PageHero'
 import { Member } from '../data/memberStore'
 import { getMembers } from '../data/api'
 
-const isYdmPresident = (role: string) => {
-  const normalized = role.trim().toLowerCase().replace(/\s+/g, ' ')
-  return /\bpresident\b/u.test(normalized) && !/\bvice\s+president\b/u.test(normalized)
-}
+const normalizeRole = (role: string) => role.trim().toLowerCase().replace(/[-_]+/g, ' ').replace(/\s+/g, ' ')
 
 const memberDisplayRank = (role: string) => {
-  const normalized = role.trim().toLowerCase().replace(/\s+/g, ' ')
-  if (isYdmPresident(normalized)) return 0
-  if (normalized.includes('advisor')) return 1
-  if (normalized === 'ydm members' || normalized === 'ydm member' || normalized === 'members' || normalized === 'member') return 3
-  if (normalized === 'ydm children' || normalized === 'children') return 4
-  return 2
+  const normalized = normalizeRole(role)
+  if (/\bpresident\b/u.test(normalized) && !/\bvice president\b/u.test(normalized)) return 0
+  if (/\bvice president\b/u.test(normalized)) return 1
+  if (/\bsecretary\b/u.test(normalized) && !/\bjoint secretary\b/u.test(normalized)) return 2
+  if (/\bjoint secretary\b/u.test(normalized)) return 3
+  if (/\btreasury\b/u.test(normalized) || /\btreasurer\b/u.test(normalized)) return 4
+  if (/\badvisor\b/u.test(normalized)) return 5
+  if (/\belder\b/u.test(normalized)) return 6
+  if (normalized === 'ydm members' || normalized === 'ydm member' || normalized === 'members' || normalized === 'member') return 7
+  if (normalized === 'ydm children' || normalized === 'children') return 8
+  return 6.5
 }
 
 export default function Members() {
