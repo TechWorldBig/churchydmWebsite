@@ -9,6 +9,13 @@ const isYdmPresident = (role: string) => {
   return /\bpresident\b/u.test(normalized) && !/\bvice\s+president\b/u.test(normalized)
 }
 
+const memberDisplayRank = (role: string) => {
+  const normalized = role.trim().toLowerCase().replace(/\s+/g, ' ')
+  if (isYdmPresident(normalized)) return 0
+  if (normalized === 'ydm children' || normalized === 'children') return 2
+  return 1
+}
+
 export default function Members() {
   const [members, setMembers] = useState<Member[]>([])
 
@@ -21,7 +28,7 @@ export default function Members() {
 
   const orderedMembers = useMemo(() => members
     .map((member, index) => ({ member, index }))
-    .sort((a, b) => Number(isYdmPresident(b.member.role)) - Number(isYdmPresident(a.member.role)) || a.index - b.index)
+    .sort((a, b) => memberDisplayRank(a.member.role) - memberDisplayRank(b.member.role) || a.index - b.index)
     .map(({ member }) => member), [members])
 
   return <><PageHero eyebrow="Our people" title="YDM Members" description="Meet the young people serving together with different gifts and one purpose — to glorify Christ and strengthen the youth community." icon={<Users size={15} />} /><section className="py-20"><div className="mx-auto max-w-7xl px-5 lg:px-8">
