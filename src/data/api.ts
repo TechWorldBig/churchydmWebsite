@@ -7,6 +7,7 @@ export type AuditLog = {
   entity: string
   entityId: string
   summary: string
+  ipAddress: string
   createdAt: string
 }
 

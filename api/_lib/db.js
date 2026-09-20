@@ -99,6 +99,7 @@ export async function ensureSchema() {
     )
     `
     await sql`CREATE INDEX IF NOT EXISTS audit_logs_created_at_idx ON audit_logs (created_at DESC)`
+    await sql`ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS ip_address TEXT NOT NULL DEFAULT ''`
   })().catch((error) => {
     schemaPromise = undefined
     throw error
