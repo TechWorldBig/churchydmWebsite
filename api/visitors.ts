@@ -45,7 +45,20 @@ export default async function handler(req: any, res: any) {
       const requestedDate = validDate(req.query?.date) ? req.query.date : indiaHourParts().date
       const rows = await sql`SELECT RIGHT(hour_key, 2)::int AS hour, device_type AS device, COUNT(DISTINCT ip_hash)::int AS count FROM website_visitor_hours WHERE hour_key LIKE ${requestedDate + '-%'} GROUP BY hour, device_type ORDER BY hour`
       const dayVisitors = await sql`SELECT DISTINCT ON (ip_hash) ip_hash, device_type AS device FROM website_visitor_hours WHERE hour_key LIKE ${requestedDate + '-%'} ORDER BY ip_hash, created_at DESC`
-      const locations = await sql`SELECT DISTINCT ON (h.ip_hash) i.country, i.region, i.city, i.latitude, i.longitude, i.timezone, h.device_type AS device, h.created_at AS "lastSeenAt" FROM website_visitor_hours h JOIN website_visitor_ips i ON i.ip_hash=h.ip_hash WHERE h.hour_key LIKE ${requestedDate + '-%'} ORDER BY h.ip_hash, h.created_at DESC`
+      const locations = await sql`
+        SELECT
+          COALESCE(NULLIF(h.country, ''), i.country) AS country,
+          COALESCE(NULLIF(h.region, ''), i.region) AS region,
+          COALESCE(NULLIF(h.city, ''), i.city) AS city,
+          COALESCE(NULLIF(h.latitude, ''), i.latitude) AS latitude,
+          COALESCE(NULLIF(h.longitude, ''), i.longitude) AS longitude,
+          COALESCE(NULLIF(h.timezone, ''), i.timezone) AS timezone,
+          h.device_type AS device,
+          h.created_at AS "lastSeenAt"
+        FROM website_visitor_hours h
+        JOIN website_visitor_ips i ON i.ip_hash = h.ip_hash
+        ORDER BY h.created_at DESC
+      `
       const counts = Array.from({ length: 24 }, (_, hour) => ({ hour, count: rows.filter(row => row.hour === hour).reduce((sum, row) => sum + Number(row.count), 0) }))
       const deviceCounts = ['mobile', 'tablet', 'desktop', 'unknown'].map(device => ({ device, count: dayVisitors.filter(row => row.device === device).length }))
       const hourly = counts.map(item => ({ ...item, devices: Object.fromEntries(['mobile', 'tablet', 'desktop', 'unknown'].map(device => [device, Number(rows.find(row => row.hour === item.hour && row.device === device)?.count || 0)])) }))
@@ -61,7 +74,9 @@ export default async function handler(req: any, res: any) {
       await sql`INSERT INTO website_visitor_ips (ip_hash, country, region, city, latitude, longitude, timezone) VALUES (${ipHash}, ${location.country}, ${location.region}, ${location.city}, ${location.latitude}, ${location.longitude}, ${location.timezone}) ON CONFLICT (ip_hash) DO UPDATE SET country=COALESCE(NULLIF(EXCLUDED.country, ''), website_visitor_ips.country), region=COALESCE(NULLIF(EXCLUDED.region, ''), website_visitor_ips.region), city=COALESCE(NULLIF(EXCLUDED.city, ''), website_visitor_ips.city), latitude=COALESCE(NULLIF(EXCLUDED.latitude, ''), website_visitor_ips.latitude), longitude=COALESCE(NULLIF(EXCLUDED.longitude, ''), website_visitor_ips.longitude), timezone=COALESCE(NULLIF(EXCLUDED.timezone, ''), website_visitor_ips.timezone)`
       const current = indiaHourParts()
       const hourKey = `${current.date}-${String(current.hour).padStart(2, '0')}`
-      await sql`INSERT INTO website_visitor_hours (hour_key, ip_hash, device_type) VALUES (${hourKey}, ${ipHash}, ${deviceType(req)}) ON CONFLICT (hour_key, ip_hash) DO NOTHING`
+      // Preserve each hour's location snapshot, while allowing only one count
+      // for the same public IP during that hour.
+      await sql`INSERT INTO website_visitor_hours (hour_key, ip_hash, device_type, country, region, city, latitude, longitude, timezone) VALUES (${hourKey}, ${ipHash}, ${deviceType(req)}, ${location.country}, ${location.region}, ${location.city}, ${location.latitude}, ${location.longitude}, ${location.timezone}) ON CONFLICT (hour_key, ip_hash) DO UPDATE SET device_type=EXCLUDED.device_type, country=COALESCE(NULLIF(EXCLUDED.country, ''), website_visitor_hours.country), region=COALESCE(NULLIF(EXCLUDED.region, ''), website_visitor_hours.region), city=COALESCE(NULLIF(EXCLUDED.city, ''), website_visitor_hours.city), latitude=COALESCE(NULLIF(EXCLUDED.latitude, ''), website_visitor_hours.latitude), longitude=COALESCE(NULLIF(EXCLUDED.longitude, ''), website_visitor_hours.longitude), timezone=COALESCE(NULLIF(EXCLUDED.timezone, ''), website_visitor_hours.timezone), created_at=NOW()`
       return res.status(200).json({ ok: true })
     }
 

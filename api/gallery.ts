@@ -25,7 +25,6 @@ export default async function handler(req: any, res: any) {
       await sql`DELETE FROM gallery_photos WHERE id=${body.id}`
       await writeAuditLog(req, { action: 'delete', entity: 'gallery_photo', entityId: body.id })
     } else return res.status(405).json({ error: 'Method not allowed' })
-    await sql`INSERT INTO system_metadata (key, value) VALUES ('last_updated', ${new Date().toISOString()}) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value`
     return res.status(200).json({ ok: true })
   } catch (error) { return sendError(res, error) }
 }

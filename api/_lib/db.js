@@ -89,6 +89,12 @@ export async function ensureSchema() {
     )
     `
     await sql`ALTER TABLE website_visitor_hours ADD COLUMN IF NOT EXISTS device_type TEXT NOT NULL DEFAULT 'unknown'`
+    await sql`ALTER TABLE website_visitor_hours ADD COLUMN IF NOT EXISTS country TEXT NOT NULL DEFAULT ''`
+    await sql`ALTER TABLE website_visitor_hours ADD COLUMN IF NOT EXISTS region TEXT NOT NULL DEFAULT ''`
+    await sql`ALTER TABLE website_visitor_hours ADD COLUMN IF NOT EXISTS city TEXT NOT NULL DEFAULT ''`
+    await sql`ALTER TABLE website_visitor_hours ADD COLUMN IF NOT EXISTS latitude TEXT NOT NULL DEFAULT ''`
+    await sql`ALTER TABLE website_visitor_hours ADD COLUMN IF NOT EXISTS longitude TEXT NOT NULL DEFAULT ''`
+    await sql`ALTER TABLE website_visitor_hours ADD COLUMN IF NOT EXISTS timezone TEXT NOT NULL DEFAULT ''`
     await sql`
     CREATE TABLE IF NOT EXISTS gallery_photos (
       id TEXT PRIMARY KEY,

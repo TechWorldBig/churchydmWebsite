@@ -25,7 +25,9 @@ export default async function handler(req: any, res: any) {
       await sql`DELETE FROM attendance WHERE id=${body.id}`
       await writeAuditLog(req, { action: 'delete', entity: 'attendance', entityId: body.id })
     } else return res.status(405).json({ error: 'Method not allowed' })
-    await sql`INSERT INTO system_metadata (key, value) VALUES ('last_updated', ${new Date().toISOString()}) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value`
+    // This timestamp belongs to attendance only. Other admin activity must not
+    // change the time shown on the public Attendance page.
+    await sql`INSERT INTO system_metadata (key, value) VALUES ('attendance_last_updated', ${new Date().toISOString()}) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value`
     return res.status(200).json({ ok: true })
   } catch (error) { return sendError(res, error) }
 }

@@ -56,7 +56,7 @@ export default function Attendance() {
     ['Meetings this month', String(new Set(monthRecords.map(record => record.date)).size), CalendarCheck],
     ['Meetings this year', String(new Set(yearRecords.map(record => record.date)).size), CalendarCheck],
     ['Yearly attendance', `${percentage(yearRecords)}%`, TrendingUp],
-    ['Last updated', lastUpdatedValue ? formatDateTime(lastUpdatedValue) : 'Not updated yet', Clock3],
+    ['Attendance updated', lastUpdatedValue ? formatDateTime(lastUpdatedValue) : 'Not updated yet', Clock3],
   ]
 
   const searchedMembers = useMemo(() => {
