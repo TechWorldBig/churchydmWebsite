@@ -64,9 +64,21 @@ export async function ensureSchema() {
     await sql`
     CREATE TABLE IF NOT EXISTS website_visitor_ips (
       ip_hash TEXT PRIMARY KEY,
+      country TEXT NOT NULL DEFAULT '',
+      region TEXT NOT NULL DEFAULT '',
+      city TEXT NOT NULL DEFAULT '',
+      latitude TEXT NOT NULL DEFAULT '',
+      longitude TEXT NOT NULL DEFAULT '',
+      timezone TEXT NOT NULL DEFAULT '',
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
     `
+    await sql`ALTER TABLE website_visitor_ips ADD COLUMN IF NOT EXISTS country TEXT NOT NULL DEFAULT ''`
+    await sql`ALTER TABLE website_visitor_ips ADD COLUMN IF NOT EXISTS region TEXT NOT NULL DEFAULT ''`
+    await sql`ALTER TABLE website_visitor_ips ADD COLUMN IF NOT EXISTS city TEXT NOT NULL DEFAULT ''`
+    await sql`ALTER TABLE website_visitor_ips ADD COLUMN IF NOT EXISTS latitude TEXT NOT NULL DEFAULT ''`
+    await sql`ALTER TABLE website_visitor_ips ADD COLUMN IF NOT EXISTS longitude TEXT NOT NULL DEFAULT ''`
+    await sql`ALTER TABLE website_visitor_ips ADD COLUMN IF NOT EXISTS timezone TEXT NOT NULL DEFAULT ''`
     await sql`
     CREATE TABLE IF NOT EXISTS website_visitor_hours (
       hour_key TEXT NOT NULL,

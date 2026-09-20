@@ -13,6 +13,19 @@ const indiaHourParts = () => {
   return { date: `${value('year')}-${value('month')}-${value('day')}`, hour: Number(value('hour')) }
 }
 const validDate = (value: unknown): value is string => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/u.test(value)
+const headerValue = (req: any, name: string) => {
+  const value = req.headers[name]
+  const text = String(Array.isArray(value) ? value[0] : value || '').trim()
+  try { return decodeURIComponent(text).slice(0, 120) } catch { return text.slice(0, 120) }
+}
+const visitorLocation = (req: any) => ({
+  country: headerValue(req, 'x-vercel-ip-country'),
+  region: headerValue(req, 'x-vercel-ip-country-region'),
+  city: headerValue(req, 'x-vercel-ip-city'),
+  latitude: headerValue(req, 'x-vercel-ip-latitude'),
+  longitude: headerValue(req, 'x-vercel-ip-longitude'),
+  timezone: headerValue(req, 'x-vercel-ip-timezone'),
+})
 const deviceType = (req: any): 'mobile' | 'tablet' | 'desktop' | 'unknown' => {
   const agent = String(req.headers['user-agent'] || '').toLowerCase()
   if (!agent) return 'unknown'
@@ -32,18 +45,20 @@ export default async function handler(req: any, res: any) {
       const requestedDate = validDate(req.query?.date) ? req.query.date : indiaHourParts().date
       const rows = await sql`SELECT RIGHT(hour_key, 2)::int AS hour, device_type AS device, COUNT(DISTINCT ip_hash)::int AS count FROM website_visitor_hours WHERE hour_key LIKE ${requestedDate + '-%'} GROUP BY hour, device_type ORDER BY hour`
       const dayVisitors = await sql`SELECT DISTINCT ON (ip_hash) ip_hash, device_type AS device FROM website_visitor_hours WHERE hour_key LIKE ${requestedDate + '-%'} ORDER BY ip_hash, created_at DESC`
+      const locations = await sql`SELECT DISTINCT ON (h.ip_hash) i.country, i.region, i.city, i.latitude, i.longitude, i.timezone, h.device_type AS device, h.created_at AS "lastSeenAt" FROM website_visitor_hours h JOIN website_visitor_ips i ON i.ip_hash=h.ip_hash WHERE h.hour_key LIKE ${requestedDate + '-%'} ORDER BY h.ip_hash, h.created_at DESC`
       const counts = Array.from({ length: 24 }, (_, hour) => ({ hour, count: rows.filter(row => row.hour === hour).reduce((sum, row) => sum + Number(row.count), 0) }))
       const deviceCounts = ['mobile', 'tablet', 'desktop', 'unknown'].map(device => ({ device, count: dayVisitors.filter(row => row.device === device).length }))
       const hourly = counts.map(item => ({ ...item, devices: Object.fromEntries(['mobile', 'tablet', 'desktop', 'unknown'].map(device => [device, Number(rows.find(row => row.hour === item.hour && row.device === device)?.count || 0)])) }))
       const lifetime = await sql`SELECT COUNT(*)::int AS total FROM website_visitor_ips`
-      return res.status(200).json({ date: requestedDate, hours: hourly, devices: deviceCounts, dailyTotal: dayVisitors.length, total: lifetime[0].total })
+      return res.status(200).json({ date: requestedDate, hours: hourly, devices: deviceCounts, locations, dailyTotal: dayVisitors.length, total: lifetime[0].total })
     }
 
     if (req.method === 'POST') {
       const ip = getClientIp(req)
       if (!ip) return res.status(400).json({ error: 'Unable to determine visitor IP.' })
       const ipHash = createHash('sha256').update(ip).digest('hex')
-      await sql`INSERT INTO website_visitor_ips (ip_hash) VALUES (${ipHash}) ON CONFLICT (ip_hash) DO NOTHING`
+      const location = visitorLocation(req)
+      await sql`INSERT INTO website_visitor_ips (ip_hash, country, region, city, latitude, longitude, timezone) VALUES (${ipHash}, ${location.country}, ${location.region}, ${location.city}, ${location.latitude}, ${location.longitude}, ${location.timezone}) ON CONFLICT (ip_hash) DO UPDATE SET country=COALESCE(NULLIF(EXCLUDED.country, ''), website_visitor_ips.country), region=COALESCE(NULLIF(EXCLUDED.region, ''), website_visitor_ips.region), city=COALESCE(NULLIF(EXCLUDED.city, ''), website_visitor_ips.city), latitude=COALESCE(NULLIF(EXCLUDED.latitude, ''), website_visitor_ips.latitude), longitude=COALESCE(NULLIF(EXCLUDED.longitude, ''), website_visitor_ips.longitude), timezone=COALESCE(NULLIF(EXCLUDED.timezone, ''), website_visitor_ips.timezone)`
       const current = indiaHourParts()
       const hourKey = `${current.date}-${String(current.hour).padStart(2, '0')}`
       await sql`INSERT INTO website_visitor_hours (hour_key, ip_hash, device_type) VALUES (${hourKey}, ${ipHash}, ${deviceType(req)}) ON CONFLICT (hour_key, ip_hash) DO NOTHING`
