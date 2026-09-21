@@ -29,8 +29,19 @@ test('searches attendance with the full name and date on a mobile viewport', asy
   await page.getByLabel('From date').fill(`${currentMonth}-15`)
   await page.getByRole('button', { name: 'Search', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Mary Stella', exact: true })).toBeVisible()
+  await expect(page.getByAltText('Female member animation')).toBeVisible()
   await expect(page.getByText('Attendance history', { exact: true })).toBeVisible()
   await expect(page.getByText('Absent', { exact: true }).last()).toBeVisible()
+})
+
+test('keeps the matching male 3D asset on a desktop attendance search', async ({ page }) => {
+  await page.goto('/attendance')
+  const currentMonth = new Date().toISOString().slice(0, 7)
+  await page.getByPlaceholder('Search by name').fill('Sarah')
+  await page.getByLabel('From date').fill(`${currentMonth}-15`)
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Sarah', exact: true })).toBeVisible()
+  await expect(page.getByAltText('Male member animation')).toBeVisible()
 })
 
 test('renders gallery data and opens and closes the photo dialog', async ({ page }) => {

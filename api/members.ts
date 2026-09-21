@@ -15,7 +15,7 @@ export default async function handler(req: any, res: any) {
     const generatedPhotoName = body?.photoName || (body?.photo ? `${String(body.name || 'member').trim().replace(/[^a-z0-9]+/gi, '_')}_${new Date().toISOString().slice(0, 10)}.${String(body.photo).match(/^data:image\/([a-z0-9+.-]+)/i)?.[1] || 'jpg'}` : '')
     if (req.method === 'GET') {
       if (!await getSessionExpiry(req)) {
-        const rows = await sql`SELECT id, name, role, photo FROM members ORDER BY created_at DESC`
+        const rows = await sql`SELECT id, name, role, gender, photo FROM members ORDER BY created_at DESC`
         return res.status(200).json(rows)
       }
       const rows = await sql`SELECT id, name, role, email, phone, address, gender, seniority, date_of_birth AS "dateOfBirth", focus, photo, photo_name AS "photoName" FROM members ORDER BY created_at DESC`
