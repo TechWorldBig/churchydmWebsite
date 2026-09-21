@@ -21,6 +21,18 @@ test('renders mocked members, attendance statistics, and history', async ({ page
   await expect(page.getByText('Absent', { exact: true }).first()).toBeVisible()
 })
 
+test('searches attendance with the full name and date on a mobile viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/attendance')
+  const currentMonth = new Date().toISOString().slice(0, 7)
+  await page.getByPlaceholder('Search by name').fill('Mary Stella')
+  await page.getByLabel('From date').fill(`${currentMonth}-15`)
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Mary Stella', exact: true })).toBeVisible()
+  await expect(page.getByText('Attendance history', { exact: true })).toBeVisible()
+  await expect(page.getByText('Absent', { exact: true }).last()).toBeVisible()
+})
+
 test('renders gallery data and opens and closes the photo dialog', async ({ page }) => {
   await page.goto('/gallery')
   await expect(page.getByText('Youth worship gathering', { exact: true })).toBeVisible()

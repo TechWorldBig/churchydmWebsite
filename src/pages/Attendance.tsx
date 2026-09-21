@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import type { FormEvent } from 'react'
 import { CalendarCheck, CalendarDays, Clock3, Search, TrendingUp, Users } from 'lucide-react'
 import PageHero from '../components/PageHero'
 import { AttendanceRecord, Member } from '../data/memberStore'
@@ -12,7 +13,7 @@ import noRecordFemale from '../assets/no-record-female.png'
 const formatDate = (value: string) => new Date(`${value}T00:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
 const formatDateTime = (value: string) => new Date(value).toLocaleString(undefined, { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' })
 const memberInitials = (name: string) => name.split(/\s+/u).filter(Boolean).slice(0, 2).map(part => part[0]).join('').toUpperCase()
-const memberGender = (gender: string): 'female' | 'male' => gender.trim().toLocaleLowerCase() === 'female' ? 'female' : 'male'
+const memberGender = (gender = ''): 'female' | 'male' => gender.trim().toLocaleLowerCase() === 'female' ? 'female' : 'male'
 const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 export default function Attendance() {
@@ -76,11 +77,16 @@ export default function Attendance() {
   const runSearch = () => {
     if (!memberSearch.trim() || !fromDate) {
       setHasSearched(false)
-      setSearchNotice('Please enter both a member name and a From Date to view attendance records.')
+      setSearchNotice('Please enter the full member name and From date to view attendance records.')
       return
     }
     setSearchNotice('')
     setHasSearched(true)
+  }
+
+  const submitSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    runSearch()
   }
 
   const resetSearch = () => {
@@ -109,7 +115,7 @@ export default function Attendance() {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div><p className="eyebrow">Find attendance</p><h2 className="mt-2 text-2xl font-black">Search a member&apos;s attendance</h2></div>
           </div>
-          <div className="mt-6 grid gap-3 md:grid-cols-6">
+          <form noValidate onSubmit={submitSearch} className="mt-6 grid gap-3 md:grid-cols-6">
             <label className="field-label md:col-span-3">Member name
               <input value={memberSearch} onChange={event => { setMemberSearch(event.target.value); resetSearch() }} className="field member-name-field-3d" placeholder="Search by name" />
             </label>
@@ -119,8 +125,8 @@ export default function Attendance() {
             <label className="field-label md:col-span-1"><span className="date-label-heading">To date <small>(optional)</small></span>
               <span className="calendar-control-3d"><input value={toDate} min={fromDate || yearBounds.min} max={yearBounds.max} onChange={event => { setToDate(event.target.value); resetSearch() }} type="date" className="field" /><CalendarDays aria-hidden="true" size={17} /></span>
             </label>
-            <button type="button" onClick={runSearch} className="dark-btn search-button-3d self-end md:col-span-1"><Search size={17} /> Search</button>
-          </div>
+            <button type="submit" className="dark-btn search-button-3d self-end md:col-span-1"><Search size={17} /> Search</button>
+          </form>
           {searchNotice && <p role="alert" className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">{searchNotice}</p>}
 
           {hasSearched && <div className="mt-7 grid gap-5 lg:grid-cols-2">
