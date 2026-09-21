@@ -135,8 +135,7 @@ export async function installApiMocks(
     return fulfillJson(route, { ok: true })
   })
 
-  await page.route('**/api/updated', (route) => fulfillJson(route, { value: `${currentMonth}-15T10:30:00.000Z` }))
-  await page.route('**/api/version', (route) => fulfillJson(route, { version: 'mock-deployment' }))
+  await page.route('**/api/updated', (route) => fulfillJson(route, { value: `${currentMonth}-15T10:30:00.000Z`, version: 'mock-deployment' }))
   await page.route('**/api/assistant', async (route) => {
     const request = route.request().postDataJSON() as AssistantRequest
     state.assistantRequests.push(request)

@@ -3,7 +3,7 @@ import { Menu, X, Instagram, Youtube } from 'lucide-react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import ChurchAssistant from './ChurchAssistant'
-import { getDeploymentVersion } from '../data/api'
+import { getLastUpdated } from '../data/api'
 import ydmLogo from '../assets/jsc-ydm-logo.png'
 
 const links = [
@@ -29,7 +29,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     const storageKey = 'ydm-deployment-version'
     const checkForNewDeployment = async () => {
       try {
-        const { version } = await getDeploymentVersion()
+        const { version } = await getLastUpdated()
         if (!version || version === 'development') return
         const currentVersion = window.sessionStorage.getItem(storageKey)
         if (!currentVersion) {

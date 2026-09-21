@@ -6,6 +6,7 @@ export default async function handler(req: any, res: any) {
   try {
     const sql = getSql()
     const rows = await sql`SELECT value FROM system_metadata WHERE key='attendance_last_updated'`
-    return res.status(200).json({ value: rows[0]?.value || null })
+    const version = process.env.VERCEL_GIT_COMMIT_SHA || process.env.VERCEL_DEPLOYMENT_ID || process.env.VERCEL_URL || 'development'
+    return res.status(200).json({ value: rows[0]?.value || null, version })
   } catch (error) { return sendError(res, error) }
 }
