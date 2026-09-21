@@ -41,6 +41,7 @@ export const saveProgramPoint = (point: ProgramPoint) => request<{ ok: boolean; 
 export const updateProgramPoint = (point: ProgramPoint) => request<{ ok: boolean; id?: string; created?: boolean }>('/api/program-points', { method: 'PUT', body: JSON.stringify(point) })
 export const deleteProgramPoint = (id: string) => request<{ ok: boolean }>('/api/program-points', { method: 'DELETE', body: JSON.stringify({ id }) })
 export const getLastUpdated = () => request<{ value: string | null }>('/api/updated')
+export const getDeploymentVersion = () => request<{ version: string }>('/api/version')
 export const getVisitorTotal = () => request<{ total: number }>('/api/visitors')
 export const recordVisitor = () => request<{ total: number }>('/api/visitors', { method: 'POST' })
 export const getVisitorStats = (date?: string) => request<{ date: string; hours: Array<{ hour: number; count: number; devices: Record<string, number> }>; devices: Array<{ device: string; count: number }>; locations: VisitorLocation[]; dailyTotal: number; total: number }>(`/api/visitors${date ? `?date=${encodeURIComponent(date)}` : ''}`)

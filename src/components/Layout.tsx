@@ -3,6 +3,7 @@ import { Menu, X, Instagram, Youtube } from 'lucide-react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import ChurchAssistant from './ChurchAssistant'
+import { getDeploymentVersion } from '../data/api'
 import ydmLogo from '../assets/jsc-ydm-logo.png'
 
 const links = [
@@ -24,6 +25,27 @@ export default function Layout({ children }: { children: ReactNode }) {
     if (open) window.addEventListener('keydown', escape)
     return () => window.removeEventListener('keydown', escape)
   }, [open])
+  useEffect(() => {
+    const storageKey = 'ydm-deployment-version'
+    const checkForNewDeployment = async () => {
+      try {
+        const { version } = await getDeploymentVersion()
+        if (!version || version === 'development') return
+        const currentVersion = window.sessionStorage.getItem(storageKey)
+        if (!currentVersion) {
+          window.sessionStorage.setItem(storageKey, version)
+        } else if (currentVersion !== version) {
+          window.sessionStorage.setItem(storageKey, version)
+          window.location.reload()
+        }
+      } catch {
+        // A temporary version-check failure must not interrupt the visitor's session.
+      }
+    }
+    void checkForNewDeployment()
+    const timer = window.setInterval(() => { void checkForNewDeployment() }, 60_000)
+    return () => window.clearInterval(timer)
+  }, [])
 
   return (
     <div className="min-h-screen bg-stone-50 text-slate-900">
