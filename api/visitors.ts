@@ -1,5 +1,5 @@
 import { ensureSchema, getSql, sendError } from './_lib/db.js'
-import { getSessionExpiry } from './_lib/security.js'
+import { getSessionExpiry, sharedRateLimited } from './_lib/security.js'
 import { createHash } from 'node:crypto'
 
 const getClientIp = (req: any) => {
@@ -69,6 +69,10 @@ export default async function handler(req: any, res: any) {
     if (req.method === 'POST') {
       const ip = getClientIp(req)
       if (!ip) return res.status(400).json({ error: 'Unable to determine visitor IP.' })
+      if (await sharedRateLimited('visitors', ip, 30, 60)) {
+        res.setHeader('Retry-After', '60')
+        return res.status(429).json({ error: 'Too many visitor requests. Please try again later.' })
+      }
       const ipHash = createHash('sha256').update(ip).digest('hex')
       const location = visitorLocation(req)
       await sql`INSERT INTO website_visitor_ips (ip_hash, country, region, city, latitude, longitude, timezone) VALUES (${ipHash}, ${location.country}, ${location.region}, ${location.city}, ${location.latitude}, ${location.longitude}, ${location.timezone}) ON CONFLICT (ip_hash) DO UPDATE SET country=COALESCE(NULLIF(EXCLUDED.country, ''), website_visitor_ips.country), region=COALESCE(NULLIF(EXCLUDED.region, ''), website_visitor_ips.region), city=COALESCE(NULLIF(EXCLUDED.city, ''), website_visitor_ips.city), latitude=COALESCE(NULLIF(EXCLUDED.latitude, ''), website_visitor_ips.latitude), longitude=COALESCE(NULLIF(EXCLUDED.longitude, ''), website_visitor_ips.longitude), timezone=COALESCE(NULLIF(EXCLUDED.timezone, ''), website_visitor_ips.timezone)`
