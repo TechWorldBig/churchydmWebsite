@@ -4,6 +4,7 @@ export type MockMember = {
   id: string
   name: string
   role: string
+  seniority: 'Kutties' | 'Junior' | 'Senior' | ''
   email: string
   phone: string
   address: string
@@ -53,6 +54,7 @@ export function createMockState(): MockState {
         id: 'member-mary',
         name: 'Mary Stella',
         role: 'Youth Leader',
+        seniority: 'Junior',
         email: 'mary@example.test',
         phone: '9000000001',
         address: 'Kollemcode',
@@ -64,6 +66,7 @@ export function createMockState(): MockState {
         id: 'member-sarah',
         name: 'Sarah',
         role: 'Choir Member',
+        seniority: 'Senior',
         email: 'sarah@example.test',
         phone: '9000000002',
         address: 'Kanniyakumari',

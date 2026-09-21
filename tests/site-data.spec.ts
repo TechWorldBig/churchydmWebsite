@@ -60,3 +60,16 @@ test('supports mocked admin member and attendance writes without production data
   await expect(page.getByText('Attendance saved successfully.')).toBeVisible()
   await expect(page.getByRole('cell', { name: 'Daniel', exact: true })).toBeVisible()
 })
+
+test('exports correct Junior and Senior attendance summaries', async ({ page }) => {
+  await page.route('**/api/auth', route => route.fulfill({ contentType: 'application/json', body: JSON.stringify({ authenticated: true, expiresAt: Date.now() + 3600000 }) }))
+  await page.goto('/admin')
+  const popupPromise = page.waitForEvent('popup')
+  await page.getByRole('button', { name: /Export PDF/ }).click()
+  const popup = await popupPromise
+  await expect(popup.locator('body')).toContainText('Junior')
+  await expect(popup.locator('body')).toContainText('All present: 0')
+  await expect(popup.locator('body')).toContainText('1 day absent: 1')
+  await expect(popup.locator('body')).toContainText('Senior')
+  await expect(popup.locator('body')).toContainText('All present: 1')
+})
