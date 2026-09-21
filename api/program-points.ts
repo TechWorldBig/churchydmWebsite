@@ -46,6 +46,6 @@ export default async function handler(req: any, res: any) {
     if (existing[0]) await sql`UPDATE program_points SET name=${body.name}, seniority=${body.seniority}, questions_answered=${body.questionsAnswered}, score=${body.questionsAnswered} WHERE id=${id}`
     else await sql`INSERT INTO program_points (id, member_id, name, program, seniority, date, questions_answered, score) VALUES (${id}, ${body.memberId}, ${body.name}, ${body.program}, ${body.seniority}, ${body.date}, ${body.questionsAnswered}, ${body.questionsAnswered})`
     await writeAuditLog(req, { action: existing[0] ? 'update' : 'create', entity: 'program_point', entityId: id, summary: `${body.name} · ${body.program} · ${body.date}` })
-    return res.status(200).json({ ok: true, id })
+    return res.status(200).json({ ok: true, id, created: !existing[0] })
   } catch (error) { return sendError(res, error) }
 }

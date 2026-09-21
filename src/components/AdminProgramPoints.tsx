@@ -5,8 +5,10 @@ import { Member, ProgramPoint } from '../data/memberStore'
 import { currentYearDateBounds } from '../data/dateBounds'
 
 const pointPrograms = ['Bible Reference', 'Bible Quiz', 'Song Survey']
-const uniquePoints = (items: ProgramPoint[]) => Array.from(new Map([...items].reverse().map(item => [`${item.memberId}-${item.program}-${item.date}`, item])).values()).reverse()
 const memberNameCollator = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true })
+const pointKey = (item: ProgramPoint) => `${item.memberId}-${item.program}-${item.date}`
+const pointDateValue = (value: string) => Date.parse(`${value}T00:00:00`)
+const uniquePoints = (items: ProgramPoint[]) => Array.from(new Map([...items].reverse().map(item => [pointKey(item), item])).values()).reverse()
 
 export default function AdminProgramPoints() {
   const yearBounds = currentYearDateBounds()
@@ -19,12 +21,17 @@ export default function AdminProgramPoints() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [message, setMessage] = useState('')
 
+  const loadPoints = async () => {
+    const rows = await getProgramPoints()
+    setPoints(uniquePoints(rows))
+  }
+
   useEffect(() => {
     void getMembers().then(setMembers).catch(() => setMessage('Could not load saved members.'))
-    void getProgramPoints().then(rows => setPoints(uniquePoints(rows))).catch(() => setMessage('Could not load program points.'))
+    void loadPoints().catch(() => setMessage('Could not load program points.'))
   }, [])
 
-  const displayedPoints = useMemo(() => uniquePoints(points).sort((a, b) => memberNameCollator.compare(a.name.trim(), b.name.trim()) || a.name.localeCompare(b.name) || a.id.localeCompare(b.id)), [points])
+  const displayedPoints = useMemo(() => uniquePoints(points).sort((a, b) => memberNameCollator.compare(a.name.trim(), b.name.trim()) || a.name.localeCompare(b.name) || pointDateValue(b.date) - pointDateValue(a.date) || a.program.localeCompare(b.program) || a.id.localeCompare(b.id)), [points])
   const sortedMembers = useMemo(() => [...members].sort((a, b) => memberNameCollator.compare(a.name.trim(), b.name.trim()) || a.name.localeCompare(b.name) || a.id.localeCompare(b.id)), [members])
 
   const clearForm = () => {
@@ -54,10 +61,11 @@ export default function AdminProgramPoints() {
     const item: ProgramPoint = { id: editingId || crypto.randomUUID(), memberId, name: member.name, program, seniority: member.seniority, date, questionsAnswered: answered }
     try {
       const saved = editingId ? await updateProgramPoint(item) : await saveProgramPoint(item)
-      const record = { ...item, id: saved.id || item.id }
-      setPoints(current => editingId ? uniquePoints(current.map(existing => existing.id === record.id ? record : existing)) : uniquePoints([record, ...current]))
+      // Reload the canonical row after an upsert. The API may update an existing
+      // member/program/date record instead of creating a second row.
+      await loadPoints()
       clearForm()
-      setMessage(editingId ? 'Program point updated successfully.' : 'Program point saved successfully.')
+      setMessage(editingId ? 'Program point updated successfully.' : saved.created === false ? 'This member, program, and date already existed, so its score was updated.' : 'Program point added successfully.')
     } catch {
       setMessage(editingId ? 'Could not update program point. Check for a duplicate member, program, and date.' : 'Could not save program point.')
     }
