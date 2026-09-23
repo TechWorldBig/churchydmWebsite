@@ -136,9 +136,9 @@ input[type='date']:active { transform: perspective(20rem) translateY(.18rem) rot
   .admin-page .attendance-entry-grid > :first-child, .admin-page .attendance-entry-grid > :nth-child(4) { grid-column: 1 / -1; }
   .admin-page .attendance-entry-grid > button { width: 100%; }
   .admin-page .grid.sm\:grid-cols-2.xl\:grid-cols-\[1fr_150px_120px\] { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-  .admin-page table { min-width: 0 !important; font-size: .68rem; }
-  .admin-page th, .admin-page td { padding: .55rem .35rem; white-space: normal; overflow-wrap: anywhere; }
-  .admin-page .overflow-x-auto { overflow-x: hidden; }
+  .admin-page .overflow-x-auto { overflow-x: auto; overscroll-behavior-x: contain; scrollbar-gutter: stable; }
+  .admin-page table { font-size: .75rem; }
+  .admin-page th, .admin-page td { padding: .65rem .5rem; white-space: nowrap; overflow-wrap: normal; }
 }
 .admin-login .primary-btn { position: relative; isolation: isolate; overflow: hidden; border: 1px solid rgba(255,255,255,.28); box-shadow: inset 0 1px 1px rgba(255,255,255,.34), inset 0 -3px 0 rgba(124,79,7,.2), 0 7px 0 #af7e23, 0 16px 24px rgba(7,31,25,.16); transform: perspective(18rem) rotateX(4deg); transition: transform .25s ease, box-shadow .25s ease; }
 .admin-login .primary-btn:hover { box-shadow: inset 0 1px 1px rgba(255,255,255,.34), inset 0 -3px 0 rgba(124,79,7,.2), 0 10px 0 #af7e23, 0 22px 28px rgba(7,31,25,.2); transform: perspective(18rem) translateY(-.25rem) rotateX(7deg); }

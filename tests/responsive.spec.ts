@@ -15,7 +15,15 @@ for (const path of ['/', '/members', '/gallery', '/programs', '/attendance', '/o
       await expect(page.locator('.home-purpose article').first()).toHaveCSS('opacity', '1')
       await expect(page.locator('.home-hero-content')).toHaveCSS('opacity', '1')
     }
-    if (path === '/admin') await expect(page.getByRole('heading', { name: 'Saved members (2)' })).toBeVisible()
+    if (path === '/admin') {
+      await expect(page.getByRole('heading', { name: 'Saved members (2)' })).toBeVisible()
+      if (page.viewportSize()!.width < 640) {
+        await expect.poll(() => page.locator('.admin-page .overflow-x-auto').evaluateAll(regions => regions.some(region => {
+          const styles = getComputedStyle(region)
+          return region.scrollWidth > region.clientWidth && styles.overflowX === 'auto'
+        }))).toBe(true)
+      }
+    }
     await page.evaluate(async () => {
       for (let y = 0; y < document.body.scrollHeight; y += window.innerHeight) {
         window.scrollTo(0, y)
