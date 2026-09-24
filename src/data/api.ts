@@ -43,7 +43,7 @@ export const deleteProgramPoint = (id: string) => request<{ ok: boolean }>('/api
 export const getLastUpdated = () => request<{ value: string | null; version: string }>('/api/updated')
 export const getVisitorTotal = () => request<{ total: number }>('/api/visitors')
 export const recordVisitor = () => request<{ total: number }>('/api/visitors', { method: 'POST' })
-export const getVisitorStats = (date?: string) => request<{ date: string; hours: Array<{ hour: number; count: number; devices: Record<string, number> }>; devices: Array<{ device: string; count: number }>; locations: VisitorLocation[]; dailyTotal: number; total: number }>(`/api/visitors${date ? `?date=${encodeURIComponent(date)}` : ''}`)
+export const getVisitorStats = (date?: string) => request<{ date: string; hours: Array<{ hour: number; count: number; devices: Record<string, number> }>; devices: Array<{ device: string; count: number }>; locations: VisitorLocation[]; dailyTotal: number; dailyTraffic: number; total: number }>(`/api/visitors${date ? `?date=${encodeURIComponent(date)}` : ''}`)
 export const getAuditLogs = () => request<AuditLog[]>('/api/audit-logs')
 export const createMember = (member: Member) => request<{ ok: boolean }>('/api/members', { method: 'POST', body: JSON.stringify(member) })
 export const updateMember = (member: Member) => request<{ ok: boolean }>('/api/members', { method: 'PUT', body: JSON.stringify(member) })

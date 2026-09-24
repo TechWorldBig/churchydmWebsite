@@ -8,6 +8,7 @@ type VisitorStats = {
   devices: Array<{ device: string; count: number }>
   locations: VisitorLocation[]
   dailyTotal: number
+  dailyTraffic: number
   total: number
 }
 
@@ -31,9 +32,10 @@ export default function AdminVisitorStats() {
       <div className="flex items-center gap-2"><label className="sr-only" htmlFor="visitor-date">Visitor date</label><div className="relative"><CalendarDays className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} /><input id="visitor-date" type="date" value={date} onChange={event => setDate(event.target.value)} className="field pl-10" /></div><button onClick={load} className="secondary-dark-btn" aria-label="Refresh visitor statistics" title="Refresh"><RefreshCw size={17} /></button></div>
     </div>
     {message ? <p role="alert" className="mt-5 text-sm text-rose-700">{message}</p> : <>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+      <div className="mt-6 grid gap-4 sm:grid-cols-3">
         <div className="rounded-2xl bg-[#071f19] p-5 text-white"><p className="text-xs font-bold uppercase tracking-[.14em] text-[#e3bc62]">Total unique visitors</p><p className="mt-2 text-4xl font-black">{loading ? '-' : stats?.total ?? 0}</p><p className="mt-2 text-xs text-white/60">Cumulative total · does not reset</p></div>
         <div className="rounded-2xl bg-emerald-50 p-5 text-emerald-950"><p className="text-xs font-bold uppercase tracking-[.14em] text-emerald-700">Selected day</p><p className="mt-2 text-4xl font-black">{loading ? '-' : stats?.dailyTotal ?? 0}</p><p className="mt-2 text-xs text-emerald-800">Unique IPs on {date}</p></div>
+        <div className="rounded-2xl bg-amber-50 p-5 text-amber-950"><p className="text-xs font-bold uppercase tracking-[.14em] text-amber-700">Daily traffic</p><p className="mt-2 text-4xl font-black">{loading ? '-' : stats?.dailyTraffic ?? 0}</p><p className="mt-2 text-xs text-amber-800">All IP visits on {date}</p></div>
       </div>
       <div className="mt-5 grid gap-3 sm:grid-cols-4">{['mobile', 'tablet', 'desktop', 'unknown'].map(device => <div key={device} className="rounded-2xl border border-slate-100 bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-wider text-slate-500">{device}</p><p className="mt-1 text-2xl font-black text-slate-900">{loading ? '-' : stats?.devices.find(item => item.device === device)?.count ?? 0}</p><p className="text-xs text-slate-400">Unique IPs</p></div>)}</div>
       <div className="mt-6"><div className="mb-3 flex items-center justify-between"><p className="text-sm font-black text-slate-900">24-hour activity</p><span className="text-xs font-bold text-slate-400">12 AM - 11 PM</span></div><div className="grid grid-cols-12 items-end gap-1.5 sm:grid-cols-24">{(stats?.hours || Array.from({ length: 24 }, (_, hour) => ({ hour, count: 0, devices: {} }))).map(item => <div key={item.hour} className="group flex min-w-0 flex-col items-center gap-1"><div className="flex h-36 w-full items-end rounded-lg bg-slate-50 p-1"><div className="w-full rounded-md bg-emerald-600 transition-all" style={{ height: `${item.count ? Math.max((item.count / max) * 100, 8) : 2}%` }} title={`${label(item.hour)}: ${item.count}`} /></div><span className="text-[9px] text-slate-400">{item.hour % 3 === 0 ? label(item.hour).replace(' ', '') : ''}</span></div>)}</div></div>
