@@ -34,7 +34,8 @@ export function getCertificateAwards(members: Member[], records: AttendanceRecor
     uniquePoints.set(`${point.memberId}-${point.program}-${point.date}`, point)
   })
   const programAwards: CertificateAward[] = []
-  for (const program of programs) for (const level of levels) {
+  const awardLevels = [...new Set([...levels, ...members.map(member => member.seniority).filter(Boolean)])]
+  for (const program of programs) for (const level of awardLevels) {
     const totals = new Map<string, number>()
     for (const point of uniquePoints.values()) {
       const member = memberById.get(point.memberId)
@@ -79,12 +80,13 @@ export function getCertificateAwards(members: Member[], records: AttendanceRecor
     }
   }
   const overallAwards: CertificateAward[] = members.flatMap(member => {
-    if (!perfectAttendanceIds.has(member.id) || !['Junior', 'Senior'].includes(member.seniority)) return []
+    const normalizedRole = member.role.trim().toLowerCase().replace(/^ydm\s+/u, '')
+    if (!perfectAttendanceIds.has(member.id) || !normalizedRole || normalizedRole === 'member' || normalizedRole === 'children' || normalizedRole.includes('children')) return []
     const isFirstInEveryProgram = programs.every(program => firstPlaceByProgram.get(`${member.seniority}-${program}`)?.has(member.id))
     if (!isFirstInEveryProgram) return []
     return [{
       id: `overall-${year}-${member.seniority}-${member.id}`, member, kind: 'overall' as const,
-      title: `Overall champion · ${member.seniority}`, year,
+      title: 'Overall champion award', year,
       reason: `In recognition of 100% attendance and first place in Bible Quiz, Bible Reference and Song Survey for ${year}.`,
       detail: `${member.seniority} · Perfect attendance · Three first-place program awards`,
     }]

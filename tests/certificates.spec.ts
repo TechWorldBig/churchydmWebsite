@@ -41,14 +41,16 @@ test('leadership appreciation excludes YDM members and children', () => {
 
 test('overall champion requires perfect attendance and all three program wins', () => {
   const champion = member('champion', 'Champion', 'Junior', 'President')
+  const otherLevel = member('other-level', 'Other Level', 'Kutties', 'Secretary')
   const records: AttendanceRecord[] = [
     { id: 'a1', memberId: champion.id, name: champion.name, date: `${year}-09-01`, present: true, note: '' },
+    { id: 'a2', memberId: otherLevel.id, name: otherLevel.name, date: `${year}-09-01`, present: true, note: '' },
   ]
-  const points = (['Bible Quiz', 'Bible Reference', 'Song Survey'] as const).map((program, index) => ({
-    id: `p${index}`, memberId: champion.id, name: champion.name, seniority: 'Junior' as const, program, date: `${year}-09-01`, questionsAnswered: 5,
-  }))
-  const awards = getCertificateAwards([champion], records, points, year)
-  expect(awards.filter(award => award.kind === 'overall')).toHaveLength(1)
+  const points = [champion, otherLevel].flatMap((person, personIndex) => (['Bible Quiz', 'Bible Reference', 'Song Survey'] as const).map((program, index) => ({
+    id: `p${personIndex}-${index}`, memberId: person.id, name: person.name, seniority: person.seniority, program, date: `${year}-09-01`, questionsAnswered: 5,
+  })))
+  const awards = getCertificateAwards([champion, otherLevel], records, points, year)
+  expect(awards.filter(award => award.kind === 'overall').map(award => award.member.name)).toEqual(['Champion', 'Other Level'])
   expect(awards.find(award => award.kind === 'overall')?.reason).toContain('first place in Bible Quiz, Bible Reference and Song Survey')
 })
 
