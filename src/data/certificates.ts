@@ -3,7 +3,7 @@ import type { AttendanceRecord, Member, ProgramPoint } from './memberStore'
 export type CertificateAward = {
   id: string
   member: Member
-  kind: 'attendance' | 'program'
+  kind: 'attendance' | 'program' | 'appreciation'
   title: string
   reason: string
   detail: string
@@ -58,5 +58,15 @@ export function getCertificateAwards(members: Member[], records: AttendanceRecor
       })
     }
   }
-  return [...attendance.sort((a, b) => a.member.name.localeCompare(b.member.name)), ...programAwards]
+  const appreciationAwards: CertificateAward[] = members.flatMap(member => {
+    const normalizedRole = member.role.trim().toLowerCase().replace(/^ydm\s+/u, '')
+    if (!normalizedRole || normalizedRole === 'member' || normalizedRole === 'children' || normalizedRole.includes('children')) return []
+    return [{
+      id: `appreciation-${year}-${member.id}`, member, kind: 'appreciation' as const,
+      title: 'Leadership & service appreciation', year,
+      reason: `In appreciation of your faithful leadership and service in making ${year} wonderful for JSC YDM.`,
+      detail: `Recognized role · ${member.role}`,
+    }]
+  }).sort((a, b) => a.member.name.localeCompare(b.member.name))
+  return [...attendance.sort((a, b) => a.member.name.localeCompare(b.member.name)), ...programAwards, ...appreciationAwards]
 }

@@ -4,8 +4,8 @@ import type { AttendanceRecord, Member, ProgramPoint } from '../src/data/memberS
 import { createMockState, installApiMocks } from './support/mockData'
 
 const year = String(new Date().getFullYear())
-const member = (id: string, name: string, seniority: Member['seniority']): Member => ({
-  id, name, seniority, role: 'YDM Member', email: '', phone: '', address: '', gender: '', dateOfBirth: '', focus: '', photo: '',
+const member = (id: string, name: string, seniority: Member['seniority'], role = 'YDM Member'): Member => ({
+  id, name, seniority, role, email: '', phone: '', address: '', gender: '', dateOfBirth: '', focus: '', photo: '',
 })
 const point = (id: string, memberId: string, name: string, seniority: ProgramPoint['seniority'], score: number): ProgramPoint => ({
   id, memberId, name, seniority, program: 'Bible Quiz', date: `${year}-09-15`, questionsAnswered: score,
@@ -27,6 +27,18 @@ test('certificate eligibility requires every meeting and shares tied program pla
   expect(getCertificateAwards(members, [], [], year)).toEqual([])
 })
 
+test('leadership appreciation excludes YDM members and children', () => {
+  const awards = getCertificateAwards([
+    member('president', 'Jayan', 'Senior', 'President'),
+    member('advisor', 'Finny', 'Senior', 'Advisor'),
+    member('member', 'Regular Member', 'Junior'),
+    member('child', 'YDM Child', 'Kutties', 'YDM Children'),
+  ], [], [], year)
+  const appreciation = awards.filter(award => award.kind === 'appreciation')
+  expect(appreciation.map(award => award.member.name)).toEqual(['Finny', 'Jayan'])
+  expect(appreciation[0].reason).toContain(`making ${year} wonderful`)
+})
+
 test('admin can preview and print an eligible certificate', async ({ page }, testInfo) => {
   const state = createMockState()
   state.adminAuthenticated = true
@@ -39,9 +51,9 @@ test('admin can preview and print an eligible certificate', async ({ page }, tes
   const section = page.getByRole('region', { name: 'Certificates' })
   await expect(section.getByText('3 certificates ready')).toBeVisible({ timeout: 15000 })
   await section.getByRole('button', { name: /Sarah Perfect attendance/ }).click()
-  await expect(section.locator('.ydm-cert-name')).toHaveText('Sarah')
-  await expect(section.locator('.ydm-cert-reason')).toContainText('100% attendance')
-  await section.locator('.ydm-certificate').screenshot({ path: testInfo.outputPath('certificate-preview.png') })
+  await expect(section.locator('.ydm-certificate').first().locator('.ydm-cert-name')).toHaveText('Sarah')
+  await expect(section.locator('.ydm-certificate').first().locator('.ydm-cert-reason')).toContainText('100% attendance')
+  await section.locator('.ydm-certificate').first().screenshot({ path: testInfo.outputPath('certificate-preview.png') })
   const popupPromise = page.waitForEvent('popup')
   await section.getByRole('button', { name: 'Download PDF' }).click()
   const popup = await popupPromise
@@ -54,7 +66,7 @@ test('admin can preview and print an eligible certificate', async ({ page }, tes
   await page.setViewportSize({ width: 390, height: 844 })
   await expect(section.getByRole('button', { name: 'Download PDF' })).toBeVisible()
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-  await expect.poll(() => section.locator('.ydm-certificate').evaluate(node => node.parentElement!.scrollWidth > node.parentElement!.clientWidth)).toBe(true)
+  await expect.poll(() => section.locator('.ydm-certificate').first().evaluate(node => node.parentElement!.scrollWidth > node.parentElement!.clientWidth)).toBe(true)
   await page.route('**/api/program-points', route => route.fulfill({ status: 500, contentType: 'application/json', body: '{}' }))
   await section.getByRole('button', { name: 'Refresh results' }).click()
   await expect(section.getByRole('alert')).toContainText('Could not load certificate data')

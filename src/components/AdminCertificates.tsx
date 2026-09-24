@@ -65,8 +65,12 @@ export default function AdminCertificates() {
 
   const years = useMemo(() => [...new Set([year, String(new Date().getFullYear()), ...records.map(row => row.date.slice(0, 4)), ...points.map(row => row.date.slice(0, 4))])].sort().reverse(), [records, points, year])
   const awards = useMemo(() => getCertificateAwards(members, records, points, year), [members, records, points, year])
-  const visibleAwards = awards.filter(award => filter === 'all' || award.kind === filter)
+  const standardAwards = awards.filter(award => award.kind !== 'appreciation')
+  const appreciationAwards = awards.filter(award => award.kind === 'appreciation')
+  const visibleAwards = standardAwards.filter(award => filter === 'all' || award.kind === filter)
   const selected = visibleAwards.find(award => award.id === selectedId) || visibleAwards[0]
+  const [selectedAppreciationId, setSelectedAppreciationId] = useState('')
+  const selectedAppreciation = appreciationAwards.find(award => award.id === selectedAppreciationId) || appreciationAwards[0]
 
   const download = (award: CertificateAward) => {
     const popup = window.open('', '_blank')
@@ -91,5 +95,15 @@ export default function AdminCertificates() {
         {selected && <div className="min-w-0"><div className="overflow-x-auto rounded-2xl border border-slate-200 bg-slate-50 p-2" tabIndex={0} aria-label="Certificate preview. Scroll horizontally to see the full certificate."><style>{certificateCss}</style><div dangerouslySetInnerHTML={{ __html: certificateMarkup(selected) }} /></div><div className="mt-4 flex flex-wrap items-center justify-between gap-3"><p className="text-xs text-slate-500">Choose “Save as PDF” in the print dialog. Print on A4 landscape with background graphics enabled.</p><button type="button" onClick={() => download(selected)} className="primary-btn"><Download size={17} /> Download PDF</button></div></div>}
       </div>
     </>}
+    {!loading && !error && <section className="mt-8 rounded-3xl border border-emerald-100 bg-emerald-50/60 p-5" aria-labelledby="admin-appreciation-title">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div><p className="eyebrow">Year-end recognition</p><h3 id="admin-appreciation-title" className="mt-1 text-xl font-black text-slate-900">Leadership &amp; service appreciation</h3><p className="mt-1 max-w-3xl text-sm text-slate-600">A professional appreciation certificate for leaders and office holders who helped make the year wonderful. YDM Members and YDM Children are excluded.</p></div>
+        <p className="rounded-full bg-white px-3 py-2 text-xs font-bold text-emerald-800">{appreciationAwards.length} certificate{appreciationAwards.length === 1 ? '' : 's'} ready</p>
+      </div>
+      {!appreciationAwards.length ? <p className="mt-5 rounded-2xl border border-dashed border-emerald-200 bg-white/70 p-5 text-sm text-slate-600">No named leaders or office holders are available for {year} yet.</p> : <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(240px,320px)_minmax(0,1fr)]">
+        <div className="max-h-[28rem] space-y-2 overflow-y-auto pr-1" aria-label="Leadership appreciation recipients">{appreciationAwards.map(award => <button type="button" key={award.id} onClick={() => setSelectedAppreciationId(award.id)} aria-pressed={selectedAppreciation?.id === award.id} className={`w-full cursor-pointer rounded-2xl border p-4 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 ${selectedAppreciation?.id === award.id ? 'border-emerald-600 bg-white' : 'border-emerald-100 bg-white/70 hover:border-emerald-300 hover:bg-white'}`}><span className="block font-black text-slate-900">{award.member.name}</span><span className="mt-1 block text-sm font-semibold text-emerald-800">{award.member.role}</span><span className="mt-1 block text-xs text-slate-500">{award.detail}</span></button>)}</div>
+        {selectedAppreciation && <div className="min-w-0"><div className="overflow-x-auto rounded-2xl border border-emerald-100 bg-white p-2" tabIndex={0} aria-label="Leadership appreciation certificate preview. Scroll horizontally to see the full certificate."><style>{certificateCss}</style><div dangerouslySetInnerHTML={{ __html: certificateMarkup(selectedAppreciation) }} /></div><div className="mt-4 flex flex-wrap items-center justify-between gap-3"><p className="text-xs text-slate-500">This certificate recognizes faithful leadership and service throughout the selected year.</p><button type="button" onClick={() => download(selectedAppreciation)} className="primary-btn"><Download size={17} /> Download appreciation PDF</button></div></div>}
+      </div>}
+    </section>}
   </section>
 }
