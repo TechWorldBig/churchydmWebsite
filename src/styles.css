@@ -274,6 +274,8 @@ main > section + section .soft-card.overflow-hidden.p-0 > div.h-52 img { height:
 .site-footer > div:first-child > div { align-self: start; }
 .footer-content { grid-template-columns: minmax(0, 1fr); align-items: start; }
 .footer-brand { max-width: 42rem; }
+.footer-logo-wrap { overflow: visible; }
+.footer-logo-wrap img { display: block; min-width: 3rem; min-height: 3rem; }
 .footer-explore > div { align-items: start; }
 .footer-connect { justify-self: start; }
 .site-footer h3 { margin-bottom: .45rem; }
@@ -529,4 +531,10 @@ main > section + section .soft-card.overflow-hidden.p-0 > div.h-52 img { height:
 @media (hover: none), (pointer: coarse) {
   .soft-card:hover, .attendance-search-card:hover, .member-gif-figure:hover, .member-name-field-3d:hover, .calendar-control-3d:hover { transform: none; }
   .soft-card:hover, .attendance-search-card:hover { box-shadow: 0 10px 0 rgba(15,23,42,.035), 0 18px 30px rgba(7,31,25,.07); }
+}
+
+@media (max-width: 639px) {
+  .site-footer .footer-logo-wrap { width: 3.25rem; height: 3.25rem; }
+  .admin-gallery-photo-list article > div { display: block; overflow: visible; }
+  .admin-gallery-photo-list article > div > p { display: block; max-height: none; overflow: visible; white-space: normal; overflow-wrap: anywhere; }
 }

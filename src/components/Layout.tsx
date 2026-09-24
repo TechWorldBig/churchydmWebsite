@@ -110,7 +110,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       <footer className="site-footer bg-[#041511] text-white">
         <div className="footer-content mx-auto grid max-w-7xl gap-5 px-5 py-3 lg:px-8">
           <div className="footer-brand">
-            <div className="mb-3 flex items-center gap-3 text-sm font-black sm:text-base"><span className="grid h-9 w-9 shrink-0 place-items-center"><img src={ydmLogo} alt="" aria-hidden="true" className="h-full w-full object-contain drop-shadow-[0_2px_3px_rgba(0,0,0,0.3)]" /></span><span>JSC Youth Divine Movement</span></div>
+            <div className="mb-3 flex items-center gap-3 text-sm font-black sm:text-base"><span className="footer-logo-wrap grid h-12 w-12 shrink-0 place-items-center"><img src={ydmLogo} alt="" aria-hidden="true" className="h-full w-full object-contain drop-shadow-[0_2px_3px_rgba(0,0,0,0.3)]" /></span><span>JSC Youth Divine Movement</span></div>
             <p className="max-w-md text-sm leading-7 text-white/55">A Christ-centered youth community growing together through worship, Scripture, fellowship, service and leadership.</p>
           </div>
           <div className="footer-explore">
