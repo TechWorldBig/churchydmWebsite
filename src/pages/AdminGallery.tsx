@@ -117,7 +117,7 @@ export default function AdminGallery() {
             <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500 sm:col-span-2">No event photos added yet.</div>
           ) : photos.map(item => (
             <article key={item.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <img src={item.photo} alt={item.description || 'Event photo'} className="h-40 w-full object-cover" />
+              <img loading="lazy" decoding="async" src={item.photo} alt={item.description || 'Event photo'} className="h-40 w-full object-cover" />
               <div className="p-4">
                 <p className="text-xs font-bold uppercase tracking-[.14em] text-emerald-700">{item.date}</p>
                 {item.description && <p className="mt-2 text-sm leading-6 text-slate-600">{item.description}</p>}

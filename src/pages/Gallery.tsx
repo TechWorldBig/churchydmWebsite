@@ -15,7 +15,7 @@ export default function Gallery() {
   useEffect(() => {
     const load = () => { void getGallery().then(setPhotos).catch(() => undefined) }
     load()
-    const timer = window.setInterval(load, 15_000)
+    const timer = window.setInterval(load, 60_000)
     return () => window.clearInterval(timer)
   }, [])
   useEffect(() => {

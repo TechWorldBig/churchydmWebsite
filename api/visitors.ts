@@ -58,6 +58,7 @@ export default async function handler(req: any, res: any) {
         FROM website_visitor_hours h
         JOIN website_visitor_ips i ON i.ip_hash = h.ip_hash
         ORDER BY h.created_at DESC
+        LIMIT 5000
       `
       const counts = Array.from({ length: 24 }, (_, hour) => ({ hour, count: rows.filter(row => row.hour === hour).reduce((sum, row) => sum + Number(row.count), 0) }))
       const deviceCounts = ['mobile', 'tablet', 'desktop', 'unknown'].map(device => ({ device, count: dayVisitors.filter(row => row.device === device).length }))

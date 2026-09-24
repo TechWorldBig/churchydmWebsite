@@ -43,7 +43,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       }
     }
     void checkForNewDeployment()
-    const timer = window.setInterval(() => { void checkForNewDeployment() }, 60_000)
+    const timer = window.setInterval(() => { void checkForNewDeployment() }, 300_000)
     return () => window.clearInterval(timer)
   }, [])
 
