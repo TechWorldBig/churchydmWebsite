@@ -26,6 +26,36 @@ export function membershipCardDocument(member: Member) {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(member.name)} · YDM Membership Card</title><style>@page{size:85.6mm 54mm;margin:0}*{box-sizing:border-box}body{margin:0;background:#fff}${cardCss}</style></head><body>${membershipCardMarkup(member)}</body></html>`
 }
 
+const imageData = async (source: string) => {
+  if (source.startsWith('data:')) return source
+  const response = await fetch(source, { credentials: 'same-origin' })
+  if (!response.ok) throw new Error('Image could not be loaded')
+  const blob = await response.blob()
+  return await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(String(reader.result))
+    reader.onerror = () => reject(new Error('Image could not be read'))
+    reader.readAsDataURL(blob)
+  })
+}
+
+const downloadMembershipPdf = async (member: Member) => {
+  const { jsPDF } = await import('jspdf')
+  const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [85.6, 54] })
+  pdf.setFillColor(7, 31, 25); pdf.roundedRect(0, 0, 85.6, 54, 3, 3, 'F')
+  pdf.setDrawColor(227, 188, 98); pdf.setLineWidth(.5); pdf.roundedRect(.8, .8, 84, 52.4, 3, 3, 'S')
+  try { pdf.addImage(await imageData(ydmLogo), 'PNG', 6, 4, 9, 9) } catch { /* The text identity remains available if the logo cannot load. */ }
+  pdf.setTextColor(227, 188, 98); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(8); pdf.text('JSC YDM', 18, 8)
+  pdf.setTextColor(205, 220, 214); pdf.setFont('helvetica', 'normal'); pdf.setFontSize(4.5); pdf.text('Youth Divine Movement', 18, 11)
+  if (member.photo) { try { pdf.addImage(await imageData(member.photo), member.photo.startsWith('data:image/png') ? 'PNG' : 'JPEG', 7, 19, 18, 18) } catch { /* Fall back to initials below. */ } }
+  pdf.setTextColor(205, 220, 214); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(4); pdf.text('MEMBER', 31, 23)
+  pdf.setTextColor(255, 255, 255); pdf.setFont('times', 'bold'); pdf.setFontSize(14); pdf.text(member.name.slice(0, 28), 31, 31)
+  pdf.setTextColor(205, 220, 214); pdf.setFont('helvetica', 'normal'); pdf.setFontSize(6); pdf.text(member.gender || 'YDM', 31, 36)
+  pdf.setTextColor(205, 220, 214); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(5.5); pdf.text(memberNumber(member), 7, 48)
+  pdf.setTextColor(227, 188, 98); pdf.setFontSize(5.5); pdf.text('OFFICIAL MEMBER', 60, 48)
+  pdf.save(`ydm-membership-card-${memberNumber(member)}.pdf`)
+}
+
 export default function AdminMembershipCards() {
   const [members, setMembers] = useState<Member[]>([])
   const [selectedId, setSelectedId] = useState('')
@@ -35,7 +65,7 @@ export default function AdminMembershipCards() {
   useEffect(() => { void refresh() }, [])
   const sortedMembers = useMemo(() => [...members].sort((a, b) => a.name.localeCompare(b.name)), [members])
   const selected = sortedMembers.find(member => member.id === selectedId) || sortedMembers[0]
-  const download = (member: Member) => { const popup = window.open('', '_blank'); if (!popup) { setError('Allow pop-ups for this site, then try Download card again.'); return }; popup.document.open(); popup.document.write(membershipCardDocument(member)); popup.document.close(); const images = [...popup.document.images]; void Promise.all(images.map(image => image.complete ? Promise.resolve() : new Promise<void>(resolve => { image.onload = () => resolve(); image.onerror = () => resolve() }))).then(() => { if (!popup.closed) { popup.focus(); popup.print() } }) }
+  const download = async (member: Member) => { setError(''); const mobile = window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 600; if (mobile) { try { await downloadMembershipPdf(member) } catch { setError('PDF download was blocked. Allow downloads for this site, then try again.') }; return }; const popup = window.open('', '_blank'); if (!popup) { setError('Allow pop-ups for this site, then try Download card again.'); return }; popup.document.open(); popup.document.write(membershipCardDocument(member)); popup.document.close(); const images = [...popup.document.images]; void Promise.all(images.map(image => image.complete ? Promise.resolve() : new Promise<void>(resolve => { image.onload = () => resolve(); image.onerror = () => resolve() }))).then(() => { if (!popup.closed) { popup.focus(); popup.print() } }) }
 
   return <section className="soft-card admin-membership-cards mt-6" aria-labelledby="admin-membership-cards-title"><div className="flex flex-wrap items-start justify-between gap-4"><div className="flex items-start gap-3"><span className="icon-box shrink-0"><CreditCard size={20} /></span><div><p className="eyebrow">Membership</p><h2 id="admin-membership-cards-title" className="mt-1 text-2xl font-black">YDM membership cards</h2><p className="mt-1 text-sm text-slate-500">Create a print-ready identity card for any saved YDM member.</p></div></div><button type="button" onClick={() => void refresh()} disabled={loading} className="secondary-dark-btn disabled:cursor-not-allowed disabled:opacity-60"><RefreshCw size={17} /> Refresh members</button></div>{error && <p role="alert" className="mt-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}{loading ? <p role="status" className="mt-6 text-sm text-slate-500">Loading saved members…</p> : !sortedMembers.length ? <p className="mt-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-6 text-sm text-slate-600">No saved members available yet.</p> : <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(240px,320px)_minmax(0,1fr)]"><label className="field-label">Choose member<select className="field" value={selected?.id || ''} onChange={event => setSelectedId(event.target.value)}>{sortedMembers.map(member => <option key={member.id} value={member.id}>{member.name}</option>)}</select><span className="mt-1 font-normal normal-case tracking-normal text-slate-500">The card uses the saved name, role, seniority, gender and profile photo.</span></label>{selected && <div className="min-w-0"><div className="overflow-x-auto rounded-2xl border border-slate-200 bg-slate-50 p-4" tabIndex={0} aria-label="Membership card preview. Scroll horizontally to see the full card."><style>{cardCss}</style><div dangerouslySetInnerHTML={{ __html: membershipCardMarkup(selected) }} /></div><div className="mt-4 flex flex-wrap items-center justify-between gap-3"><p className="text-xs text-slate-500">Choose “Save as PDF” in the print dialog. Print at 85.6 × 54 mm for standard ID card size.</p><button type="button" onClick={() => download(selected)} className="primary-btn"><Download size={17} /> Download card</button></div></div>}</div>}</section>
 }
