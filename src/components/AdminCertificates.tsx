@@ -65,12 +65,15 @@ export default function AdminCertificates() {
 
   const years = useMemo(() => [...new Set([year, String(new Date().getFullYear()), ...records.map(row => row.date.slice(0, 4)), ...points.map(row => row.date.slice(0, 4))])].sort().reverse(), [records, points, year])
   const awards = useMemo(() => getCertificateAwards(members, records, points, year), [members, records, points, year])
-  const standardAwards = awards.filter(award => award.kind !== 'appreciation')
+  const standardAwards = awards.filter(award => award.kind !== 'appreciation' && award.kind !== 'overall')
   const appreciationAwards = awards.filter(award => award.kind === 'appreciation')
+  const overallAwards = awards.filter(award => award.kind === 'overall')
   const visibleAwards = standardAwards.filter(award => filter === 'all' || award.kind === filter)
   const selected = visibleAwards.find(award => award.id === selectedId) || visibleAwards[0]
   const [selectedAppreciationId, setSelectedAppreciationId] = useState('')
   const selectedAppreciation = appreciationAwards.find(award => award.id === selectedAppreciationId) || appreciationAwards[0]
+  const [selectedOverallId, setSelectedOverallId] = useState('')
+  const selectedOverall = overallAwards.find(award => award.id === selectedOverallId) || overallAwards[0]
 
   const download = (award: CertificateAward) => {
     const popup = window.open('', '_blank')
@@ -104,6 +107,10 @@ export default function AdminCertificates() {
         <div className="max-h-[28rem] space-y-2 overflow-y-auto pr-1" aria-label="Leadership appreciation recipients">{appreciationAwards.map(award => <button type="button" key={award.id} onClick={() => setSelectedAppreciationId(award.id)} aria-pressed={selectedAppreciation?.id === award.id} className={`w-full cursor-pointer rounded-2xl border p-4 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 ${selectedAppreciation?.id === award.id ? 'border-emerald-600 bg-white' : 'border-emerald-100 bg-white/70 hover:border-emerald-300 hover:bg-white'}`}><span className="block font-black text-slate-900">{award.member.name}</span><span className="mt-1 block text-sm font-semibold text-emerald-800">{award.member.role}</span><span className="mt-1 block text-xs text-slate-500">{award.detail}</span></button>)}</div>
         {selectedAppreciation && <div className="min-w-0"><div className="overflow-x-auto rounded-2xl border border-emerald-100 bg-white p-2" tabIndex={0} aria-label="Leadership appreciation certificate preview. Scroll horizontally to see the full certificate."><style>{certificateCss}</style><div dangerouslySetInnerHTML={{ __html: certificateMarkup(selectedAppreciation) }} /></div><div className="mt-4 flex flex-wrap items-center justify-between gap-3"><p className="text-xs text-slate-500">This certificate recognizes faithful leadership and service throughout the selected year.</p><button type="button" onClick={() => download(selectedAppreciation)} className="primary-btn"><Download size={17} /> Download appreciation PDF</button></div></div>}
       </div>}
+    </section>}
+    {!loading && !error && <section className="mt-8 rounded-3xl border border-amber-100 bg-amber-50/60 p-5" aria-labelledby="admin-overall-title">
+      <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="eyebrow">Highest achievement</p><h3 id="admin-overall-title" className="mt-1 text-xl font-black text-slate-900">Overall champion award</h3><p className="mt-1 max-w-3xl text-sm text-slate-600">Awarded only to a Junior or Senior member with 100% attendance and first place in Bible Quiz, Bible Reference and Song Survey.</p></div><p className="rounded-full bg-white px-3 py-2 text-xs font-bold text-amber-800">{overallAwards.length} champion{overallAwards.length === 1 ? '' : 's'} ready</p></div>
+      {!overallAwards.length ? <p className="mt-5 rounded-2xl border border-dashed border-amber-200 bg-white/70 p-5 text-sm text-slate-600">No overall champion qualifies for {year} yet.</p> : <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(240px,320px)_minmax(0,1fr)]"><div className="space-y-2" aria-label="Overall champion recipients">{overallAwards.map(award => <button type="button" key={award.id} onClick={() => setSelectedOverallId(award.id)} aria-pressed={selectedOverall?.id === award.id} className={`w-full rounded-2xl border p-4 text-left transition ${selectedOverall?.id === award.id ? 'border-amber-500 bg-white' : 'border-amber-100 bg-white/70 hover:border-amber-300 hover:bg-white'}`}><span className="block font-black text-slate-900">{award.member.name}</span><span className="mt-1 block text-sm font-semibold text-amber-800">{award.title}</span><span className="mt-1 block text-xs text-slate-500">{award.detail}</span></button>)}</div>{selectedOverall && <div className="min-w-0"><div className="overflow-x-auto rounded-2xl border border-amber-100 bg-white p-2" tabIndex={0} aria-label="Overall champion certificate preview. Scroll horizontally to see the full certificate."><style>{certificateCss}</style><div dangerouslySetInnerHTML={{ __html: certificateMarkup(selectedOverall) }} /></div><div className="mt-4 flex justify-end"><button type="button" onClick={() => download(selectedOverall)} className="primary-btn"><Download size={17} /> Download champion PDF</button></div></div>}</div>}
     </section>}
   </section>
 }

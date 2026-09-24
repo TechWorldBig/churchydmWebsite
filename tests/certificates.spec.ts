@@ -39,6 +39,19 @@ test('leadership appreciation excludes YDM members and children', () => {
   expect(appreciation[0].reason).toContain(`making ${year} wonderful`)
 })
 
+test('overall champion requires perfect attendance and all three program wins', () => {
+  const champion = member('champion', 'Champion', 'Junior', 'President')
+  const records: AttendanceRecord[] = [
+    { id: 'a1', memberId: champion.id, name: champion.name, date: `${year}-09-01`, present: true, note: '' },
+  ]
+  const points = (['Bible Quiz', 'Bible Reference', 'Song Survey'] as const).map((program, index) => ({
+    id: `p${index}`, memberId: champion.id, name: champion.name, seniority: 'Junior' as const, program, date: `${year}-09-01`, questionsAnswered: 5,
+  }))
+  const awards = getCertificateAwards([champion], records, points, year)
+  expect(awards.filter(award => award.kind === 'overall')).toHaveLength(1)
+  expect(awards.find(award => award.kind === 'overall')?.reason).toContain('first place in Bible Quiz, Bible Reference and Song Survey')
+})
+
 test('admin can preview and print an eligible certificate', async ({ page }, testInfo) => {
   const state = createMockState()
   state.adminAuthenticated = true

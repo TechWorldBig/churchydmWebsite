@@ -3,7 +3,7 @@ import type { AttendanceRecord, Member, ProgramPoint } from './memberStore'
 export type CertificateAward = {
   id: string
   member: Member
-  kind: 'attendance' | 'program' | 'appreciation'
+  kind: 'attendance' | 'program' | 'appreciation' | 'overall'
   title: string
   reason: string
   detail: string
@@ -68,5 +68,26 @@ export function getCertificateAwards(members: Member[], records: AttendanceRecor
       detail: `Recognized role · ${member.role}`,
     }]
   }).sort((a, b) => a.member.name.localeCompare(b.member.name))
-  return [...attendance.sort((a, b) => a.member.name.localeCompare(b.member.name)), ...programAwards, ...appreciationAwards]
+  const perfectAttendanceIds = new Set(attendance.map(award => award.member.id))
+  const firstPlaceByProgram = new Map<string, Set<string>>()
+  for (const award of programAwards) {
+    if (award.title.startsWith('First place')) {
+      const key = `${award.member.seniority}-${award.title.slice('First place · '.length)}`
+      const winners = firstPlaceByProgram.get(key) || new Set<string>()
+      winners.add(award.member.id)
+      firstPlaceByProgram.set(key, winners)
+    }
+  }
+  const overallAwards: CertificateAward[] = members.flatMap(member => {
+    if (!perfectAttendanceIds.has(member.id) || !['Junior', 'Senior'].includes(member.seniority)) return []
+    const isFirstInEveryProgram = programs.every(program => firstPlaceByProgram.get(`${member.seniority}-${program}`)?.has(member.id))
+    if (!isFirstInEveryProgram) return []
+    return [{
+      id: `overall-${year}-${member.seniority}-${member.id}`, member, kind: 'overall' as const,
+      title: `Overall champion · ${member.seniority}`, year,
+      reason: `In recognition of 100% attendance and first place in Bible Quiz, Bible Reference and Song Survey for ${year}.`,
+      detail: `${member.seniority} · Perfect attendance · Three first-place program awards`,
+    }]
+  }).sort((a, b) => a.member.name.localeCompare(b.member.name))
+  return [...attendance.sort((a, b) => a.member.name.localeCompare(b.member.name)), ...programAwards, ...appreciationAwards, ...overallAwards]
 }
