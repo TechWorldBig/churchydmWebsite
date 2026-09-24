@@ -63,7 +63,7 @@ export function getCertificateAwards(members: Member[], records: AttendanceRecor
     if (!normalizedRole || normalizedRole === 'member' || normalizedRole === 'children' || normalizedRole.includes('children')) return []
     return [{
       id: `appreciation-${year}-${member.id}`, member, kind: 'appreciation' as const,
-      title: 'Leadership & service appreciation', year,
+      title: `Leadership & service appreciation · ${member.role}`, year,
       reason: `In appreciation of your faithful leadership and service in making ${year} wonderful for JSC YDM.`,
       detail: `Recognized role · ${member.role}`,
     }]
