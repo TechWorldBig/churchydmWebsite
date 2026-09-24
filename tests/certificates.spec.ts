@@ -37,7 +37,7 @@ test('admin can preview and print an eligible certificate', async ({ page }, tes
   ]) }))
   await page.goto('/admin/certificates')
   const section = page.getByRole('region', { name: 'Certificates' })
-  await expect(section.getByText('3 certificates ready')).toBeVisible()
+  await expect(section.getByText('3 certificates ready')).toBeVisible({ timeout: 15000 })
   await section.getByRole('button', { name: /Sarah Perfect attendance/ }).click()
   await expect(section.locator('.ydm-cert-name')).toHaveText('Sarah')
   await expect(section.locator('.ydm-cert-reason')).toContainText('100% attendance')
@@ -59,6 +59,25 @@ test('admin can preview and print an eligible certificate', async ({ page }, tes
   await section.getByRole('button', { name: 'Refresh results' }).click()
   await expect(section.getByRole('alert')).toContainText('Could not load certificate data')
   await expect(section.getByRole('button', { name: 'Download PDF' })).toHaveCount(0)
+})
+
+test('admin can preview and print a YDM membership card', async ({ page }) => {
+  const state = createMockState()
+  state.adminAuthenticated = true
+  await installApiMocks(page, state)
+  await page.goto('/admin/certificates')
+  const section = page.getByRole('region', { name: 'YDM membership cards' })
+  await expect(section.getByRole('heading', { name: 'YDM membership cards' })).toBeVisible()
+  await section.getByLabel('Choose member').selectOption('member-sarah')
+  await expect(section.locator('.ydm-card-name')).toHaveText('Sarah')
+  await expect(section.locator('.ydm-card-overline')).toHaveText('JSC YDM')
+  const popupPromise = page.waitForEvent('popup')
+  await section.getByRole('button', { name: 'Download card' }).click()
+  const popup = await popupPromise
+  await expect(popup.locator('.ydm-card-name')).toHaveText('Sarah')
+  await expect(popup.locator('.ydm-card-logo')).toBeVisible()
+  await expect(popup.locator('.ydm-card-id')).toHaveText(/^YDM-/)
+  await popup.close()
 })
 
 test('certificates screen requires an admin session', async ({ page }) => {

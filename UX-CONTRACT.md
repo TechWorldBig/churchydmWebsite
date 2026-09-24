@@ -30,6 +30,8 @@ The public program section is absent when there are no active rows. Rows expire 
 
 `/admin/certificates` is a separate admin section and uses the existing admin session. It reads saved members, attendance, and program points; it does not create certificate records. The selected year controls both award calculations. Perfect attendance requires a Present record for every meeting date recorded in that year. Bible Quiz, Bible Reference, and Song Survey awards rank total points separately for Kutties, Junior, and Senior members; tied scores share the same place. The admin selects a recipient, previews the landscape certificate, and uses the browser print dialog to save an A4 landscape PDF. If refreshing the source data fails, certificates are unavailable until a successful refresh.
 
+The same screen places YDM membership cards below Certificates. The admin selects a saved member, previews the card, and prints it as a standard 85.6 × 54 mm card. The card displays the saved name, role, seniority, gender, unique YDM member number, YDM logo, and profile photo when available; initials are used when a photo is missing.
+
 ## Feedback and destructive actions
 
 Existing forms keep entered values on recoverable errors and show the current success/error message inline. Deletes use the established admin action pattern; a later shared confirmation primitive should be adopted before expanding destructive workflows.
