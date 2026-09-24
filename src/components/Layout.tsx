@@ -58,7 +58,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             </span>
             <span className="leading-tight">
               <span className="block text-sm font-black tracking-[0.08em] sm:text-base">JSC YDM</span>
-              <span className="hidden text-[10px] font-semibold uppercase tracking-[0.2em] text-white/55 sm:block">Youth Development Ministry</span>
+              <span className="hidden text-[10px] font-semibold uppercase tracking-[0.2em] text-white/55 sm:block">Youth Divine Movement</span>
             </span>
           </Link>
 
@@ -110,7 +110,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       <footer className="site-footer bg-[#041511] text-white">
         <div className="footer-content mx-auto grid max-w-7xl gap-5 px-5 py-3 lg:px-8">
           <div className="footer-brand">
-            <div className="mb-3 flex items-center gap-3 text-sm font-black sm:text-base"><span className="grid h-9 w-9 shrink-0 place-items-center"><img src={ydmLogo} alt="" aria-hidden="true" className="h-full w-full object-contain drop-shadow-[0_2px_3px_rgba(0,0,0,0.3)]" /></span><span>JSC Youth Development Ministry</span></div>
+            <div className="mb-3 flex items-center gap-3 text-sm font-black sm:text-base"><span className="grid h-9 w-9 shrink-0 place-items-center"><img src={ydmLogo} alt="" aria-hidden="true" className="h-full w-full object-contain drop-shadow-[0_2px_3px_rgba(0,0,0,0.3)]" /></span><span>JSC Youth Divine Movement</span></div>
             <p className="max-w-md text-sm leading-7 text-white/55">A Christ-centered youth community growing together through worship, Scripture, fellowship, service and leadership.</p>
           </div>
           <div className="footer-explore">
@@ -122,7 +122,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             <div className="flex gap-3" role="group" aria-label="Social media"><span className="social-icon"><Instagram size={18} /></span><span className="social-icon"><Youtube size={18} /></span></div>
           </div>
         </div>
-        <div className="border-t border-white/10 px-5 py-2 text-center text-xs text-white/65">© {new Date().getFullYear()} JSC Youth Development Ministry. Faith • Fellowship • Service.</div>
+        <div className="border-t border-white/10 px-5 py-2 text-center text-xs text-white/65">© {new Date().getFullYear()} JSC Youth Divine Movement. Faith • Fellowship • Service.</div>
       </footer>
       <ChurchAssistant />
     </div>
