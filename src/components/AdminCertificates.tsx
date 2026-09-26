@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Award, Download, RefreshCw } from 'lucide-react'
 import { getAttendance, getMembers, getProgramPoints } from '../data/api'
 import { getCertificateAwards, type CertificateAward } from '../data/certificates'
+import { downloadHtmlPdf } from '../data/pdf'
 import type { AttendanceRecord, Member, ProgramPoint } from '../data/memberStore'
 import ydmLogo from '../assets/jsc-ydm-logo-certificate.png'
 
@@ -76,6 +77,7 @@ export default function AdminCertificates() {
   const selectedOverall = overallAwards.find(award => award.id === selectedOverallId) || overallAwards[0]
 
   const download = (award: CertificateAward) => {
+    if (window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 600) { void downloadHtmlPdf(certificateDocument(award), `jsc-ydm-${award.kind}-certificate-${award.member.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.pdf`).catch(() => setError('PDF download failed. Please try again.')); return }
     const popup = window.open('', '_blank')
     if (!popup) { setError('Allow pop-ups for this site, then try Download PDF again.'); return }
     popup.document.open(); popup.document.write(certificateDocument(award)); popup.document.close()

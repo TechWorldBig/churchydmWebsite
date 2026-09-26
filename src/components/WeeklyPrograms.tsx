@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { CalendarDays, Download, Trash2 } from 'lucide-react'
+import { downloadHtmlPdf } from '../data/pdf'
 import { createWeeklyProgram, deleteWeeklyProgram, getMembers, getWeeklyPrograms } from '../data/api'
 import { Member, WeeklyProgram } from '../data/memberStore'
 import { currentYearDateBounds, todayDate } from '../data/dateBounds'
@@ -95,6 +96,7 @@ export default function AdminWeeklyPrograms() {
   const downloadWeekArchive = (dateValue: string, programs: WeeklyProgram[]) => {
     const rows = programs.map(program => `<tr><td>${program.serialNo}</td><td>${esc(program.programName)}</td><td>${esc(program.memberName)}</td></tr>`).join('')
     const html = `<html><head><meta charset="utf-8"><title>Weekly Program Archive</title><style>@page{margin:14mm}body{font-family:Arial;color:#071f19}h1{color:#087f5b}table{width:100%;border-collapse:collapse}th,td{border:1px solid #cbd5e1;padding:8px;text-align:left;vertical-align:top}th{background:#e8f5ef}</style></head><body><h1>Weekly Program Archive</h1><p><strong>Date of Program:</strong> ${esc(prettyDate(dateValue))}</p><p>Generated on ${esc(new Intl.DateTimeFormat('en-IN', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date()))}</p><table><thead><tr><th>Sl.No</th><th>Program Name</th><th>Member Name</th></tr></thead><tbody>${rows}</tbody></table></body></html>`
+    if (window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 600) { void downloadHtmlPdf(html, `jsc-ydm-weekly-program-${dateValue}.pdf`).catch(() => setMessage('PDF download failed. Please try again.')); return }
     const popup = window.open('', '_blank')
     if (!popup) { setMessage('Please allow pop-ups to create the PDF.'); return }
     popup.document.open(); popup.document.write(html); popup.document.close()
