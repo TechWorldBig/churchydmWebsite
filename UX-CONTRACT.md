@@ -35,3 +35,7 @@ The same screen places YDM membership cards below Certificates. The admin select
 ## Feedback and destructive actions
 
 Existing forms keep entered values on recoverable errors and show the current success/error message inline. Deletes use the established admin action pattern; a later shared confirmation primitive should be adopted before expanding destructive workflows.
+
+## Annual theme builder
+
+The protected Yearly Report screen begins with an Annual Theme Builder. Admins can edit the year, bilingual theme, Scripture and annual message, review a live responsive preview, and download a landscape A4 PDF without saving draft content to the database.
