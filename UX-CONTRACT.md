@@ -38,4 +38,14 @@ Existing forms keep entered values on recoverable errors and show the current su
 
 ## Annual theme builder
 
-The protected Yearly Report screen begins with an Annual Theme Builder. Admins can edit the year, bilingual theme, Scripture and annual message, review a live responsive preview, and download a landscape A4 PDF without saving draft content to the database.
+The protected Yearly Report screen begins with an Annual Theme Builder. Admins can edit the year, bilingual theme, Scripture and annual message, review a bright dimensional preview with the YDM logo, and download a landscape A4 PDF without saving draft content to the database. The theme artwork does not include signature fields.
+
+The Yearly Report below it produces a database-informed, two-page minimum A4 narrative in English or Tamil. Page one covers vision, membership, leadership and attendance; page two covers biblical learning, weekly ministry, gallery-event testimony, thanksgiving and the coming-year spiritual focus. Private contact details are excluded.
+
+## Annual speeches
+
+`/admin/annual-speeches` is a protected section beside Certificates. It prepares editable Year Welcome Speech and Vote of Thanks documents from the selected year's member totals, attendance activity, program participation, weekly programs and gallery-event descriptions. Admins choose English or Tamil and download each document as an A4 PDF. Contact details, addresses and birth dates are excluded from generated content.
+
+## Christmas cake cover
+
+`/admin/cake-cover` is a protected section beside Certificates. It provides an editable Christmas and New Year cake-distribution cover with the YDM logo, Luke 2:11, sender and year. The live preview matches the single square cover centered on its downloadable A4 portrait PDF.
