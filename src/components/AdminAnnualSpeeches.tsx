@@ -33,50 +33,51 @@ function yearlySnapshot(data: AnnualData, year: string) {
     eventHighlights: unique(gallery.map(row => row.description)),
   }
 }
-
 function createSpeech(kind: SpeechKind, language: Language, year: string, snapshot: ReturnType<typeof yearlySnapshot>) {
   const leaderNames = joinNames(snapshot.leaders.map(member => `${member.name} (${member.role})`), language === 'en' ? 'our ministry leaders' : 'எங்கள் ஊழியத் தலைவர்கள்')
   const programs = joinNames(snapshot.programs, language === 'en' ? 'Bible-centred learning activities' : 'வேதாகம மையமான கற்றல் நிகழ்ச்சிகள்')
   const weekly = joinNames(snapshot.weeklyPrograms, language === 'en' ? 'weekly worship and fellowship programs' : 'வாராந்திர ஆராதனை மற்றும் ஐக்கிய நிகழ்ச்சிகள்')
   const events = joinNames(snapshot.eventHighlights, language === 'en' ? 'our fellowship and ministry events' : 'எங்கள் ஐக்கிய மற்றும் ஊழிய நிகழ்வுகள்')
   if (language === 'ta') {
-    if (kind === 'welcome') return `கர்த்தருடைய பரிசுத்த நாமத்திற்கு மகிமை உண்டாவதாக! இயேசு கிறிஸ்துவின் இனிய நாமத்தில் மதிப்பிற்குரிய போதகர், YDM தலைவர், ஊழியப் பொறுப்பாளர்கள், பெற்றோர்கள் மற்றும் அன்பான இளைஞர்கள் அனைவரையும் ${year} ஆம் ஆண்டின் இந்த ஆசீர்வாதமான கூடுகைக்கு அன்புடன் வரவேற்கிறேன்.
+    const opening = kind === 'welcome' ? 'இந்த ஆசீர்வாதமான ஆண்டு விழாவிற்கு உங்கள் அனைவரையும் அன்புடன் வரவேற்கிறேன்.' : 'இந்த ஆண்டு விழாவை ஆசீர்வாதமாக நிறைவு செய்ய உதவிய அனைவருக்கும் மனமார்ந்த நன்றியைத் தெரிவித்துக்கொள்கிறேன்.'
+    const closing = kind === 'welcome' ? 'உங்கள் அனைவரையும் மீண்டும் அன்புடன் வரவேற்கிறேன். பரிசுத்த ஆவியானவர் இந்த ஆண்டு விழாவின் ஒவ்வொரு நிகழ்வையும் நடத்தி, இயேசு கிறிஸ்துவின் நாமத்தை மகிமைப்படுத்துவாராக. ஆமென்.' : 'ஒவ்வொருவரின் ஜெபம், நேரம், திறமை மற்றும் அன்பான பங்களிப்பிற்காக மீண்டும் நன்றி கூறுகிறோம். எல்லா மகிமையும் இயேசு கிறிஸ்துவுக்கே உரியது. தேவன் உங்கள் அனைவரையும் ஆசீர்வதிப்பாராக. ஆமென்.'
+    return `கர்த்தருக்கு ஸ்தோத்திரம்! ${opening}
 
-“ஆவியினாலே அனலாயிருந்து, கர்த்தருக்கு ஊழியஞ்செய்யுங்கள்” என்ற ரோமர் 12:11 வசனத்தின்படி, ஜெபம், தேவவசனம், பரிசுத்த ஆவியின் வழிநடத்துதல் மற்றும் அன்பின் ஐக்கியத்தில் இந்த ஆண்டைத் தொடங்குகிறோம்.
+முதலாவதாக, நம்மை இரட்சித்து, இந்த ${year} ஆம் ஆண்டில் காத்து, வழிநடத்தி, இந்த ஆண்டு விழாவில் ஒன்றுகூடச் செய்த நம்முடைய ஆண்டவரும் இரட்சகருமான இயேசு கிறிஸ்துவுக்கு நன்றியும் மகிமையும் செலுத்துகிறோம். “எல்லாவற்றிற்கும் ஸ்தோத்திரஞ்செய்யுங்கள்; அப்படிச் செய்வதே கிறிஸ்து இயேசுவுக்குள் உங்களைக்குறித்துத் தேவனுடைய சித்தமாயிருக்கிறது” — 1 தெசலோனிக்கேயர் 5:18.
 
-எங்கள் Youth Divine Movement குடும்பத்தில் ${snapshot.memberCount} உறுப்பினர்கள் உள்ளனர். ${leaderNames} ஆகியோரின் அர்ப்பணிப்பான வழிநடத்துதலுக்காக தேவனை ஸ்தோத்திரிக்கிறோம். பதிவுகளின்படி ${snapshot.participantCount} பேர் ஊழியச் செயல்பாடுகளில் பங்கேற்றுள்ளனர்; ${snapshot.meetingCount} கூடுகை நாட்களில் ${snapshot.presentCount} வருகைப் பதிவுகள் செய்யப்பட்டுள்ளன.
+இரண்டாவதாக, எங்கள் அன்பிற்குரிய சபை போதகர் பாஸ்டர் Finny அவர்களையும், அவருடைய குடும்பத்தினரையும் மரியாதையுடனும் அன்புடனும் வரவேற்று நன்றி கூறுகிறோம். அவர்களுடைய ஜெபம், ஆவிக்குரிய ஆலோசனை, ஊக்கம் மற்றும் தியாகமான ஆதரவு YDM இளைஞர்களை கிறிஸ்துவில் வளர உதவுகிறது.
 
-${programs} போன்ற வேதாகம நிகழ்ச்சிகளின் மூலம் மொத்தம் ${snapshot.answerCount} பதில்கள் பதிவு செய்யப்பட்டுள்ளன. ${weekly} ஆகிய வாராந்திர நிகழ்ச்சிகளும், ${events} போன்ற நிகழ்வுகளும் நமது ஐக்கியத்தை வளப்படுத்தின.
+மூன்றாவதாக, சபைக் கமிட்டி உறுப்பினர்கள் அனைவருக்கும் எங்கள் மனமார்ந்த வரவேற்பையும் நன்றியையும் தெரிவித்துக்கொள்கிறோம். சபையின் ஒழுங்கு, திட்டமிடல், ஆதரவு மற்றும் ஊழிய வாய்ப்புகளுக்காக அவர்கள் வழங்கும் ஒத்துழைப்பை நன்றியுடன் நினைவுகூருகிறோம்.
 
-இந்த ஆண்டில் ஒவ்வொரு இளைஞரும் பரிசுத்த ஆவியின் வல்லமையால் நிரப்பப்பட்டு, கிறிஸ்துவில் வளர்ந்து, சபைக்கும் சமுதாயத்திற்கும் சாட்சியாக வாழ ஜெபிப்போம். உங்கள் அனைவரையும் மீண்டும் அன்புடன் வரவேற்கிறேன். கர்த்தர் நம்மை ஆசீர்வதிப்பாராக. ஆமென்.`
-    return `கர்த்தருடைய பரிசுத்த நாமத்திற்கு மகிமை உண்டாவதாக! இந்த ${year} ஆம் ஆண்டின் ஊழியப் பயணத்தை ஆசீர்வதித்து வழிநடத்திய சர்வவல்லமையுள்ள தேவனுக்கு முதலில் நன்றியையும் ஸ்தோத்திரத்தையும் செலுத்துகிறோம்.
+நான்காவதாக, YDM தலைவர்கள் மற்றும் ஒருங்கிணைப்பாளர்களான ${leaderNames} ஆகியோரை அன்புடன் கௌரவிக்கிறோம். ஜெபத்துடன் திட்டமிட்டு, இளைஞர்களை வழிநடத்தி, நிகழ்ச்சிகளை ஒருங்கிணைத்து, ஒவ்வொரு உறுப்பினரையும் ஊக்குவித்த அவர்களுடைய உண்மையுள்ள சேவைக்கு நன்றி.
 
-“எல்லாவற்றிற்கும் ஸ்தோத்திரஞ்செய்யுங்கள்” என்ற 1 தெசலோனிக்கேயர் 5:18 வசனத்தின்படி, தேவன் செய்த சகல நன்மைகளையும் நன்றியுடன் நினைவுகூருகிறோம்.
+ஐந்தாவதாக, எங்கள் YDM குடும்பத்தின் ${snapshot.memberCount} உறுப்பினர்கள் அனைவரையும் அன்புடன் வரவேற்று நன்றி கூறுகிறோம். உங்கள் விசுவாசமான பங்கேற்பு, ஜெபம், பாடல், சாட்சி, வேதவசனப் பயிற்சி மற்றும் சேவை இந்த ஊழியத்தின் உயிரோட்டமாக உள்ளது.
 
-எங்கள் ${snapshot.memberCount} உறுப்பினர்களுக்கும், குறிப்பாக ${leaderNames} ஆகியோரின் ஜெபமுள்ள தலைமைக்கும் அர்ப்பணிப்பான சேவைக்கும் மனமார்ந்த நன்றி. பதிவுசெய்யப்பட்ட ${snapshot.meetingCount} கூடுகை நாட்களில் ${snapshot.presentCount} வருகைகள் மற்றும் ${snapshot.absentCount} வராத பதிவுகள் உள்ளன; தொடர்ந்து பங்கேற்ற ஒவ்வொருவரையும் பாராட்டுகிறோம்.
+ஆறாவதாக, இன்று நடைபெறும் இந்த ஆண்டு விழாவில் நேரில் கலந்துகொண்டுள்ள மதிப்பிற்குரிய விருந்தினர்கள், பெற்றோர்கள், சபை விசுவாசிகள், நண்பர்கள் மற்றும் அனைவரையும் அன்புடன் வரவேற்று மனமார்ந்த நன்றி கூறுகிறோம். உங்கள் வருகை இந்த விழாவிற்கு மகிழ்ச்சியையும் ஊக்கத்தையும் அளிக்கிறது.
 
-${programs} நிகழ்ச்சிகளில் மொத்தம் ${snapshot.answerCount} பதில்கள் அளித்த இளைஞர்களுக்கும், ${weekly} நிகழ்ச்சிகளை ஒருங்கிணைத்த அனைவருக்கும் நன்றி. ${events} போன்ற நினைவுகூரத்தக்க நிகழ்வுகளைக் காண்பிக்கும் படங்களும் சாட்சிகளும் இந்த ஆண்டின் தேவ கிருபையை நினைவூட்டுகின்றன.
+இந்த ஆண்டின் பதிவுகளின்படி ${snapshot.participantCount} பேர் ஊழியச் செயல்பாடுகளில் பங்கேற்றுள்ளனர்; ${snapshot.meetingCount} கூடுகை நாட்களில் ${snapshot.presentCount} வருகைகள் பதிவு செய்யப்பட்டுள்ளன. ${programs} நிகழ்ச்சிகளில் ${snapshot.answerCount} பதில்கள் அளிக்கப்பட்டன. ${weekly} மற்றும் ${events} போன்ற நிகழ்வுகள் நமது ஜெபம், வேதாகமக் கற்றல், சேவை மற்றும் ஐக்கியத்தை வளப்படுத்தின.
 
-போதகர், YDM தலைவர், ஆலோசகர்கள், நிர்வாகிகள், பெற்றோர்கள், சபை விசுவாசிகள் மற்றும் ஒவ்வொரு இளைஞரின் ஜெபம், நேரம், திறமை மற்றும் ஆதரவிற்காக மனமார்ந்த நன்றி. வருகிற ஆண்டிலும் பரிசுத்த ஆவியானவர் நம்மை வழிநடத்தி, கிறிஸ்துவின் நாமம் மகிமைப்படும்படி பயன்படுத்துவாராக. அனைவருக்கும் நன்றி. தேவன் உங்களை ஆசீர்வதிப்பாராக. ஆமென்.`
+${closing}`
   }
-  if (kind === 'welcome') return `Praise the Lord! In the precious name of Jesus Christ, I warmly welcome our respected Pastor, YDM President, ministry leaders, parents, church family and every young person to this blessed gathering for the year ${year}.
+  const opening = kind === 'welcome' ? 'It is my joy to warmly welcome every one of you to this blessed Annual Day celebration.' : 'It is my privilege to offer our heartfelt vote of thanks to everyone who helped make this Annual Day celebration meaningful and blessed.'
+  const closing = kind === 'welcome' ? 'Once again, we warmly welcome you all. May the Holy Spirit lead every part of this Annual Day and may the name of Jesus Christ alone be glorified. Amen.' : 'We once again thank everyone for your prayers, time, talents and loving contribution. All glory belongs to Jesus Christ alone. May God richly bless you all. Amen.'
+  return `Praise the Lord! ${opening}
 
-As Romans 12:11 teaches us to be fervent in spirit and serve the Lord, we begin this year with prayer, the Word of God, the fellowship of believers and complete dependence on the leading of the Holy Spirit.
+First, we thank and glorify our Lord and Saviour Jesus Christ, who redeemed us, protected us, guided us throughout ${year}, and graciously brought us together for this Annual Day. “In every thing give thanks: for this is the will of God in Christ Jesus concerning you.” — 1 Thessalonians 5:18.
 
-Our Youth Divine Movement family has ${snapshot.memberCount} members. We praise God for the faithful leadership of ${leaderNames}. Our ministry records show ${snapshot.participantCount} participants across the year's activities, with ${snapshot.presentCount} present attendances recorded over ${snapshot.meetingCount} meeting days.
+Second, we respectfully welcome and thank our beloved Church Pastor, Pastor Finny, and his family. Their prayers, spiritual counsel, encouragement and sacrificial support help the young people of YDM grow in Christ and remain faithful to the church.
 
-Through Bible-centred programs including ${programs}, our young people recorded ${snapshot.answerCount} answers. Weekly ministry such as ${weekly}, together with memorable events including ${events}, strengthened our worship, learning and fellowship.
+Third, we warmly welcome and thank every member of the Church Committee. We gratefully recognise their cooperation in church administration, planning, practical support and the ministry opportunities they provide for our young people.
 
-May this year lead every young person into a deeper relationship with Jesus Christ, a Spirit-filled prayer life and joyful service to the church and community. Once again, we welcome each one of you. May the Lord bless this gathering and use it for His glory. Amen.`
-  return `Praise the Lord! First and above all, we offer our heartfelt thanksgiving and praise to Almighty God for His faithfulness, protection and gracious leading throughout the year ${year}.
+Fourth, we honour and thank our YDM leaders and coordinators, including ${leaderNames}. Their prayerful planning, guidance, coordination and faithful encouragement have helped every member participate, develop their gifts and serve with unity.
 
-In the spirit of 1 Thessalonians 5:18—“In every thing give thanks”—we gratefully remember every person through whom the Lord strengthened this ministry.
+Fifth, we lovingly welcome and thank all ${snapshot.memberCount} members of our YDM family. Your faithful participation, prayers, songs, testimonies, Bible learning and service give life and strength to this ministry.
 
-We thank all ${snapshot.memberCount} members of our Youth Divine Movement family and especially ${leaderNames} for their prayerful leadership and faithful service. Across ${snapshot.meetingCount} recorded meeting days, our records contain ${snapshot.presentCount} present attendances and ${snapshot.absentCount} absences. We appreciate every member who participated with commitment.
+Sixth, we warmly welcome and sincerely thank everyone present here today for this Annual Day function—our honoured guests, parents, church believers, friends and well-wishers. Your presence adds joy, encouragement and fellowship to this celebration.
 
-We congratulate the young people who completed ${snapshot.answerCount} answers through ${programs}. We also thank everyone who planned and served in ${weekly}. The photographs and testimonies from ${events} preserve precious reminders of God's grace during this year.
+Our records show ${snapshot.participantCount} participants across the year, with ${snapshot.presentCount} present attendances over ${snapshot.meetingCount} meeting days. Our young people completed ${snapshot.answerCount} answers through ${programs}. Weekly ministry such as ${weekly}, together with memorable events including ${events}, strengthened our prayer, biblical learning, service and fellowship.
 
-Our sincere thanks go to our Pastor, YDM President, advisors, office bearers, parents, church believers and every young person who offered prayer, time, talent and support. May the Holy Spirit continue to guide us, unite us and use us so that the name of Jesus Christ alone is glorified. Thank you all, and may God richly bless you. Amen.`
+${closing}`
 }
 
 function documentHtml(title: string, kind: SpeechKind, language: Language, year: string, content: string) {
