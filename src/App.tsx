@@ -27,6 +27,7 @@ export default function App() {
         <Route path="/about" element={<About />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/certificates" element={<Admin section="certificates" />} />
+        <Route path="/admin/yearly-report" element={<Admin section="yearly-report" />} />
         <Route path="*" element={<Home />} />
       </Routes>
     </Layout>
