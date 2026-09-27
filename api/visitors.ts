@@ -76,6 +76,7 @@ export default async function handler(req: any, res: any) {
     }
 
     if (req.method === 'POST') {
+      if (req.headers['sec-fetch-site'] === 'cross-site') return res.status(403).json({ error: 'Request not allowed.' })
       const ip = getClientIp(req)
       if (!ip) return res.status(400).json({ error: 'Unable to determine visitor IP.' })
       if (await sharedRateLimited('visitors', ip, 30, 60)) {

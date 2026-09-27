@@ -104,12 +104,23 @@ export function sameOriginMutation(req: any): boolean {
   } catch { return false }
 }
 
+function clientIp(req: any): string {
+  const forwarded = req.headers['x-forwarded-for']
+  const value = Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(',')[0]
+  return String(value || req.headers['x-real-ip'] || req.socket?.remoteAddress || 'unknown').trim()
+}
+
 export async function authorizeMutation(req: any, res: any): Promise<boolean> {
   res.setHeader?.('Cache-Control', 'no-store')
   if (!['POST', 'PUT', 'DELETE'].includes(req.method)) { res.status(405).json({ error: 'Method not allowed' }); return false }
   if (!sameOriginMutation(req)) { res.status(403).json({ error: 'Request not allowed.' }); return false }
   if (!String(req.headers['content-type'] || '').toLowerCase().startsWith('application/json')) { res.status(415).json({ error: 'JSON content type is required.' }); return false }
   if (!await getSessionExpiry(req)) { res.status(401).json({ error: 'Please sign in as an administrator.' }); return false }
+  if (await sharedRateLimited('admin-mutation', clientIp(req), 120, 60)) {
+    res.setHeader?.('Retry-After', '60')
+    res.status(429).json({ error: 'Too many changes. Please wait a minute and try again.' })
+    return false
+  }
   return true
 }
 

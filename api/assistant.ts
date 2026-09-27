@@ -1,5 +1,4 @@
-import { sharedRateLimited } from './_lib/security.js'
-import { getSessionExpiry } from './_lib/security.js'
+import { getSessionExpiry, sameOriginMutation, sharedRateLimited } from './_lib/security.js'
 import { ensureSchema, getSql } from './_lib/db.js'
 import { isSensitiveRequest, isInstructionOverride, SENSITIVE_REPLY } from '../shared/assistantPolicy.js'
 
@@ -99,6 +98,7 @@ export default async function handler(req: any, res: any) {
 
   if (!body || typeof body !== 'object' || Array.isArray(body)) return res.status(400).json({ error: 'Invalid request body.' })
   if (body.adminReport) {
+    if (!sameOriginMutation(req)) return res.status(403).json({ error: 'Request not allowed.' })
     if (!await getSessionExpiry(req)) return res.status(401).json({ error: 'Please sign in as an administrator.' })
     const type = body.type
     const year = body.year
