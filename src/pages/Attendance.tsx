@@ -17,7 +17,9 @@ const memberGender = (gender = ''): 'female' | 'male' => gender.trim().toLocaleL
 const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 export default function Attendance() {
-  const yearBounds = currentYearDateBounds()
+  const currentYear = currentYearDateBounds().min.slice(0, 4)
+  const [selectedYear, setSelectedYear] = useState(currentYear)
+  const yearBounds = { min: `${selectedYear}-01-01`, max: `${selectedYear}-12-31` }
   const [members, setMembers] = useState<Member[]>([])
   const [records, setRecords] = useState<AttendanceRecord[]>([])
   const [lastUpdatedValue, setLastUpdatedValue] = useState<string | null>(null)
@@ -28,21 +30,23 @@ export default function Attendance() {
   const [searchNotice, setSearchNotice] = useState('')
 
   useEffect(() => {
-    const load = () => Promise.all([getMembers(), getAttendance(), getLastUpdated()])
+    const load = () => Promise.all([getMembers(selectedYear === currentYear ? undefined : { archiveYear: selectedYear }), getAttendance({ year: selectedYear }), getLastUpdated()])
       .then(([savedMembers, savedRecords, updated]) => {
+        if (!active) return
         setMembers(savedMembers)
         setRecords(savedRecords)
         setLastUpdatedValue(updated.value)
       })
-      .catch(() => undefined)
+      .catch(() => { if (active) { setMembers([]); setRecords([]) } })
+    let active = true
     void load()
     const timer = window.setInterval(() => { void load() }, 15_000)
-    return () => window.clearInterval(timer)
-  }, [])
+    return () => { active = false; window.clearInterval(timer) }
+  }, [currentYear, selectedYear])
 
-  const month = new Date().toISOString().slice(0, 7)
-  const year = month.slice(0, 4)
-  const currentMonthIndex = new Date().getMonth()
+  const year = selectedYear
+  const currentMonthIndex = selectedYear === currentYear ? new Date().getMonth() : 11
+  const month = `${year}-${String(Math.min(new Date().getMonth() + 1, 12)).padStart(2, '0')}`
   const monthRecords = records.filter(record => record.date.startsWith(month))
   const yearRecords = records.filter(record => record.date.startsWith(year))
   const percentage = (items: AttendanceRecord[]) => items.length ? Math.round(items.filter(item => item.present).length / items.length * 100) : 0
@@ -53,7 +57,7 @@ export default function Attendance() {
     return { label, percentage: percentage(monthItems) }
   })
   const stats: Array<[string, string, typeof Users]> = [
-    ['Active members', String(members.length), Users],
+    [selectedYear === currentYear ? 'Active members' : 'Archived members', String(members.length), Users],
     ['Meetings this month', String(new Set(monthRecords.map(record => record.date)).size), CalendarCheck],
     ['Meetings this year', String(new Set(yearRecords.map(record => record.date)).size), CalendarCheck],
     ['Yearly attendance', `${percentage(yearRecords)}%`, TrendingUp],
@@ -98,6 +102,7 @@ export default function Attendance() {
     <PageHero compact eyebrow="Participation" title="Attendance" description="View member attendance information in one place." icon={<CalendarCheck size={15} />} />
     <section className="attendance-page py-10 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-5 lg:px-8">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-3"><div><p className="eyebrow">Attendance year</p><p className="mt-1 text-sm text-slate-500">Choose the current year or the immediately completed year.</p></div><label className="field-label w-full sm:w-52">Year<select aria-label="Attendance year" className="field mt-1" value={selectedYear} onChange={event => { setSelectedYear(event.target.value); setFromDate(''); setToDate(''); resetSearch() }}><option value={currentYear}>{currentYear} · Current year</option><option value={String(Number(currentYear) - 1)}>{Number(currentYear) - 1} · Archived year</option></select></label></div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           {stats.map(([label, value, Icon]) => <article key={label} className="soft-card p-4 sm:p-5">
             <Icon className="text-emerald-700" size={22} />

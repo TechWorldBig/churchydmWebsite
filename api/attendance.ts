@@ -6,6 +6,7 @@ import { writeAuditLog } from './_lib/audit.js'
 const indiaYear = () => new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', year: 'numeric' }).format(new Date())
 const validYear = (value: unknown) => typeof value === 'string' && /^\d{4}$/u.test(value)
 const isCurrentYearDate = (value: unknown) => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/u.test(value) && value.slice(0, 4) === indiaYear()
+const isPublicAttendanceYear = (year: string) => year === indiaYear() || year === String(Number(indiaYear()) - 1)
 
 export default async function handler(req: any, res: any) {
   res.setHeader?.('Cache-Control', 'no-store, no-cache, must-revalidate')
@@ -20,9 +21,9 @@ export default async function handler(req: any, res: any) {
       const allYears = query.allYears === '1'
       const requestedYear = typeof query.year === 'string' ? query.year : indiaYear()
       if (!validYear(requestedYear)) return res.status(400).json({ error: 'Invalid attendance year.' })
-      // Past records are private administration history. The public attendance
-      // screen intentionally receives the current ministry year only.
-      if ((allYears || requestedYear !== indiaYear()) && !await getSessionExpiry(req)) return res.status(401).json({ error: 'Please sign in as an administrator.' })
+      // Visitors can review the immediately completed year; deeper history is
+      // kept in the protected admin archive.
+      if ((allYears || !isPublicAttendanceYear(requestedYear)) && !await getSessionExpiry(req)) return res.status(401).json({ error: 'Please sign in as an administrator.' })
       const rows = allYears
         ? await sql`SELECT id, member_id AS "memberId", name, date, present, note FROM attendance ORDER BY date DESC, created_at DESC`
         : await sql`SELECT id, member_id AS "memberId", name, date, present, note FROM attendance WHERE date >= ${`${requestedYear}-01-01`} AND date <= ${`${requestedYear}-12-31`} ORDER BY date DESC, created_at DESC`

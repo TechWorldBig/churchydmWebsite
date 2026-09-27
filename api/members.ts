@@ -5,6 +5,7 @@ import { writeAuditLog } from './_lib/audit.js'
 
 const indiaYear = () => new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', year: 'numeric' }).format(new Date())
 const validYear = (value: unknown) => typeof value === 'string' && /^\d{4}$/u.test(value)
+const isPublicAttendanceYear = (year: string, currentYear: string) => year === String(Number(currentYear) - 1)
 
 export default async function handler(req: any, res: any) {
   res.setHeader?.('Cache-Control', 'no-store, no-cache, must-revalidate')
@@ -23,8 +24,8 @@ export default async function handler(req: any, res: any) {
       const currentYear = indiaYear()
       if (archiveYear && !validYear(archiveYear)) return res.status(400).json({ error: 'Invalid archive year.' })
       if (!await getSessionExpiry(req)) {
-        if (archiveYear || allYears) return res.status(401).json({ error: 'Please sign in as an administrator.' })
-        const rows = await sql`SELECT id, name, role, gender, photo FROM members WHERE active_year=${currentYear} ORDER BY created_at DESC`
+        if (allYears || (archiveYear && !isPublicAttendanceYear(archiveYear, currentYear))) return res.status(401).json({ error: 'Please sign in as an administrator.' })
+        const rows = await sql`SELECT id, name, role, gender, photo FROM members WHERE active_year=${archiveYear || currentYear} ORDER BY created_at DESC`
         return res.status(200).json(rows)
       }
       const rows = allYears
