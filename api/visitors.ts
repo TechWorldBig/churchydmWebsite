@@ -70,7 +70,9 @@ export default async function handler(req: any, res: any) {
       const deviceCounts = ['mobile', 'tablet', 'desktop', 'unknown'].map(device => ({ device, count: dayVisitors.filter(row => row.device === device).length }))
       const hourly = counts.map(item => ({ ...item, devices: Object.fromEntries(['mobile', 'tablet', 'desktop', 'unknown'].map(device => [device, Number(rows.find(row => row.hour === item.hour && row.device === device)?.count || 0)])) }))
       const lifetime = await sql`SELECT COUNT(*)::int AS total FROM website_visitor_ips`
-      return res.status(200).json({ date: requestedDate, hours: hourly, devices: deviceCounts, locations, dailyNew: dailyNew[0].total, dailyTraffic: dayVisitors.length, total: lifetime[0].total })
+      const newVisitors = Number(dailyNew[0].total)
+      const returningVisitors = Math.max(dayVisitors.length - newVisitors, 0)
+      return res.status(200).json({ date: requestedDate, hours: hourly, devices: deviceCounts, locations, dailyNew: newVisitors, dailyReturning: returningVisitors, dailyTraffic: dayVisitors.length, total: lifetime[0].total })
     }
 
     if (req.method === 'POST') {
