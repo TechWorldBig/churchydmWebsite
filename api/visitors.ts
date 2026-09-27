@@ -13,6 +13,10 @@ const indiaHourParts = () => {
   return { date: `${value('year')}-${value('month')}-${value('day')}`, hour: Number(value('hour')) }
 }
 const validDate = (value: unknown): value is string => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/u.test(value)
+const indiaDayBounds = (date: string) => {
+  const start = new Date(`${date}T00:00:00+05:30`)
+  return { start, end: new Date(start.getTime() + 86_400_000) }
+}
 const headerValue = (req: any, name: string) => {
   const value = req.headers[name]
   const text = String(Array.isArray(value) ? value[0] : value || '').trim()
@@ -43,9 +47,10 @@ export default async function handler(req: any, res: any) {
     if (req.method === 'GET') {
       if (!await getSessionExpiry(req)) return res.status(401).json({ error: 'Unauthorized' })
       const requestedDate = validDate(req.query?.date) ? req.query.date : indiaHourParts().date
+      const { start, end } = indiaDayBounds(requestedDate)
       const rows = await sql`SELECT RIGHT(hour_key, 2)::int AS hour, device_type AS device, COUNT(DISTINCT ip_hash)::int AS count FROM website_visitor_hours WHERE hour_key LIKE ${requestedDate + '-%'} GROUP BY hour, device_type ORDER BY hour`
       const dayVisitors = await sql`SELECT DISTINCT ON (ip_hash) ip_hash, device_type AS device FROM website_visitor_hours WHERE hour_key LIKE ${requestedDate + '-%'} ORDER BY ip_hash, created_at DESC`
-      const dailyTraffic = await sql`SELECT COUNT(*)::int AS total FROM website_visitor_hours WHERE hour_key LIKE ${requestedDate + '-%'}`
+      const dailyNew = await sql`SELECT COUNT(*)::int AS total FROM website_visitor_ips WHERE created_at >= ${start} AND created_at < ${end}`
       const locations = await sql`
         SELECT
           COALESCE(NULLIF(h.country, ''), i.country) AS country,
@@ -65,7 +70,7 @@ export default async function handler(req: any, res: any) {
       const deviceCounts = ['mobile', 'tablet', 'desktop', 'unknown'].map(device => ({ device, count: dayVisitors.filter(row => row.device === device).length }))
       const hourly = counts.map(item => ({ ...item, devices: Object.fromEntries(['mobile', 'tablet', 'desktop', 'unknown'].map(device => [device, Number(rows.find(row => row.hour === item.hour && row.device === device)?.count || 0)])) }))
       const lifetime = await sql`SELECT COUNT(*)::int AS total FROM website_visitor_ips`
-      return res.status(200).json({ date: requestedDate, hours: hourly, devices: deviceCounts, locations, dailyTotal: dayVisitors.length, dailyTraffic: dailyTraffic[0].total, total: lifetime[0].total })
+      return res.status(200).json({ date: requestedDate, hours: hourly, devices: deviceCounts, locations, dailyNew: dailyNew[0].total, dailyTraffic: dayVisitors.length, total: lifetime[0].total })
     }
 
     if (req.method === 'POST') {
