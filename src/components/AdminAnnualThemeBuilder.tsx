@@ -36,7 +36,7 @@ export default function AdminAnnualThemeBuilder() {
   const createPdf = async () => {
     if (!/^\d{4}$/.test(year) || !englishTheme.trim() || !tamilTheme.trim() || !verse.trim()) { setStatus('Enter a four-digit year, both theme titles, and a Bible verse.'); return }
     setStatus('Creating annual theme PDF…')
-    try { await downloadHtmlPdf(themeDocument(year, englishTheme, tamilTheme, verse, message), `jsc-ydm-annual-theme-${year}.pdf`, 'a4-landscape'); setStatus('Annual theme PDF downloaded.') }
+    try { await downloadHtmlPdf(themeDocument(year, englishTheme, tamilTheme, verse, message), `jsc-ydm-annual-theme-${year}.pdf`, 'a4-landscape', '.annual-theme-sheet'); setStatus('Annual theme PDF downloaded.') }
     catch { setStatus('The PDF could not be created. Please try again.') }
   }
 

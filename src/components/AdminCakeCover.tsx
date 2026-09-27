@@ -28,7 +28,7 @@ export default function AdminCakeCover() {
   const download = async () => {
     if (!/^\d{4}$/.test(year) || !greeting.trim() || !verse.trim() || !sender.trim()) { setStatus('Enter a four-digit year and complete all cover text.'); return }
     setStatus('Creating cake cover PDF…')
-    try { await downloadHtmlPdf(coverDocument(year, greeting, verse, sender), `jsc-ydm-christmas-cake-cover-${year}.pdf`); setStatus('Cake cover PDF downloaded.') }
+    try { await downloadHtmlPdf(coverDocument(year, greeting, verse, sender), `jsc-ydm-christmas-cake-cover-${year}.pdf`, 'a4', '.sheet'); setStatus('Cake cover PDF downloaded.') }
     catch { setStatus('The cake cover PDF could not be created. Please try again.') }
   }
   return <section className="soft-card" aria-labelledby="cake-cover-title">

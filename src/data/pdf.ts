@@ -1,5 +1,5 @@
 export async function downloadHtmlPdf(html: string, filename: string, format: 'a4' | 'card' | 'a4-landscape' = 'a4', pageSelector?: string) {
-  const { jsPDF } = await import('jspdf')
+  const [{ jsPDF }, { default: html2canvas }] = await Promise.all([import('jspdf'), import('html2canvas')])
   const isCard = format === 'card'
   const isLandscape = isCard || format === 'a4-landscape'
   const pdf = new jsPDF({ orientation: isLandscape ? 'landscape' : 'portrait', unit: 'mm', format: isCard ? [85.6, 54] : 'a4' })
@@ -20,6 +20,17 @@ export async function downloadHtmlPdf(html: string, filename: string, format: 'a
     if (!pages.length) throw new Error('PDF page content could not be found')
     for (const [index, page] of pages.entries()) {
       if (index > 0) pdf.addPage()
+      if (pageSelector) {
+        const canvas = await html2canvas(page, { scale: isCard ? 2 : 1.5, useCORS: true, backgroundColor: '#ffffff', windowWidth: viewportWidth, windowHeight: viewportHeight })
+        const pageWidth = pdf.internal.pageSize.getWidth()
+        const pageHeight = pdf.internal.pageSize.getHeight()
+        const inset = isCard ? 0 : 10
+        const scale = Math.min((pageWidth - inset * 2) / canvas.width, (pageHeight - inset * 2) / canvas.height)
+        const width = canvas.width * scale
+        const height = canvas.height * scale
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', (pageWidth - width) / 2, (pageHeight - height) / 2, width, height, undefined, 'FAST')
+        continue
+      }
       await new Promise<void>((resolve, reject) => {
         pdf.html(page, { x: isCard ? 0 : 10, y: isCard ? 0 : 10, width: contentWidth, windowWidth: viewportWidth, autoPaging: isLandscape ? false : 'text', margin: isCard ? 0 : [0, 0, 0, 0], callback: () => resolve(), html2canvas: { scale: isCard ? 2 : 1.25, useCORS: true, backgroundColor: '#ffffff' } }).catch(reject)
       })
