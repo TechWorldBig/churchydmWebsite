@@ -5,8 +5,16 @@ import ydmLogo from '../assets/jsc-ydm-logo-certificate.png'
 
 const escapeHtml = (value: string) => value.replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character] || character)
 
-function coverMarkup(year: string, greeting: string, verse: string, sender: string) {
+function coverMarkupBase(year: string, greeting: string, verse: string, sender: string) {
   return `<article class="cake-cover"><div class="star" aria-hidden="true">✦</div><div class="ring ring-one"></div><div class="ring ring-two"></div><header><img src="${escapeHtml(ydmLogo)}" alt="Youth Divine Movement logo"><p>Jehovah Salvation Church · Kollemcode</p></header><main><div class="season">Christmas Blessings · ${escapeHtml(year)}</div><h1>${escapeHtml(greeting)}</h1><div class="ornament" aria-hidden="true"><span></span>✦<span></span></div><blockquote>“${escapeHtml(verse)}”<cite>Luke 2:11</cite></blockquote></main><footer><p>With prayer and love from</p><strong>${escapeHtml(sender)}</strong></footer></article>`
+}
+
+function coverMarkup(year: string, greeting: string, verse: string, sender: string) {
+  const santa = '<div aria-hidden="true" style="position:absolute;right:28px;bottom:26px;display:flex;align-items:flex-end;gap:3px;font-size:44px;line-height:1;filter:drop-shadow(0 5px 5px rgba(0,0,0,.28))">🎅<span style="font-size:28px">🎁</span></div>'
+  return coverMarkupBase(year, greeting, verse, sender)
+    .replace(/<div class="star"[^>]*>.*?<\/div>/u, '')
+    .replace(/<div class="ornament"[^>]*>.*?<\/div>/u, '')
+    .replace('</article>', `${santa}</article>`)
 }
 
 const coverCss = `
