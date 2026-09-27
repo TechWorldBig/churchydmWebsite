@@ -1,4 +1,4 @@
-export async function downloadHtmlPdf(html: string, filename: string, format: 'a4' | 'card' | 'a4-landscape' = 'a4') {
+export async function downloadHtmlPdf(html: string, filename: string, format: 'a4' | 'card' | 'a4-landscape' = 'a4', pageSelector?: string) {
   const { jsPDF } = await import('jspdf')
   const isCard = format === 'card'
   const isLandscape = isCard || format === 'a4-landscape'
@@ -16,9 +16,14 @@ export async function downloadHtmlPdf(html: string, filename: string, format: 'a
     frameDocument.open(); frameDocument.write(html); frameDocument.close()
     await Promise.all([...frameDocument.images].map(image => image.complete ? Promise.resolve() : new Promise<void>(resolve => { image.onload = () => resolve(); image.onerror = () => resolve() })))
     await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())))
-    await new Promise<void>((resolve, reject) => {
-      pdf.html(frameDocument.body, { x: isCard ? 0 : 10, y: isCard ? 0 : 10, width: contentWidth, windowWidth: viewportWidth, autoPaging: isLandscape ? false : 'text', margin: isCard ? 0 : [0, 0, 0, 0], callback: () => resolve(), html2canvas: { scale: isCard ? 2 : 1.25, useCORS: true, backgroundColor: '#ffffff' } }).catch(reject)
-    })
+    const pages = pageSelector ? [...frameDocument.querySelectorAll<HTMLElement>(pageSelector)] : [frameDocument.body]
+    if (!pages.length) throw new Error('PDF page content could not be found')
+    for (const [index, page] of pages.entries()) {
+      if (index > 0) pdf.addPage()
+      await new Promise<void>((resolve, reject) => {
+        pdf.html(page, { x: isCard ? 0 : 10, y: isCard ? 0 : 10, width: contentWidth, windowWidth: viewportWidth, autoPaging: isLandscape ? false : 'text', margin: isCard ? 0 : [0, 0, 0, 0], callback: () => resolve(), html2canvas: { scale: isCard ? 2 : 1.25, useCORS: true, backgroundColor: '#ffffff' } }).catch(reject)
+      })
+    }
     pdf.save(filename)
   } finally { frame.remove() }
 }

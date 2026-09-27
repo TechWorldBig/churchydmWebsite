@@ -9,6 +9,7 @@ async function expectDownload(
   page: import('@playwright/test').Page,
   buttonName: RegExp | string,
   extension: '.pdf' | '.pptx',
+  expectedPages?: number,
 ) {
   const downloadPromise = page.waitForEvent('download')
   await page.getByRole('button', { name: buttonName }).click()
@@ -19,6 +20,7 @@ async function expectDownload(
   const content = await readFile(path!)
   expect(content.byteLength).toBeGreaterThan(1_000)
   expect(content.subarray(0, extension === '.pdf' ? 5 : 2).toString()).toBe(extension === '.pdf' ? '%PDF-' : 'PK')
+  if (expectedPages !== undefined) expect((content.toString('latin1').match(/\/Type\s*\/Page\b/g) || []).length).toBe(expectedPages)
   return content
 }
 
@@ -47,18 +49,18 @@ test('annual document screens produce printable PDF and PPT downloads', async ({
 
   await page.goto('/admin/yearly-report')
   await expect(page.getByRole('heading', { name: 'Theme builder' })).toBeVisible()
-  await expectDownload(page, 'Download one-page PDF', '.pdf')
+  await expectDownload(page, 'Download one-page PDF', '.pdf', 1)
   const ppt = await expectDownload(page, 'Download one-slide PPT', '.pptx')
   await expectPptSlideText(ppt, ['ANNUAL MINISTRY THEME', 'Empowered by the Holy Spirit', 'Acts 1:8', 'Spirit-led service'])
-  await expectDownload(page, 'Download detailed PDF', '.pdf')
+  await expectDownload(page, 'Download detailed PDF', '.pdf', 2)
 
   await page.goto('/admin/cake-cover')
   await expect(page.getByRole('heading', { name: 'Cake cover' })).toBeVisible()
-  await expectDownload(page, 'Download cake cover PDF', '.pdf')
+  await expectDownload(page, 'Download cake cover PDF', '.pdf', 1)
 
   await page.goto('/admin/annual-speeches')
   await expect(page.getByRole('heading', { name: 'Welcome speech & vote of thanks' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Download Year welcome speech PDF' })).toBeVisible()
-  await expectDownload(page, 'Download Year welcome speech PDF', '.pdf')
-  await expectDownload(page, 'Download Vote of thanks PDF', '.pdf')
+  await expectDownload(page, 'Download Year welcome speech PDF', '.pdf', 1)
+  await expectDownload(page, 'Download Vote of thanks PDF', '.pdf', 1)
 })
