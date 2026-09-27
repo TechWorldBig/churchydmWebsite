@@ -3,7 +3,8 @@ import { ensureSchema, getSql, sendError } from './_lib/db.js'
 import { writeAuditLog } from './_lib/audit.js'
 
 const validDate = (value: unknown) => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/u.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value
-const currentYearDate = (value: unknown) => validDate(value) && (value as string).slice(0, 4) === String(new Date().getFullYear())
+const indiaYear = () => new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', year: 'numeric' }).format(new Date())
+const currentYearDate = (value: unknown) => validDate(value) && (value as string).slice(0, 4) === indiaYear()
 const queryText = (value: unknown) => typeof value === 'string' ? value.trim() : ''
 const allowedPrograms = new Set(['Bible Reference', 'Bible Quiz', 'Song Survey'])
 
@@ -13,7 +14,7 @@ export default async function handler(req: any, res: any) {
     const sql = getSql()
     if (req.method === 'GET') {
       const query = req.query || {}
-      if (!query.name) { if (!await getSessionExpiry(req)) return res.status(401).json({ error: 'Please sign in as an administrator.' }); const rows = await sql`SELECT DISTINCT ON (member_id, program, date) id, member_id AS "memberId", name, program, seniority, date, questions_answered AS "questionsAnswered" FROM program_points ORDER BY member_id, program, date, created_at ASC, id ASC`; return res.status(200).json(rows) }
+      if (!query.name) { if (!await getSessionExpiry(req)) return res.status(401).json({ error: 'Please sign in as an administrator.' }); const year = queryText(query.year) || indiaYear(); const allYears = query.allYears === '1'; if (!allYears && !/^\d{4}$/u.test(year)) return res.status(400).json({ error: 'Invalid program points year.' }); const rows = allYears ? await sql`SELECT DISTINCT ON (member_id, program, date) id, member_id AS "memberId", name, program, seniority, date, questions_answered AS "questionsAnswered" FROM program_points ORDER BY member_id, program, date, created_at ASC, id ASC` : await sql`SELECT DISTINCT ON (member_id, program, date) id, member_id AS "memberId", name, program, seniority, date, questions_answered AS "questionsAnswered" FROM program_points WHERE date >= ${`${year}-01-01`} AND date <= ${`${year}-12-31`} ORDER BY member_id, program, date, created_at ASC, id ASC`; return res.status(200).json(rows) }
       const name = queryText(query.name)
       const selectedProgram = queryText(query.program)
       const from = queryText(query.from)

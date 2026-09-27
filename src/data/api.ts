@@ -35,8 +35,8 @@ const request = async <T>(url: string, options?: RequestInit): Promise<T> => {
 }
 
 export const getMembers = () => request<Member[]>('/api/members')
-export const getAttendance = () => request<AttendanceRecord[]>('/api/attendance')
-export const getProgramPoints = (filters?: { name?: string; program?: string; from?: string; to?: string }) => { const params = new URLSearchParams(); Object.entries(filters || {}).forEach(([key, value]) => { const normalized = value?.trim(); if (normalized) params.set(key, normalized) }); return request<ProgramPoint[]>(`/api/program-points${params.toString() ? `?${params}` : ''}`) }
+export const getAttendance = (filters?: { year?: string; allYears?: boolean }) => { const params = new URLSearchParams(); if (filters?.year) params.set('year', filters.year); if (filters?.allYears) params.set('allYears', '1'); return request<AttendanceRecord[]>(`/api/attendance${params.toString() ? `?${params}` : ''}`) }
+export const getProgramPoints = (filters?: { name?: string; program?: string; from?: string; to?: string; year?: string; allYears?: boolean }) => { const params = new URLSearchParams(); Object.entries(filters || {}).forEach(([key, value]) => { if (value === true) params.set(key, '1'); else if (typeof value === 'string') { const normalized = value.trim(); if (normalized) params.set(key, normalized) } }); return request<ProgramPoint[]>(`/api/program-points${params.toString() ? `?${params}` : ''}`) }
 export const saveProgramPoint = (point: ProgramPoint) => request<{ ok: boolean; id?: string; created?: boolean }>('/api/program-points', { method: 'POST', body: JSON.stringify(point) })
 export const updateProgramPoint = (point: ProgramPoint) => request<{ ok: boolean; id?: string; created?: boolean }>('/api/program-points', { method: 'PUT', body: JSON.stringify(point) })
 export const deleteProgramPoint = (id: string) => request<{ ok: boolean }>('/api/program-points', { method: 'DELETE', body: JSON.stringify({ id }) })

@@ -22,7 +22,7 @@ export default function AdminProgramPoints() {
   const [message, setMessage] = useState('')
 
   const loadPoints = async () => {
-    const rows = await getProgramPoints()
+    const rows = await getProgramPoints({ year: yearBounds.min.slice(0, 4) })
     setPoints(uniquePoints(rows))
   }
 

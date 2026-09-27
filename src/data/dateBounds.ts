@@ -1,12 +1,9 @@
-export const todayDate = () => {
-  const now = new Date()
-  const month = String(now.getMonth() + 1).padStart(2, '0')
-  const day = String(now.getDate()).padStart(2, '0')
-  return `${now.getFullYear()}-${month}-${day}`
-}
+const indiaDate = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
+
+export const todayDate = () => indiaDate()
 
 export const currentYearDateBounds = () => {
-  const year = new Date().getFullYear()
+  const year = indiaDate().slice(0, 4)
   return { min: `${year}-01-01`, max: `${year}-12-31` }
 }
 

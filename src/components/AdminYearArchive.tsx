@@ -1,0 +1,67 @@
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { Archive, CalendarDays, ClipboardList, RefreshCw, Users } from 'lucide-react'
+import { getAttendance, getProgramPoints } from '../data/api'
+import type { AttendanceRecord, ProgramPoint } from '../data/memberStore'
+import { currentYearDateBounds } from '../data/dateBounds'
+
+const yearFrom = (value: string) => value.slice(0, 4)
+
+export default function AdminYearArchive() {
+  const currentYear = currentYearDateBounds().min.slice(0, 4)
+  const [attendance, setAttendance] = useState<AttendanceRecord[]>([])
+  const [points, setPoints] = useState<ProgramPoint[]>([])
+  const [selectedYear, setSelectedYear] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  const load = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const [savedAttendance, savedPoints] = await Promise.all([getAttendance({ allYears: true }), getProgramPoints({ allYears: true })])
+      setAttendance(savedAttendance)
+      setPoints(savedPoints)
+    } catch {
+      setError('Could not load the year archive. Please refresh and try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => { void load() }, [])
+
+  const years = useMemo(() => [...new Set([...attendance.map(item => yearFrom(item.date)), ...points.map(item => yearFrom(item.date))])]
+    .filter(year => /^\d{4}$/u.test(year) && year < currentYear)
+    .sort((left, right) => right.localeCompare(left)), [attendance, currentYear, points])
+
+  useEffect(() => {
+    setSelectedYear(current => years.includes(current) ? current : (years[0] || ''))
+  }, [years])
+
+  const yearAttendance = useMemo(() => attendance.filter(item => yearFrom(item.date) === selectedYear).sort((left, right) => right.date.localeCompare(left.date) || left.name.localeCompare(right.name)), [attendance, selectedYear])
+  const yearPoints = useMemo(() => points.filter(item => yearFrom(item.date) === selectedYear).sort((left, right) => right.date.localeCompare(left.date) || left.name.localeCompare(right.name)), [points, selectedYear])
+  const present = yearAttendance.filter(item => item.present).length
+  const absent = yearAttendance.length - present
+
+  return <section className="mt-6 rounded-3xl border border-emerald-100 bg-white p-5 shadow-[0_18px_45px_rgba(7,31,25,.08)] sm:p-7">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex items-center gap-3"><span className="icon-box"><Archive size={20} /></span><div><p className="eyebrow">Protected history</p><h2 className="text-xl font-black text-slate-900">Year archive</h2><p className="mt-1 max-w-2xl text-sm text-slate-500">Completed years are kept here for review. Active attendance and program points automatically start fresh each India-calendar year; archive records are read-only.</p></div></div>
+      <button type="button" onClick={() => void load()} className="secondary-dark-btn shrink-0" disabled={loading}><RefreshCw size={16} className={loading ? 'animate-spin' : ''} /> Refresh</button>
+    </div>
+    {error && <p role="alert" className="mt-5 rounded-xl bg-rose-50 p-3 text-sm font-semibold text-rose-700">{error}</p>}
+    {loading ? <p role="status" className="mt-6 text-sm text-slate-500">Loading archived ministry records…</p> : years.length === 0 ? <div className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-7 text-center"><Archive className="mx-auto text-emerald-700" size={28} /><p className="mt-3 font-bold">No completed-year records yet</p><p className="mt-1 text-sm text-slate-500">When the calendar moves beyond {currentYear}, the saved attendance and program points from the completed year will appear here automatically.</p></div> : <>
+      <div className="mt-6 flex flex-wrap items-end gap-3"><label className="field-label max-w-xs">Archived year<select aria-label="Archived year" className="field mt-1" value={selectedYear} onChange={event => setSelectedYear(event.target.value)}>{years.map(year => <option key={year} value={year}>{year}</option>)}</select></label><p className="pb-2 text-sm text-slate-500">Read-only record for {selectedYear}.</p></div>
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><Metric icon={<CalendarDays size={18} />} label="Attendance records" value={yearAttendance.length} /><Metric icon={<Users size={18} />} label="Present" value={present} /><Metric icon={<Users size={18} />} label="Absent" value={absent} /><Metric icon={<ClipboardList size={18} />} label="Program points" value={yearPoints.length} /></div>
+      <ArchiveTable title="Attendance" empty="No attendance records were saved for this year." count={yearAttendance.length}><table className="w-full min-w-[620px] text-left text-sm"><thead><tr><th>Member</th><th>Date</th><th>Status</th><th>Note</th></tr></thead><tbody>{yearAttendance.map(item => <tr key={item.id}><td className="font-bold">{item.name}</td><td>{item.date}</td><td><span className={item.present ? 'text-emerald-700' : 'text-rose-700'}>{item.present ? 'Present' : 'Absent'}</span></td><td className="max-w-64 truncate">{item.note || '—'}</td></tr>)}</tbody></table></ArchiveTable>
+      <ArchiveTable title="Program points" empty="No program points were saved for this year." count={yearPoints.length}><table className="w-full min-w-[780px] text-left text-sm"><thead><tr><th>Member</th><th>Seniority</th><th>Program</th><th>Date</th><th>Answered</th></tr></thead><tbody>{yearPoints.map(item => <tr key={item.id}><td className="font-bold">{item.name}</td><td>{item.seniority || '—'}</td><td>{item.program}</td><td>{item.date}</td><td>{item.questionsAnswered}/5</td></tr>)}</tbody></table></ArchiveTable>
+    </>}
+  </section>
+}
+
+function Metric({ icon, label, value }: { icon: ReactNode; label: string; value: number }) {
+  return <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4"><div className="flex items-center gap-2 text-emerald-700">{icon}<span className="text-xs font-black uppercase tracking-wider text-slate-500">{label}</span></div><p className="mt-3 text-3xl font-black text-slate-900">{value}</p></div>
+}
+
+function ArchiveTable({ title, empty, count, children }: { title: string; empty: string; count: number; children: ReactNode }) {
+  return <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200"><div className="border-b border-slate-100 bg-slate-50 px-5 py-3 font-black">{title}</div>{count === 0 ? <p className="p-5 text-sm text-slate-500">{empty}</p> : <div className="archive-table overflow-x-auto">{children}</div>}</div>
+}

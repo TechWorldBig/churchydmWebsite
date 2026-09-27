@@ -23,7 +23,7 @@ export default function AdminYearlyReport() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [status, setStatus] = useState('')
-  const load = async () => { setLoading(true); setError(''); try { const [m, a, p, g, w] = await Promise.all([getMembers(), getAttendance(), getProgramPoints(), getGallery(), getWeeklyPrograms(true)]); setMembers(m); setRecords(a); setPoints(p); setGallery(g); setWeekly(w) } catch { setError('Could not load the yearly report data. Please refresh and try again.') } finally { setLoading(false) } }
+  const load = async () => { setLoading(true); setError(''); try { const [m, a, p, g, w] = await Promise.all([getMembers(), getAttendance({ allYears: true }), getProgramPoints({ allYears: true }), getGallery(), getWeeklyPrograms(true)]); setMembers(m); setRecords(a); setPoints(p); setGallery(g); setWeekly(w) } catch { setError('Could not load the yearly report data. Please refresh and try again.') } finally { setLoading(false) } }
   useEffect(() => { void load() }, [])
 
   const data = useMemo(() => {

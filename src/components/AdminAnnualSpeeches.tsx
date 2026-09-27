@@ -96,7 +96,7 @@ export default function AdminAnnualSpeeches() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [status, setStatus] = useState('')
-  const load = async () => { setLoading(true); setError(''); try { const [members, attendance, points, gallery, weekly] = await Promise.all([getMembers(), getAttendance(), getProgramPoints(), getGallery(), getWeeklyPrograms(true)]); setData({ members, attendance, points, gallery, weekly }) } catch { setData(emptyData); setError('Could not load annual speech data. Check the connection and try again.') } finally { setLoading(false) } }
+  const load = async () => { setLoading(true); setError(''); try { const [members, attendance, points, gallery, weekly] = await Promise.all([getMembers(), getAttendance({ allYears: true }), getProgramPoints({ allYears: true }), getGallery(), getWeeklyPrograms(true)]); setData({ members, attendance, points, gallery, weekly }) } catch { setData(emptyData); setError('Could not load annual speech data. Check the connection and try again.') } finally { setLoading(false) } }
   useEffect(() => { void load() }, [])
   const snapshot = useMemo(() => yearlySnapshot(data, year), [data, year])
   useEffect(() => { if (!snapshot.hasData) { setWelcome(''); setThanks('') } else { setWelcome(createSpeech('welcome', language, year, snapshot)); setThanks(createSpeech('thanks', language, year, snapshot)) }; setStatus('') }, [language, year, snapshot])
