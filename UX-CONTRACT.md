@@ -38,7 +38,7 @@ Existing forms keep entered values on recoverable errors and show the current su
 
 ## Annual theme builder
 
-The protected Yearly Report screen begins with an Annual Theme Builder. Admins can edit the year, bilingual theme, Scripture and annual message, review a bright dimensional preview with the YDM logo, and download a landscape A4 PDF without saving draft content to the database. The theme artwork does not include signature fields.
+The protected Yearly Report screen begins with an Annual Theme Builder. Admins can edit the year, bilingual theme, Scripture and annual message, review a bright dimensional preview with the YDM logo, and download either a single-page landscape A4 PDF or a single-slide editable PowerPoint without saving draft content to the database. The theme artwork does not include signature fields.
 
 The Yearly Report below it produces a database-informed, two-page minimum A4 narrative in English or Tamil. Page one covers vision, membership, leadership and attendance; page two covers biblical learning, weekly ministry, gallery-event testimony, thanksgiving and the coming-year spiritual focus. Private contact details are excluded.
 

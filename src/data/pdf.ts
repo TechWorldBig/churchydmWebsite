@@ -13,7 +13,7 @@ export async function downloadHtmlPdf(html: string, filename: string, format: 'a
     frameDocument.open(); frameDocument.write(html); frameDocument.close()
     await Promise.all([...frameDocument.images].map(image => image.complete ? Promise.resolve() : new Promise<void>(resolve => { image.onload = () => resolve(); image.onerror = () => resolve() })))
     await new Promise<void>((resolve, reject) => {
-      pdf.html(frameDocument.body, { x: 0, y: 0, width: isCard ? 85.6 : isLandscape ? 277 : 190, windowWidth: isCard ? 420 : 1120, autoPaging: 'text', margin: isCard ? 0 : [10, 10, 10, 10], callback: () => resolve(), html2canvas: { scale: isCard ? 2 : 1, useCORS: true } }).catch(reject)
+      pdf.html(frameDocument.body, { x: 0, y: 0, width: isCard ? 85.6 : isLandscape ? 277 : 190, windowWidth: isCard ? 420 : 1120, autoPaging: isLandscape ? false : 'text', margin: isCard ? 0 : [10, 10, 10, 10], callback: () => resolve(), html2canvas: { scale: isCard ? 2 : 1, useCORS: true } }).catch(reject)
     })
     pdf.save(filename)
   } finally { frame.remove() }
