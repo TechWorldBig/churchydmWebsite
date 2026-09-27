@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
+import JSZip from 'jszip'
 import { createMockState, installApiMocks } from './support/mockData'
 
 const year = String(new Date().getFullYear())
@@ -18,6 +19,14 @@ async function expectDownload(
   const content = await readFile(path!)
   expect(content.byteLength).toBeGreaterThan(1_000)
   expect(content.subarray(0, extension === '.pdf' ? 5 : 2).toString()).toBe(extension === '.pdf' ? '%PDF-' : 'PK')
+  return content
+}
+
+async function expectPptSlideText(content: Buffer, values: string[]) {
+  const archive = await JSZip.loadAsync(content)
+  const slide = await archive.file('ppt/slides/slide1.xml')?.async('string')
+  expect(slide).toBeTruthy()
+  values.forEach(value => expect(slide).toContain(value))
 }
 
 test('annual document screens produce printable PDF and PPT downloads', async ({ page }) => {
@@ -37,9 +46,10 @@ test('annual document screens produce printable PDF and PPT downloads', async ({
   }))
 
   await page.goto('/admin/yearly-report')
-  await expect(page.getByRole('heading', { name: 'Annual year theme builder' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Theme builder' })).toBeVisible()
   await expectDownload(page, 'Download one-page PDF', '.pdf')
-  await expectDownload(page, 'Download one-slide PPT', '.pptx')
+  const ppt = await expectDownload(page, 'Download one-slide PPT', '.pptx')
+  await expectPptSlideText(ppt, ['ANNUAL MINISTRY THEME', 'Empowered by the Holy Spirit', 'Acts 1:8', 'Spirit-led service'])
   await expectDownload(page, 'Download detailed PDF', '.pdf')
 
   await page.goto('/admin/cake-cover')

@@ -54,15 +54,20 @@ export default function AdminAnnualThemeBuilder() {
       slide.addShape(pptx.ShapeType.ellipse, { x: 11.73, y: .65, w: .62, h: .62, fill: { color: 'E3BC62' }, line: { color: 'C59022' }, shadow: { type: 'outer', color: '8B6212', blur: 2, angle: 45, offset: 3, opacity: .25 } })
       slide.addShape(pptx.ShapeType.roundRect, { x: 5.82, y: .52, w: 1.7, h: 1.48, rectRadius: .08, fill: { color: 'FFFFFF' }, line: { color: 'E2CB83' }, shadow: { type: 'outer', color: '8A651B', blur: 3, angle: 45, offset: 4, opacity: .22 } })
       slide.addImage({ data: logoData, x: 6.08, y: .64, w: 1.18, h: 1.18 })
-      slide.addText('ANNUAL MINISTRY THEME', { x: 2, y: 2.08, w: 9.33, h: .26, fontFace: 'Aptos', fontSize: 10, bold: true, color: '087F5B', charSpacing: 3.2, align: 'center', margin: 0 })
-      slide.addText('Jehovah Salvation Church · Youth Divine Movement', { x: 1.5, y: 2.4, w: 10.33, h: .3, fontFace: 'Aptos', fontSize: 11, bold: true, color: '557067', align: 'center', margin: 0 })
-      slide.addShape(pptx.ShapeType.roundRect, { x: 5.55, y: 2.85, w: 2.23, h: .53, rectRadius: .08, fill: { color: 'F4E6BC' }, line: { color: 'E3BC62' }, shadow: { type: 'outer', color: 'B98D2E', blur: 1.5, angle: 90, offset: 3, opacity: .25 } })
-      slide.addText(year, { x: 5.55, y: 2.98, w: 2.23, h: .22, fontFace: 'Aptos', fontSize: 16, bold: true, color: '8A651B', charSpacing: 3, align: 'center', margin: 0 })
-      slide.addText(englishTheme, { x: 1.15, y: 3.55, w: 11.03, h: .7, fontFace: 'Georgia', fontSize: 28, bold: true, color: '071F19', align: 'center', valign: 'middle', margin: 0, breakLine: false, fit: 'shrink' })
-      slide.addText(tamilTheme, { x: 1.3, y: 4.3, w: 10.73, h: .5, fontFace: 'Nirmala UI', fontSize: 17, bold: true, color: '087F5B', align: 'center', valign: 'middle', margin: 0, fit: 'shrink' })
-      slide.addText('✦', { x: 5.9, y: 4.92, w: 1.53, h: .3, fontFace: 'Georgia', fontSize: 16, color: 'B88722', align: 'center', margin: 0 })
-      slide.addText(`“${verse}”`, { x: 1.8, y: 5.34, w: 9.73, h: .56, fontFace: 'Georgia', fontSize: 13, italic: true, color: '324C42', align: 'center', valign: 'middle', margin: 0, fit: 'shrink' })
-      slide.addText(message, { x: 2, y: 6.08, w: 9.33, h: .45, fontFace: 'Aptos', fontSize: 10.5, color: '657A72', align: 'center', valign: 'middle', margin: 0, fit: 'shrink' })
+      const titleSize = englishTheme.length > 76 ? 18 : englishTheme.length > 46 ? 23 : 29
+      const tamilSize = tamilTheme.length > 80 ? 12 : tamilTheme.length > 54 ? 14 : 17
+      const verseSize = verse.length > 145 ? 9.5 : verse.length > 95 ? 11 : 12.5
+      const messageSize = message.length > 150 ? 8.5 : message.length > 100 ? 9.5 : 10.5
+      const textBox = { align: 'center' as const, valign: 'middle' as const, margin: [.02, .06, .02, .06] as [number, number, number, number], fit: 'shrink' as const }
+      slide.addText('ANNUAL MINISTRY THEME', { x: 2, y: 2.04, w: 9.33, h: .28, fontFace: 'Aptos', fontSize: 10, bold: true, color: '087F5B', charSpacing: 3.2, ...textBox })
+      slide.addText('Jehovah Salvation Church · Youth Divine Movement', { x: 1.5, y: 2.35, w: 10.33, h: .34, fontFace: 'Aptos', fontSize: 11, bold: true, color: '557067', ...textBox })
+      slide.addShape(pptx.ShapeType.roundRect, { x: 5.55, y: 2.76, w: 2.23, h: .53, rectRadius: .08, fill: { color: 'F4E6BC' }, line: { color: 'E3BC62' }, shadow: { type: 'outer', color: 'B98D2E', blur: 1.5, angle: 90, offset: 3, opacity: .25 } })
+      slide.addText(year, { x: 5.55, y: 2.86, w: 2.23, h: .3, fontFace: 'Aptos', fontSize: 16, bold: true, color: '8A651B', charSpacing: 3, ...textBox })
+      slide.addText(englishTheme, { x: 1.05, y: 3.42, w: 11.23, h: .9, fontFace: 'Georgia', fontSize: titleSize, bold: true, color: '071F19', ...textBox })
+      slide.addText(tamilTheme, { x: 1.2, y: 4.32, w: 10.93, h: .62, fontFace: 'Nirmala UI', fontSize: tamilSize, bold: true, color: '087F5B', ...textBox })
+      slide.addText('✦', { x: 5.9, y: 4.98, w: 1.53, h: .28, fontFace: 'Georgia', fontSize: 16, color: 'B88722', ...textBox })
+      slide.addText(`“${verse}”`, { x: 1.5, y: 5.33, w: 10.33, h: .72, fontFace: 'Georgia', fontSize: verseSize, italic: true, color: '324C42', ...textBox })
+      slide.addText(message, { x: 1.72, y: 6.15, w: 9.9, h: .62, fontFace: 'Aptos', fontSize: messageSize, color: '657A72', ...textBox })
       await pptx.writeFile({ fileName: `jsc-ydm-annual-theme-${year}.pptx` })
       setStatus('One-slide PowerPoint downloaded.')
     } catch { setStatus('The PowerPoint could not be created. Please try again.') }
