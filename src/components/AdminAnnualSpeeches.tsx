@@ -3,6 +3,7 @@ import { Download, Languages, RefreshCw, ScrollText } from 'lucide-react'
 import { getAttendance, getGallery, getMembers, getProgramPoints, getWeeklyPrograms } from '../data/api'
 import { downloadHtmlPdf } from '../data/pdf'
 import type { AttendanceRecord, GalleryPhoto, Member, ProgramPoint, WeeklyProgram } from '../data/memberStore'
+import ydmLogo from '../assets/jsc-ydm-logo-certificate.png'
 
 type Language = 'en' | 'ta'
 type SpeechKind = 'welcome' | 'thanks'
@@ -81,10 +82,15 @@ Our records show ${snapshot.participantCount} participants across the year, with
 ${closing}`
 }
 
-function documentHtml(title: string, kind: SpeechKind, language: Language, year: string, content: string) {
+function documentHtmlBase(title: string, kind: SpeechKind, language: Language, year: string, content: string) {
   const paragraphs = content.split(/\n\s*\n/).map(paragraph => `<p>${escapeHtml(paragraph)}</p>`).join('')
   const labels = language === 'ta' ? { praise: 'கர்த்தருக்கு ஸ்தோத்திரம்', year: 'ஆண்டு ஊழியம்', kind: kind === 'welcome' ? 'தொடக்க வரவேற்புரை' : 'நிறைவு நன்றியுரை', president: 'YDM தலைவர்', pastor: 'சபை போதகர்' } : { praise: 'Praise the Lord', year: 'Annual Ministry', kind: kind === 'welcome' ? 'Opening address' : 'Closing thanksgiving', president: 'YDM President', pastor: 'Church Pastor' }
   return `<!doctype html><html lang="${language}"><head><meta charset="utf-8"><style>@page{size:A4 portrait;margin:15mm}*{box-sizing:border-box}body{margin:0;color:#172b24;font-family:Arial,sans-serif}.page{min-height:1040px;border:2px solid #e3bc62;padding:42px 50px;background:linear-gradient(180deg,#f4fbf7,#fff 28%)}header{text-align:center;border-bottom:1px solid #c7dfd4;padding-bottom:24px}.ministry{font-size:12px;font-weight:800;letter-spacing:2px;color:#087f5b;text-transform:uppercase}.praise{font:700 20px Georgia,serif;margin:15px 0 6px}.year{color:#9a7526;font-weight:800}.title{font:700 34px Georgia,serif;color:#071f19;margin:12px 0 0}.kind{font-size:12px;letter-spacing:2px;color:#087f5b;text-transform:uppercase}.content{padding-top:22px;font-size:15px;line-height:1.8;text-align:justify}.content p{margin:0 0 15px}.verse{margin:18px 0;padding:14px 18px;border-left:4px solid #e3bc62;background:#e8f5ef;color:#164f3d;font-style:italic}footer{display:flex;justify-content:space-between;margin-top:45px;padding-top:20px;color:#526c62;font-size:12px}.line{width:190px;border-top:1px solid #39534a;padding-top:8px;text-align:center}</style></head><body><main class="page"><header><div class="ministry">Jehovah Salvation Church · Youth Divine Movement</div><div class="praise">${labels.praise}</div><div class="year">${labels.year} · ${escapeHtml(year)}</div><h1 class="title">${escapeHtml(title)}</h1><div class="kind">${labels.kind}</div></header><section class="content">${paragraphs}</section><footer><div class="line">${labels.president}</div><div class="line">${labels.pastor}</div></footer></main></body></html>`
+}
+
+function documentHtml(title: string, kind: SpeechKind, language: Language, year: string, content: string) {
+  const logo = `<img src="${ydmLogo}" alt="Youth Divine Movement logo" style="display:block;width:76px;height:76px;object-fit:contain;margin:0 auto 12px">`
+  return documentHtmlBase(title, kind, language, year, content).replace('<header>', `<header>${logo}`)
 }
 
 export default function AdminAnnualSpeeches() {
