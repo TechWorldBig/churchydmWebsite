@@ -50,6 +50,10 @@ The Yearly Report below it produces a database-informed, two-page minimum A4 nar
 
 `/admin/annual-speeches` is a protected section beside Certificates. It prepares editable Year Welcome Speech and Vote of Thanks documents from the selected year's member totals, attendance activity, program participation, weekly programs and gallery-event descriptions. Admins choose English or Tamil and download each document as an A4 PDF. Contact details, addresses and birth dates are excluded from generated content.
 
+## AI annual documents
+
+The protected Yearly Report and Annual Speeches sections include an **AI Generated** document writer. An authenticated admin selects the document type, ministry year and English or Tamil, then receives an editable draft before PDF download. The server sends only selected-year aggregate ministry totals to the configured Gemini service; names, contacts, birth dates, addresses, raw attendance rows and other member-level data are never included in its prompt. Generation remains subject to the existing server-side rate limit and requires `GEMINI_API_KEY` to be configured only on the server.
+
 ## Christmas cake cover
 
 `/admin/cake-cover` is a protected section beside Certificates. It provides an editable Christmas and New Year cake-distribution cover with the YDM logo, Luke 2:11, sender and year. The live preview matches the single square cover centered on its downloadable A4 portrait PDF.

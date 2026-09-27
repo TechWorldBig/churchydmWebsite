@@ -62,3 +62,4 @@ export const askChurchAssistant = (question: string, name: string, language: 'en
   method: 'POST',
   body: JSON.stringify({ question, name, language, history }),
 })
+export const generateAiAnnualDocument = (type: 'yearly' | 'welcome' | 'thanks', year: string, language: 'en' | 'ta') => request<{ answer: string }>('/api/assistant', { method: 'POST', body: JSON.stringify({ adminReport: true, type, year, language }) })

@@ -1,4 +1,6 @@
 import { sharedRateLimited } from './_lib/security.js'
+import { getSessionExpiry } from './_lib/security.js'
+import { ensureSchema, getSql } from './_lib/db.js'
 import { isSensitiveRequest, isInstructionOverride, SENSITIVE_REPLY } from '../shared/assistantPolicy.js'
 
 const languageNames = {
@@ -96,6 +98,34 @@ export default async function handler(req: any, res: any) {
   }
 
   if (!body || typeof body !== 'object' || Array.isArray(body)) return res.status(400).json({ error: 'Invalid request body.' })
+  if (body.adminReport) {
+    if (!await getSessionExpiry(req)) return res.status(401).json({ error: 'Please sign in as an administrator.' })
+    const type = body.type
+    const year = body.year
+    const language = body.language === 'ta' ? 'Tamil' : 'English'
+    if (!['yearly', 'welcome', 'thanks'].includes(type) || typeof year !== 'string' || !/^\d{4}$/u.test(year)) return res.status(400).json({ error: 'Invalid report request.' })
+    const apiKey = process.env.GEMINI_API_KEY
+    if (!apiKey) return res.status(503).json({ error: 'AI report generation is not configured.' })
+    try {
+      await ensureSchema()
+      const sql = getSql()
+      const [attendance, programs, meetings, present, events] = await Promise.all([
+        sql`SELECT COUNT(*)::int AS count FROM attendance WHERE date >= ${`${year}-01-01`} AND date <= ${`${year}-12-31`}`,
+        sql`SELECT COUNT(*)::int AS count, COALESCE(SUM(questions_answered), 0)::int AS answers FROM program_points WHERE date >= ${`${year}-01-01`} AND date <= ${`${year}-12-31`}`,
+        sql`SELECT COUNT(DISTINCT date)::int AS count FROM attendance WHERE date >= ${`${year}-01-01`} AND date <= ${`${year}-12-31`}`,
+        sql`SELECT COUNT(*)::int AS count FROM attendance WHERE present=true AND date >= ${`${year}-01-01`} AND date <= ${`${year}-12-31`}`,
+        sql`SELECT COUNT(*)::int AS count FROM gallery_photos WHERE date >= ${`${year}-01-01`} AND date <= ${`${year}-12-31`}`,
+      ])
+      const title = type === 'yearly' ? 'detailed yearly ministry report' : type === 'welcome' ? 'Year Welcome Speech' : 'Vote of Thanks'
+      const summary = { attendanceRecords: attendance[0]?.count || 0, meetingDays: meetings[0]?.count || 0, presentRecords: present[0]?.count || 0, programRecords: programs[0]?.count || 0, answers: programs[0]?.answers || 0, galleryEvents: events[0]?.count || 0 }
+      const prompt = `Write a polished Pentecostal church ${title} for Jehovah Salvation Church, Youth Divine Movement, Kollemcode, for ${year}. Language: ${language}. Use only these verified aggregate facts: ${JSON.stringify(summary)}. Begin by glorifying Jesus Christ and include one appropriate Bible verse with reference. For welcome/vote, honour Pastor Finny and family, church committee, YDM leaders/coordinators, YDM members, and those attending Annual Day today, in that order. For yearly report, use clear headings and 6–8 substantial paragraphs. Never invent names, money, events, dates, or statistics. Return plain text only, ready for admin review and PDF export.`
+      const response = await fetchGemini('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent', { method: 'POST', headers: { 'x-goog-api-key': apiKey, 'Content-Type': 'application/json' }, signal: AbortSignal.timeout(45_000), body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 5000 } }) })
+      if (!response.ok) return res.status(502).json({ error: 'AI report generation failed.' })
+      const answer = getOutputText(await response.json()).trim()
+      if (!answer) return res.status(502).json({ error: 'AI report generation returned no content.' })
+      return res.status(200).json({ answer })
+    } catch { return res.status(502).json({ error: 'AI report generation is unavailable.' }) }
+  }
   if (typeof body.question !== 'string' || body.question.length > 1_500
     || (body.name !== undefined && (typeof body.name !== 'string' || body.name.length > 100))
     || (body.history !== undefined && (!Array.isArray(body.history) || body.history.length > 8))) {
