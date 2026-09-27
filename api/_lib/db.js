@@ -35,6 +35,7 @@ export async function ensureSchema() {
     await sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS gender TEXT NOT NULL DEFAULT ''`
     await sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS seniority TEXT NOT NULL DEFAULT ''`
     await sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS photo_name TEXT NOT NULL DEFAULT ''`
+    await sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS active_year TEXT NOT NULL DEFAULT ''`
     await sql`
     CREATE TABLE IF NOT EXISTS attendance (
       id TEXT PRIMARY KEY,
@@ -121,6 +122,8 @@ export async function ensureSchema() {
     await sql`CREATE INDEX IF NOT EXISTS attendance_date_created_idx ON attendance (date DESC, created_at DESC)`
     await sql`CREATE INDEX IF NOT EXISTS gallery_photos_date_created_idx ON gallery_photos (date DESC, created_at DESC)`
     await sql`CREATE INDEX IF NOT EXISTS visitor_hours_created_at_idx ON website_visitor_hours (created_at DESC)`
+    const activeYear = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', year: 'numeric' }).format(new Date())
+    await sql`UPDATE members SET active_year = ${activeYear} WHERE active_year = ''`
   })().catch((error) => {
     schemaPromise = undefined
     throw error
@@ -132,7 +135,14 @@ export async function ensureSchema() {
 export async function ensureMemberGenderColumn() {
   if (memberGenderPromise) return memberGenderPromise
   const sql = getSql()
-  memberGenderPromise = sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS gender TEXT NOT NULL DEFAULT ''`.catch((error) => {
+  const activeYear = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', year: 'numeric' }).format(new Date())
+  memberGenderPromise = (async () => {
+    await sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS gender TEXT NOT NULL DEFAULT ''`
+    await sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS active_year TEXT NOT NULL DEFAULT ''`
+    // Existing members belong to the active ministry year at the time this
+    // annual archive feature is introduced. Future years receive their own tag.
+    await sql`UPDATE members SET active_year = ${activeYear} WHERE active_year = ''`
+  })().catch((error) => {
     memberGenderPromise = undefined
     throw error
   })

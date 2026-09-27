@@ -11,6 +11,7 @@ export type Member = {
   focus: string
   photo: string
   photoName?: string
+  activeYear?: string
 }
 
 export type AttendanceRecord = {
