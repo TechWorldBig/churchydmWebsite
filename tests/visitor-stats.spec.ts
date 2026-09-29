@@ -26,7 +26,7 @@ test('visitor analytics distinguishes new lifetime IPs from daily traffic', asyn
   await expect(section.getByText('New unique visitors')).toBeVisible()
   await expect(section.getByText('First-seen IPs on')).toBeVisible()
   await expect(section.getByText('Daily traffic')).toBeVisible()
-  await expect(section.getByText('2 new + 5 returning IPs')).toBeVisible()
+  await expect(section.getByText('2 new unique + 5 returning unique IPs = 7 people')).toBeVisible()
   await expect(section.getByText('197', { exact: true })).toBeVisible()
   await expect(section.getByText('2', { exact: true })).toBeVisible()
   await expect(section.getByText('7', { exact: true })).toBeVisible()
