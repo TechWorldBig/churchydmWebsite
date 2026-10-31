@@ -17,6 +17,5 @@ export async function writeAuditLog(req: any, details: { action: string; entity:
   await ensureSchema()
   const sql = getSql()
   const actor = await getSessionUsername(req) || 'admin'
-  const ipAddress = clientIp(req)
-  await sql`INSERT INTO audit_logs (id, actor, action, entity, entity_id, summary, ip_hash, ip_address) VALUES (${randomUUID()}, ${actor}, ${details.action}, ${details.entity}, ${details.entityId || ''}, ${details.summary || ''}, ${hashIp(req)}, ${ipAddress})`
+  await sql`INSERT INTO audit_logs (id, actor, action, entity, entity_id, summary, ip_hash, ip_address) VALUES (${randomUUID()}, ${actor}, ${details.action}, ${details.entity}, ${details.entityId || ''}, ${details.summary || ''}, ${hashIp(req)}, '')`
 }

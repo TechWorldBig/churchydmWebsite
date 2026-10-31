@@ -4,6 +4,7 @@ import { expect, test } from '@playwright/test'
 import adminDashboard from '../api/admin/dashboard'
 import auth from '../api/auth'
 import login from '../api/auth/login'
+import visitors from '../api/visitors'
 import members from '../api/members'
 import attendance from '../api/attendance'
 import gallery from '../api/gallery'
@@ -84,6 +85,13 @@ test('rejects cross-origin login and malformed JSON', async () => {
   const malformed = request('POST', '{broken')
   await login(malformed.req, malformed.res)
   expect(malformed.result.status).toBe(400)
+})
+
+test('visitor tracking rejects cross-origin writes before database access', async () => {
+  const call = request('POST')
+  call.req.headers.origin = 'https://attacker.test'
+  await visitors(call.req, call.res)
+  expect(call.result.status).toBe(403)
 })
 
 test('admin sign-in stays disabled without configured bootstrap credentials', async () => {

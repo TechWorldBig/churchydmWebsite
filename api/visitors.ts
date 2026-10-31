@@ -1,5 +1,5 @@
 import { ensureSchema, getSql, sendError } from './_lib/db.js'
-import { getSessionExpiry, sharedRateLimited } from './_lib/security.js'
+import { getSessionExpiry, sameOriginMutation, sharedRateLimited } from './_lib/security.js'
 import { createHash } from 'node:crypto'
 
 const getClientIp = (req: any) => {
@@ -41,11 +41,12 @@ const deviceType = (req: any): 'mobile' | 'tablet' | 'desktop' | 'unknown' => {
 
 export default async function handler(req: any, res: any) {
   try {
+    if (req.method === 'POST' && !sameOriginMutation(req)) return res.status(403).json({ error: 'Request not allowed.' })
+    if (req.method === 'GET' && !await getSessionExpiry(req)) return res.status(401).json({ error: 'Unauthorized' })
     await ensureSchema()
     const sql = getSql()
 
     if (req.method === 'GET') {
-      if (!await getSessionExpiry(req)) return res.status(401).json({ error: 'Unauthorized' })
       const requestedDate = validDate(req.query?.date) ? req.query.date : indiaHourParts().date
       const { start, end } = indiaDayBounds(requestedDate)
       const rows = await sql`SELECT RIGHT(hour_key, 2)::int AS hour, device_type AS device, COUNT(DISTINCT ip_hash)::int AS count FROM website_visitor_hours WHERE hour_key LIKE ${requestedDate + '-%'} GROUP BY hour, device_type ORDER BY hour`
@@ -89,7 +90,6 @@ export default async function handler(req: any, res: any) {
     }
 
     if (req.method === 'POST') {
-      if (req.headers['sec-fetch-site'] === 'cross-site') return res.status(403).json({ error: 'Request not allowed.' })
       const ip = getClientIp(req)
       if (!ip) return res.status(400).json({ error: 'Unable to determine visitor IP.' })
       if (await sharedRateLimited('visitors', ip, 30, 60)) {
