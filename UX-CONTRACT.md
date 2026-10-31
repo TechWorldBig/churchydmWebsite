@@ -40,6 +40,10 @@ The same screen places YDM membership cards below Certificates. The admin select
 
 Existing forms keep entered values on recoverable errors and show the current success/error message inline. Deletes use the established admin action pattern; a later shared confirmation primitive should be adopted before expanding destructive workflows.
 
+## Navigation and network recovery
+
+Unknown URLs show a dedicated 404 state with actions to return home or navigate back. When the browser reports that the device is offline, a full-screen connection state replaces the site without changing the current URL. The current page reloads automatically when connectivity returns; a manual retry remains available when device network status is stale.
+
 ## Annual theme builder
 
 The protected Yearly Report screen begins with an Annual Theme Builder. Admins can edit the year, bilingual theme, Scripture and annual message, review a bright dimensional preview with the YDM logo, and download either a single-page landscape A4 PDF or a single-slide editable PowerPoint without saving draft content to the database. The theme artwork does not include signature fields.

@@ -9,6 +9,8 @@ import About from './pages/About'
 import Admin from './pages/Admin'
 import Programs from './pages/Programs'
 import Offering from './pages/Offering'
+import NotFound from './pages/NotFound'
+import NetworkGate from './components/NetworkGate'
 import { recordVisitor } from './data/api'
 
 export default function App() {
@@ -16,23 +18,25 @@ export default function App() {
     recordVisitor().catch(() => undefined)
   }, [])
   return (
-    <Layout>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/members" element={<Members />} />
-        <Route path="/gallery" element={<Gallery />} />
-        <Route path="/programs" element={<Programs />} />
-        <Route path="/attendance" element={<Attendance />} />
-        <Route path="/offering" element={<Offering />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/admin/certificates" element={<Admin section="certificates" />} />
-        <Route path="/admin/year-archive" element={<Admin section="archive" />} />
-        <Route path="/admin/cake-cover" element={<Admin section="cake-cover" />} />
-        <Route path="/admin/annual-speeches" element={<Admin section="annual-speeches" />} />
-        <Route path="/admin/yearly-report" element={<Admin section="yearly-report" />} />
-        <Route path="*" element={<Home />} />
-      </Routes>
-    </Layout>
+    <NetworkGate>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/members" element={<Members />} />
+          <Route path="/gallery" element={<Gallery />} />
+          <Route path="/programs" element={<Programs />} />
+          <Route path="/attendance" element={<Attendance />} />
+          <Route path="/offering" element={<Offering />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/certificates" element={<Admin section="certificates" />} />
+          <Route path="/admin/year-archive" element={<Admin section="archive" />} />
+          <Route path="/admin/cake-cover" element={<Admin section="cake-cover" />} />
+          <Route path="/admin/annual-speeches" element={<Admin section="annual-speeches" />} />
+          <Route path="/admin/yearly-report" element={<Admin section="yearly-report" />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Layout>
+    </NetworkGate>
   )
 }
