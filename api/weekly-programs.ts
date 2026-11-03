@@ -1,4 +1,4 @@
-import { authorizeMutation, getSessionExpiry } from './_lib/security.js'
+import { authorizeMutation, endpointRateLimited, getSessionExpiry } from './_lib/security.js'
 import { ensureSchema, getSql, sendError } from './_lib/db.js'
 import { writeAuditLog } from './_lib/audit.js'
 
@@ -16,6 +16,7 @@ export default async function handler(req: any, res: any) {
     await ensureSchema()
     const sql = getSql()
     if (req.method === 'GET') {
+      if (await endpointRateLimited(req, res, 'weekly-programs')) return
       const today = indiaDate()
       await sql`UPDATE weekly_programs SET archived_at=COALESCE(archived_at, NOW()) WHERE date < ${today}`
       const includeArchived = req.query?.includeArchived === '1'

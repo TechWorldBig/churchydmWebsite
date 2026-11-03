@@ -1,4 +1,4 @@
-import { authorizeMutation } from './_lib/security.js'
+import { authorizeMutation, endpointRateLimited } from './_lib/security.js'
 import { readMutation } from './_lib/validation.js'
 import { ensureSchema, getSql, sendError } from './_lib/db.js'
 import { writeAuditLog } from './_lib/audit.js'
@@ -12,6 +12,7 @@ export default async function handler(req: any, res: any) {
     if (req.method !== 'GET') await ensureSchema()
     const sql = getSql()
     if (req.method === 'GET') {
+      if (await endpointRateLimited(req, res, 'gallery')) return
       const rows = await sql`SELECT id, photo, date, description FROM gallery_photos ORDER BY date DESC, created_at DESC`
       return res.status(200).json(rows)
     }

@@ -1,8 +1,9 @@
-import { getSessionExpiry, revokeSession, sameOriginMutation, sessionCookie } from './_lib/security.js'
+import { endpointRateLimited, getSessionExpiry, revokeSession, sameOriginMutation, sessionCookie } from './_lib/security.js'
 
 export default async function handler(req: any, res: any) {
   res.setHeader('Cache-Control', 'no-store')
   try {
+    if (await endpointRateLimited(req, res, 'auth', 120)) return
     if (req.method === 'GET') {
       const expiresAt = await getSessionExpiry(req)
       return res.status(200).json({ authenticated: Boolean(expiresAt), expiresAt })

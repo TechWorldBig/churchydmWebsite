@@ -1,4 +1,4 @@
-import { authorizeMutation, getSessionExpiry } from './_lib/security.js'
+import { authorizeMutation, endpointRateLimited, getSessionExpiry } from './_lib/security.js'
 import { ensureSchema, getSql, sendError } from './_lib/db.js'
 import { writeAuditLog } from './_lib/audit.js'
 
@@ -13,6 +13,7 @@ export default async function handler(req: any, res: any) {
     await ensureSchema()
     const sql = getSql()
     if (req.method === 'GET') {
+      if (await endpointRateLimited(req, res, 'program-points')) return
       const query = req.query || {}
       if (!query.name) { if (!await getSessionExpiry(req)) return res.status(401).json({ error: 'Please sign in as an administrator.' }); const year = queryText(query.year) || indiaYear(); const allYears = query.allYears === '1'; if (!allYears && !/^\d{4}$/u.test(year)) return res.status(400).json({ error: 'Invalid program points year.' }); const rows = allYears ? await sql`SELECT DISTINCT ON (member_id, program, date) id, member_id AS "memberId", name, program, seniority, date, questions_answered AS "questionsAnswered" FROM program_points ORDER BY member_id, program, date, created_at ASC, id ASC` : await sql`SELECT DISTINCT ON (member_id, program, date) id, member_id AS "memberId", name, program, seniority, date, questions_answered AS "questionsAnswered" FROM program_points WHERE date >= ${`${year}-01-01`} AND date <= ${`${year}-12-31`} ORDER BY member_id, program, date, created_at ASC, id ASC`; return res.status(200).json(rows) }
       const name = queryText(query.name)

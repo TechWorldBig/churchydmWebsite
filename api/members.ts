@@ -1,4 +1,4 @@
-import { authorizeMutation, getSessionExpiry } from './_lib/security.js'
+import { authorizeMutation, endpointRateLimited, getSessionExpiry } from './_lib/security.js'
 import { readMutation } from './_lib/validation.js'
 import { ensureMemberGenderColumn, ensureSchema, getSql, sendError } from './_lib/db.js'
 import { writeAuditLog } from './_lib/audit.js'
@@ -18,6 +18,7 @@ export default async function handler(req: any, res: any) {
     const sql = getSql()
     const generatedPhotoName = body?.photoName || (body?.photo ? `${String(body.name || 'member').trim().replace(/[^a-z0-9]+/gi, '_')}_${new Date().toISOString().slice(0, 10)}.${String(body.photo).match(/^data:image\/([a-z0-9+.-]+)/i)?.[1] || 'jpg'}` : '')
     if (req.method === 'GET') {
+      if (await endpointRateLimited(req, res, 'members')) return
       const query = req.query || {}
       const archiveYear = typeof query.archiveYear === 'string' ? query.archiveYear : ''
       const allYears = query.allYears === '1'
@@ -37,7 +38,18 @@ export default async function handler(req: any, res: any) {
       await sql`INSERT INTO members (id, name, role, email, phone, address, gender, seniority, date_of_birth, focus, photo, photo_name, active_year) VALUES (${body.id}, ${body.name}, ${body.role || 'YDM Member'}, ${body.email || ''}, ${body.phone || ''}, ${body.address || ''}, ${body.gender || ''}, ${body.seniority || ''}, ${body.dateOfBirth || ''}, ${body.focus || ''}, ${body.photo || ''}, ${generatedPhotoName}, ${indiaYear()})`
       await writeAuditLog(req, { action: 'create', entity: 'member', entityId: body.id, summary: body.name })
     } else if (req.method === 'PUT') {
-      await sql`UPDATE members SET name=${body.name}, role=${body.role || 'YDM Member'}, email=${body.email || ''}, phone=${body.phone || ''}, address=${body.address || ''}, gender=${body.gender || ''}, seniority=${body.seniority || ''}, date_of_birth=${body.dateOfBirth || ''}, focus=${body.focus || ''}, photo=${body.photo || ''}, photo_name=${generatedPhotoName} WHERE id=${body.id} AND active_year=${indiaYear()}`
+      // Related rows keep a readable name copy. Synchronize every current-year
+      // copy in the same database statement when the member profile changes.
+      await sql`WITH updated_member AS (
+        UPDATE members SET name=${body.name}, role=${body.role || 'YDM Member'}, email=${body.email || ''}, phone=${body.phone || ''}, address=${body.address || ''}, gender=${body.gender || ''}, seniority=${body.seniority || ''}, date_of_birth=${body.dateOfBirth || ''}, focus=${body.focus || ''}, photo=${body.photo || ''}, photo_name=${generatedPhotoName}
+        WHERE id=${body.id} AND active_year=${indiaYear()}
+        RETURNING id, name, seniority
+      ), updated_attendance AS (
+        UPDATE attendance SET name=updated_member.name FROM updated_member WHERE attendance.member_id=updated_member.id RETURNING attendance.id
+      ), updated_points AS (
+        UPDATE program_points SET name=updated_member.name, seniority=updated_member.seniority FROM updated_member WHERE program_points.member_id=updated_member.id RETURNING program_points.id
+      )
+      UPDATE weekly_programs SET member_name=updated_member.name FROM updated_member WHERE weekly_programs.member_id=updated_member.id`
       await writeAuditLog(req, { action: 'update', entity: 'member', entityId: body.id, summary: body.name })
     } else if (req.method === 'DELETE') {
       await sql`DELETE FROM members WHERE id=${body.id} AND active_year=${indiaYear()}`

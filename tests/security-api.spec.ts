@@ -8,7 +8,7 @@ import visitors from '../api/visitors'
 import members from '../api/members'
 import attendance from '../api/attendance'
 import gallery from '../api/gallery'
-import { sameSecret, sessionCookie, sessionToken } from '../api/_lib/security'
+import { endpointRateLimited, sameSecret, sessionCookie, sessionToken } from '../api/_lib/security'
 import { readMutation } from '../api/_lib/validation'
 
 function request(method = 'POST', body: unknown = {}) {
@@ -92,6 +92,24 @@ test('visitor tracking rejects cross-origin writes before database access', asyn
   call.req.headers.origin = 'https://attacker.test'
   await visitors(call.req, call.res)
   expect(call.result.status).toBe(403)
+})
+
+test('shared endpoint limiter returns retry guidance after the route limit', async () => {
+  const saved = { VERCEL: process.env.VERCEL, DATABASE_URL: process.env.DATABASE_URL, POSTGRES_URL: process.env.POSTGRES_URL }
+  delete process.env.VERCEL; delete process.env.DATABASE_URL; delete process.env.POSTGRES_URL
+  try {
+    const first = request('GET')
+    expect(await endpointRateLimited(first.req, first.res, 'security-test-route', 2, 60)).toBe(false)
+    const second = request('GET')
+    expect(await endpointRateLimited(second.req, second.res, 'security-test-route', 2, 60)).toBe(false)
+    const third = request('GET')
+    expect(await endpointRateLimited(third.req, third.res, 'security-test-route', 2, 60)).toBe(true)
+    expect(third.result.status).toBe(429)
+    expect(third.result.headers['Retry-After']).toBe('60')
+    expect(third.result.headers['X-RateLimit-Limit']).toBe('2')
+  } finally {
+    for (const [key, value] of Object.entries(saved)) { if (value === undefined) delete process.env[key]; else process.env[key] = value }
+  }
 })
 
 test('admin sign-in stays disabled without configured bootstrap credentials', async () => {

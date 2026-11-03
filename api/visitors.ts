@@ -1,5 +1,5 @@
 import { ensureSchema, getSql, sendError } from './_lib/db.js'
-import { getSessionExpiry, sameOriginMutation, sharedRateLimited } from './_lib/security.js'
+import { endpointRateLimited, getSessionExpiry, sameOriginMutation, sharedRateLimited } from './_lib/security.js'
 import { createHash } from 'node:crypto'
 
 const getClientIp = (req: any) => {
@@ -47,6 +47,7 @@ export default async function handler(req: any, res: any) {
     const sql = getSql()
 
     if (req.method === 'GET') {
+      if (await endpointRateLimited(req, res, 'visitors-admin', 120)) return
       const requestedDate = validDate(req.query?.date) ? req.query.date : indiaHourParts().date
       const { start, end } = indiaDayBounds(requestedDate)
       const rows = await sql`SELECT RIGHT(hour_key, 2)::int AS hour, device_type AS device, COUNT(DISTINCT ip_hash)::int AS count FROM website_visitor_hours WHERE hour_key LIKE ${requestedDate + '-%'} GROUP BY hour, device_type ORDER BY hour`

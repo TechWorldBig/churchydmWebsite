@@ -111,11 +111,38 @@ export function sameOriginMutation(req: any): boolean {
   } catch { return false }
 }
 
-function clientIp(req: any): string {
+export function clientIp(req: any): string {
   const real = req.headers['x-real-ip']
   const forwarded = req.headers['x-forwarded-for']
   const value = Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(',')[0]
   return String(real || value || req.socket?.remoteAddress || 'unknown').trim().slice(0, 128)
+}
+
+const localEndpointLimits = new Map<string, { count: number; resetAt: number }>()
+
+export async function endpointRateLimited(req: any, res: any, scope: string, limit = 180, seconds = 60): Promise<boolean> {
+  const ip = clientIp(req)
+  let limited = false
+  if (process.env.VERCEL || process.env.DATABASE_URL || process.env.POSTGRES_URL) {
+    limited = await sharedRateLimited(`endpoint:${scope}`, ip, limit, seconds)
+  } else {
+    const key = `${scope}:${ip}`
+    const now = Date.now()
+    if (localEndpointLimits.size >= 10_000 && !localEndpointLimits.has(key)) {
+      for (const [storedKey, value] of localEndpointLimits) if (value.resetAt <= now) localEndpointLimits.delete(storedKey)
+      if (localEndpointLimits.size >= 10_000) limited = true
+    }
+    const current = localEndpointLimits.get(key)
+    if (!limited) {
+      if (!current || current.resetAt <= now) localEndpointLimits.set(key, { count: 1, resetAt: now + seconds * 1000 })
+      else { current.count += 1; limited = current.count > limit }
+    }
+  }
+  res.setHeader?.('X-RateLimit-Limit', String(limit))
+  if (!limited) return false
+  res.setHeader?.('Retry-After', String(seconds))
+  res.status(429).json({ error: 'Too many requests. Please wait and try again.' })
+  return true
 }
 
 export async function authorizeMutation(req: any, res: any): Promise<boolean> {

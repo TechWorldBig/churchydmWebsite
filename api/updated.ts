@@ -1,9 +1,11 @@
 import { ensureSchema, getSql, sendError } from './_lib/db.js'
+import { endpointRateLimited } from './_lib/security.js'
 
 export default async function handler(req: any, res: any) {
   res.setHeader?.('Cache-Control', 'public, max-age=30, stale-while-revalidate=120')
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
   try {
+    if (await endpointRateLimited(req, res, 'updated')) return
     const sql = getSql()
     const rows = await sql`SELECT value FROM system_metadata WHERE key='attendance_last_updated'`
     const version = process.env.VERCEL_GIT_COMMIT_SHA || process.env.VERCEL_DEPLOYMENT_ID || process.env.VERCEL_URL || 'development'

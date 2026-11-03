@@ -1,10 +1,11 @@
-import { getSessionExpiry } from './_lib/security.js'
+import { endpointRateLimited, getSessionExpiry } from './_lib/security.js'
 import { ensureSchema, getSql, sendError } from './_lib/db.js'
 
 export default async function handler(req: any, res: any) {
   res.setHeader?.('Cache-Control', 'no-store')
   try {
     if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
+    if (await endpointRateLimited(req, res, 'year-archive', 120)) return
     if (!await getSessionExpiry(req)) return res.status(401).json({ error: 'Please sign in as an administrator.' })
     await ensureSchema()
     const sql = getSql()
