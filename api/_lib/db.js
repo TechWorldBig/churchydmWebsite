@@ -36,6 +36,7 @@ export async function ensureSchema() {
     await sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS seniority TEXT NOT NULL DEFAULT ''`
     await sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS photo_name TEXT NOT NULL DEFAULT ''`
     await sql`ALTER TABLE members ADD COLUMN IF NOT EXISTS active_year TEXT NOT NULL DEFAULT ''`
+    await sql`CREATE TABLE IF NOT EXISTS yeararchive (year TEXT PRIMARY KEY, payload JSONB NOT NULL, archived_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`
     await sql`
     CREATE TABLE IF NOT EXISTS attendance (
       id TEXT PRIMARY KEY,
@@ -124,6 +125,42 @@ export async function ensureSchema() {
     await sql`CREATE INDEX IF NOT EXISTS visitor_hours_created_at_idx ON website_visitor_hours (created_at DESC)`
     const activeYear = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', year: 'numeric' }).format(new Date())
     await sql`UPDATE members SET active_year = ${activeYear} WHERE active_year = ''`
+    // Annual rollover is deliberately idempotent. Historical ministry rows are
+    // copied into one protected snapshot before their live rows are removed.
+    // This keeps year-scoped active tables current-year-only and prevents FK
+    // cascades from losing attendance/points when old members are retired.
+    // Gallery photos are intentionally permanent public content. Restore any
+    // photos captured by an earlier archive version, then remove that obsolete
+    // copy from the annual payload.
+    await sql`INSERT INTO gallery_photos (id,photo,date,description)
+      SELECT photo.id,photo.photo,photo.date,photo.description
+      FROM yeararchive archive
+      CROSS JOIN LATERAL jsonb_to_recordset(COALESCE(archive.payload->'gallery','[]'::jsonb)) AS photo(id TEXT,photo TEXT,date TEXT,description TEXT)
+      ON CONFLICT (id) DO NOTHING`
+    await sql`UPDATE yeararchive SET payload=payload-'gallery' WHERE payload ? 'gallery'`
+    const previousYears = await sql`SELECT DISTINCT year FROM (
+      SELECT active_year AS year FROM members WHERE active_year <> ${activeYear}
+      UNION SELECT LEFT(date, 4) FROM attendance WHERE LEFT(date, 4) <> ${activeYear}
+      UNION SELECT LEFT(date, 4) FROM program_points WHERE LEFT(date, 4) <> ${activeYear}
+      UNION SELECT LEFT(date, 4) FROM weekly_programs WHERE LEFT(date, 4) <> ${activeYear}
+    ) years WHERE year ~ '^[0-9]{4}$' AND year < ${activeYear}`
+    for (const row of previousYears) {
+      const year = String(row.year)
+      const exists = await sql`SELECT 1 FROM yeararchive WHERE year=${year}`
+      if (exists[0]) continue
+      const [members, attendance, points, weekly] = await Promise.all([
+        sql`SELECT id,name,role,email,phone,address,gender,seniority,date_of_birth AS "dateOfBirth",focus,photo,photo_name AS "photoName",active_year AS "activeYear" FROM members WHERE active_year=${year}`,
+        sql`SELECT id,member_id AS "memberId",name,date,present,note FROM attendance WHERE LEFT(date,4)=${year}`,
+        sql`SELECT id,member_id AS "memberId",name,program,seniority,date,questions_answered AS "questionsAnswered",score FROM program_points WHERE LEFT(date,4)=${year}`,
+        sql`SELECT id,date,serial_no AS "serialNo",program_name AS "programName",member_id AS "memberId",member_name AS "memberName",archived_at AS "archivedAt" FROM weekly_programs WHERE LEFT(date,4)=${year}`,
+      ])
+      const payload = JSON.stringify({ year, members, attendance, points, weekly, certificates: { source: 'attendance-and-program-points' }, cakeCover: { year } })
+      await sql`INSERT INTO yeararchive (year,payload) VALUES (${year},${payload}::jsonb)`
+      await sql`DELETE FROM attendance WHERE LEFT(date,4)=${year}`
+      await sql`DELETE FROM program_points WHERE LEFT(date,4)=${year}`
+      await sql`DELETE FROM weekly_programs WHERE LEFT(date,4)=${year}`
+      await sql`DELETE FROM members WHERE active_year=${year}`
+    }
   })().catch((error) => {
     schemaPromise = undefined
     throw error
@@ -133,6 +170,9 @@ export async function ensureSchema() {
 }
 
 export async function ensureMemberGenderColumn() {
+  // Member reads are also a normal entry point, so they must trigger the
+  // same year-boundary rollover as every other database endpoint.
+  await ensureSchema()
   if (memberGenderPromise) return memberGenderPromise
   const sql = getSql()
   const activeYear = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', year: 'numeric' }).format(new Date())

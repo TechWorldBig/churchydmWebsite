@@ -55,6 +55,7 @@ export const createGalleryPhoto = (photo: GalleryPhoto) => request<{ ok: boolean
 export const updateGalleryPhoto = (photo: GalleryPhoto) => request<{ ok: boolean }>('/api/gallery', { method: 'PUT', body: JSON.stringify(photo) })
 export const deleteGalleryPhoto = (id: string) => request<{ ok: boolean }>('/api/gallery', { method: 'DELETE', body: JSON.stringify({ id }) })
 export const getWeeklyPrograms = (includeArchived = false) => request<WeeklyProgram[]>(`/api/weekly-programs${includeArchived ? '?includeArchived=1' : ''}`)
+export const getYearArchives = () => request<Array<{ year: string; payload: { members: Member[]; attendance: AttendanceRecord[]; points: ProgramPoint[]; weekly: WeeklyProgram[] } }>>('/api/year-archive')
 export const createWeeklyProgram = (item: WeeklyProgram) => request<{ ok: boolean; id?: string }>('/api/weekly-programs', { method: 'POST', body: JSON.stringify(item) })
 export const deleteWeeklyProgram = (id: string) => request<{ ok: boolean }>('/api/weekly-programs', { method: 'DELETE', body: JSON.stringify({ id }) })
 export const askChurchAssistant = (question: string, name: string, language: 'en' | 'ta' | 'ml', history: AssistantTurn[]) => request<{ answer: string }>('/api/assistant', {

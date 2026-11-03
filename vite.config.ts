@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 import assistantHandler from './api/assistant'
-const databaseApiPaths = new Set(['/api/members', '/api/attendance', '/api/gallery', '/api/updated', '/api/auth'])
+const databaseApiPaths = new Set(['/api/members', '/api/attendance', '/api/gallery', '/api/updated', '/api/auth', '/api/year-archive'])
 
 function blockLocalDatabaseApi(): Plugin {
   return {

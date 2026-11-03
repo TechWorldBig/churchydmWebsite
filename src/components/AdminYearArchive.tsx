@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Archive, CalendarDays, ClipboardList, Download, RefreshCw, Users } from 'lucide-react'
-import { getAttendance, getMembers, getProgramPoints } from '../data/api'
+import { getYearArchives } from '../data/api'
 import { downloadHtmlPdf } from '../data/pdf'
 import type { AttendanceRecord, Member, ProgramPoint } from '../data/memberStore'
 import { currentYearDateBounds } from '../data/dateBounds'
@@ -23,7 +23,10 @@ export default function AdminYearArchive() {
     setLoading(true)
     setError('')
     try {
-      const [savedAttendance, savedPoints, savedMembers] = await Promise.all([getAttendance({ allYears: true }), getProgramPoints({ allYears: true }), getMembers({ allYears: true })])
+      const archives = await getYearArchives()
+      const savedAttendance = archives.flatMap(item => item.payload.attendance || [])
+      const savedPoints = archives.flatMap(item => item.payload.points || [])
+      const savedMembers = archives.flatMap(item => item.payload.members || [])
       setAttendance(savedAttendance)
       setPoints(savedPoints)
       setMembers(savedMembers)
