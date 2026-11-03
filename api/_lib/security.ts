@@ -6,6 +6,7 @@ export const SESSION_SECONDS = 8 * 60 * 60
 const cookieName = () => process.env.NODE_ENV === 'production' ? '__Host-ydm-session' : 'ydm-session'
 export const digest = (value: string) => createHash('sha256').update(value).digest('hex')
 const canonicalUsername = (value: string) => value.trim().toLocaleLowerCase('en-US')
+const dummyPasswordHash = '$2b$12$IZna9cstU/wimGDatk8IM.c.zaJnIedsJ9Nfw.cbOGGF4vZBYXpuK'
 
 // Environment credentials only bootstrap the first Neon record. Neon stores a bcrypt hash, never the password.
 export const credentialsConfigured = () => Boolean(
@@ -54,7 +55,10 @@ export async function verifyAdminCredentials(username: string, password: string)
   const canonical = canonicalUsername(username)
   const rows = await getSql()`SELECT username, password_hash FROM admin_credentials WHERE username=${canonical}`
   const credential = rows[0]
-  if (!credential || !await bcrypt.compare(password, credential.password_hash)) return null
+  // Always perform the expensive comparison so an attacker cannot use response
+  // timing to discover whether an administrator username exists.
+  const validPassword = await bcrypt.compare(password, credential?.password_hash || dummyPasswordHash)
+  if (!credential || !validPassword) return null
   return { username: credential.username, credentialVersion: digest(credential.password_hash) }
 }
 
@@ -62,6 +66,7 @@ export async function createSession(username: string, credentialVersion: string)
   await ensureSecuritySchema()
   const sql = getSql()
   await sql`DELETE FROM admin_sessions WHERE expires_at <= NOW()`
+  await sql`DELETE FROM admin_sessions WHERE username=${username}`
   const token = randomBytes(32).toString('hex')
   const expiresAt = Date.now() + SESSION_SECONDS * 1000
   await sql`INSERT INTO admin_sessions (token_hash, username, credential_version, expires_at) VALUES (${digest(token)}, ${username}, ${credentialVersion}, ${new Date(expiresAt).toISOString()})`
@@ -100,14 +105,17 @@ export function sameOriginMutation(req: any): boolean {
   if (req.headers['sec-fetch-site'] === 'cross-site') return false
   try {
     const origin = new URL(String(req.headers.origin || ''))
-    return origin.host === req.headers.host && (origin.protocol === 'https:' || (process.env.NODE_ENV !== 'production' && origin.protocol === 'http:'))
+    const host = String(req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim().toLowerCase()
+    if (!host || origin.host.toLowerCase() !== host || origin.username || origin.password || origin.pathname !== '/' || origin.search || origin.hash) return false
+    return origin.protocol === 'https:' || (process.env.NODE_ENV !== 'production' && origin.protocol === 'http:')
   } catch { return false }
 }
 
 function clientIp(req: any): string {
+  const real = req.headers['x-real-ip']
   const forwarded = req.headers['x-forwarded-for']
   const value = Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(',')[0]
-  return String(value || req.headers['x-real-ip'] || req.socket?.remoteAddress || 'unknown').trim()
+  return String(real || value || req.socket?.remoteAddress || 'unknown').trim().slice(0, 128)
 }
 
 export async function authorizeMutation(req: any, res: any): Promise<boolean> {
