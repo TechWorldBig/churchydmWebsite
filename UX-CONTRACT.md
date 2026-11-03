@@ -44,6 +44,8 @@ Existing forms keep entered values on recoverable errors and show the current su
 
 Unknown URLs show a dedicated 404 state with actions to return home or navigate back. When the browser reports that the device is offline, a full-screen connection state replaces the site without changing the current URL. The current page reloads automatically when connectivity returns; a manual retry remains available when device network status is stale.
 
+Unexpected React rendering failures are caught above the router and replace the application with the shared full-page system error state. Ordinary failures use the 500 variant; errors explicitly carrying status 503 use the temporary-service variant. Both states hide internal error details, preserve keyboard access, and offer Try again and Go to home recovery actions.
+
 ## Annual theme builder
 
 The protected Yearly Report screen begins with an Annual Theme Builder. Admins can edit the year, bilingual theme, Scripture and annual message, review a bright dimensional preview with the YDM logo, and download either a single-page landscape A4 PDF or a single-slide editable PowerPoint without saving draft content to the database. The theme artwork does not include signature fields.
