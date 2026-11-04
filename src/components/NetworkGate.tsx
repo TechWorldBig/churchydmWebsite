@@ -38,8 +38,6 @@ export default function NetworkGate({ children }: { children: ReactNode }) {
   return (
     <main className="grid min-h-dvh place-items-center overflow-hidden bg-[#071f19] px-5 py-10 text-white">
       <section className="relative w-full max-w-xl text-center" aria-labelledby="offline-title" aria-live="polite">
-        <div className="pointer-events-none absolute inset-x-10 -top-16 h-64 rounded-full border border-[#e3bc62]/15" aria-hidden="true" />
-        <div className="pointer-events-none absolute inset-x-20 -top-8 h-48 rounded-full border border-[#e3bc62]/20" aria-hidden="true" />
         <div className="relative mx-auto grid h-24 w-24 place-items-center rounded-full border border-white/10 bg-white/5 shadow-2xl shadow-black/25">
           <img src={ydmLogo} alt="" aria-hidden="true" className="h-16 w-16 object-contain" />
           <span className="absolute -bottom-2 -right-2 grid h-10 w-10 place-items-center rounded-full bg-[#e3bc62] text-[#071f19] shadow-lg"><WifiOff size={20} aria-hidden="true" /></span>
