@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
-import { CalendarCheck, CalendarDays, Clock3, Search, TrendingUp, Users } from 'lucide-react'
+import { CalendarCheck, CalendarDays, Clock3, Search, TrendingUp, Users, X } from 'lucide-react'
 import PageHero from '../components/PageHero'
 import { AttendanceRecord, Member } from '../data/memberStore'
 import { getAttendance, getLastUpdated, getMembers } from '../data/api'
@@ -124,12 +124,15 @@ export default function Attendance() {
             <label className="field-label md:col-span-3">Member name
               <input value={memberSearch} onChange={event => { setMemberSearch(event.target.value); resetSearch() }} className="field member-name-field-3d" placeholder="Search by name" />
             </label>
-            <label className="field-label md:col-span-1">From date
-              <span className="calendar-control-3d"><input value={fromDate} min={yearBounds.min} max={yearBounds.max} onChange={event => { setFromDate(event.target.value); resetSearch() }} type="date" className="field" /><CalendarDays aria-hidden="true" size={17} /></span>
-            </label>
-            <label className="field-label md:col-span-1"><span className="date-label-heading">To date <small>(optional)</small></span>
-              <span className="calendar-control-3d"><input value={toDate} min={fromDate || yearBounds.min} max={yearBounds.max} onChange={event => { setToDate(event.target.value); resetSearch() }} type="date" className="field" /><CalendarDays aria-hidden="true" size={17} /></span>
-            </label>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:col-span-2">
+              <label className="field-label">From date
+                <span className="calendar-control-3d"><input aria-label="From date" value={fromDate} min={yearBounds.min} max={yearBounds.max} onChange={event => { setFromDate(event.target.value); resetSearch() }} type="date" className="field" /><CalendarDays aria-hidden="true" size={17} /></span>
+              </label>
+              <label className="field-label"><span className="date-label-heading">To date <small>(optional)</small></span>
+                <span className="calendar-control-3d"><input aria-label="To date" value={toDate} min={fromDate || yearBounds.min} max={yearBounds.max} onChange={event => { setToDate(event.target.value); resetSearch() }} type="date" className="field" /><CalendarDays aria-hidden="true" size={17} /></span>
+              </label>
+              {(fromDate || toDate) && <button type="button" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:border-emerald-600 hover:text-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 sm:col-span-2 md:justify-self-start" onClick={() => { setFromDate(''); setToDate(''); resetSearch() }}><X aria-hidden="true" size={16} /> Clear dates</button>}
+            </div>
             <button type="submit" className="dark-btn search-button-3d self-end md:col-span-1"><Search size={17} /> Search</button>
           </form>
           {searchNotice && <p role="alert" className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">{searchNotice}</p>}

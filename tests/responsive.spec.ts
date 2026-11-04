@@ -24,6 +24,14 @@ for (const path of ['/', '/members', '/gallery', '/programs', '/attendance', '/o
         }))).toBe(true)
       }
     }
+    if (path === '/attendance') {
+      const attendanceYear = new Date().getFullYear()
+      await page.getByLabel('From date').fill(`${attendanceYear}-01-04`)
+      await page.getByLabel('To date').fill(`${attendanceYear}-01-11`)
+      await page.getByRole('button', { name: 'Clear dates' }).click()
+      await expect(page.getByLabel('From date')).toHaveValue('')
+      await expect(page.getByLabel('To date')).toHaveValue('')
+    }
     await page.evaluate(async () => {
       for (let y = 0; y < document.body.scrollHeight; y += window.innerHeight) {
         window.scrollTo(0, y)
