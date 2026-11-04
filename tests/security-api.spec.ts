@@ -1,7 +1,6 @@
 import { neonConfig } from '@neondatabase/serverless'
 import bcrypt from 'bcryptjs'
 import { expect, test } from '@playwright/test'
-import adminDashboard from '../api/admin/dashboard'
 import auth from '../api/auth'
 import login from '../api/auth/login'
 import visitors from '../api/visitors'
@@ -67,14 +66,10 @@ test('rejects malformed cookies and compares secrets without length-dependent er
   expect(sameSecret('short', 'different-long-secret')).toBe(false)
 })
 
-test('unauthenticated session check and protected dashboard reveal no credentials', async () => {
+test('unauthenticated session check reveals no credentials', async () => {
   const session = request('GET')
   await auth(session.req, session.res)
   expect(session.result.body).toEqual({ authenticated: false, expiresAt: null })
-  const dashboard = request('GET')
-  await adminDashboard(dashboard.req, dashboard.res)
-  expect(dashboard.result.status).toBe(401)
-  expect(dashboard.result.body).toEqual({ error: 'Unauthorized' })
 })
 
 test('rejects cross-origin login and malformed JSON', async () => {

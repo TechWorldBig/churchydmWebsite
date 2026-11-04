@@ -1,9 +1,12 @@
 {
-  "rewrites": [
+  "redirects": [
     {
       "source": "/admin/dashboard",
-      "destination": "/api/admin/dashboard"
-    },
+      "destination": "/admin",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
     {
       "source": "/(.*)",
       "destination": "/index.html"
