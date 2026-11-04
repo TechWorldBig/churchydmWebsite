@@ -415,8 +415,8 @@ main > section + section .soft-card.overflow-hidden.p-0 > div.h-52 img { height:
   .weekly-program-section table th:first-child, .weekly-program-section table td:first-child { width: 16%; }
   .weekly-program-section table th:nth-child(2), .weekly-program-section table td:nth-child(2), .weekly-program-section table th:nth-child(3), .weekly-program-section table td:nth-child(3) { width: 42%; }
   .attendance-search-panel { transform: none; }
-  .attendance-page > .mx-auto > div:first-child { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .attendance-page > .mx-auto > div:first-child > article:last-child { grid-column: 1 / -1; }
+  .attendance-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .attendance-stats-grid > .attendance-updated-card { grid-column: 1 / -1; }
   .attendance-member-visual { gap: .85rem; min-height: 8rem; }
   .member-gif-figure { width: 6.25rem; height: 6.75rem; }
   .member-gif-figure img { height: 6.75rem; }

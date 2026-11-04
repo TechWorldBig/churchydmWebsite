@@ -103,8 +103,8 @@ export default function Attendance() {
     <section className="attendance-page py-10 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-5 lg:px-8">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-3"><div><p className="eyebrow">Attendance year</p><p className="mt-1 text-sm text-slate-500">Choose the current year or the immediately completed year.</p></div><label className="field-label w-full sm:w-52">Year<select aria-label="Attendance year" className="field mt-1" value={selectedYear} onChange={event => { setSelectedYear(event.target.value); setFromDate(''); setToDate(''); resetSearch() }}><option value={currentYear}>{currentYear} · Current year</option><option value={String(Number(currentYear) - 1)}>{Number(currentYear) - 1} · Archived year</option></select></label></div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          {stats.map(([label, value, Icon]) => <article key={label} className="soft-card p-4 sm:p-5">
+        <div className="attendance-stats-grid grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          {stats.map(([label, value, Icon]) => <article key={label} className={`soft-card p-4 sm:p-5${label === 'Attendance updated' ? ' attendance-updated-card' : ''}`}>
             <Icon className="text-emerald-700" size={22} />
             <p className="mt-4 break-words text-2xl font-black leading-tight xl:text-xl">{value}</p>
             <p className="mt-2 text-xs leading-5 text-slate-500">{label}</p>
@@ -112,7 +112,7 @@ export default function Attendance() {
         </div>
 
         <section className="mt-8 rounded-3xl border border-emerald-100 bg-white px-4 py-5 shadow-sm sm:px-6">
-          <div className="flex items-center justify-between gap-3 border-b border-slate-200 pb-4"><p className="text-sm font-black uppercase tracking-[.14em] text-slate-500">Monthly attendance</p><span className="text-sm font-bold text-slate-400">{year}</span></div>
+          <div className="flex items-center justify-between gap-3 border-b border-slate-200 pb-4"><p className="text-sm font-black uppercase tracking-[.14em] text-slate-500">Monthly attendance</p><span className="text-sm font-bold text-slate-600">{year}</span></div>
           <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-6 md:grid-cols-9 lg:grid-cols-12">{monthlyAttendance.map(({ label, percentage: monthPercentage }) => <div key={label} className="rounded-xl border border-emerald-100 bg-emerald-50 px-2 py-2 text-center"><p className="text-sm font-black text-emerald-800">{label}</p><p className="mt-1 text-base font-black text-emerald-700">{monthPercentage}%</p></div>)}</div>
         </section>
 
