@@ -98,6 +98,50 @@ export async function ensureSchema() {
     await sql`ALTER TABLE website_visitor_hours ADD COLUMN IF NOT EXISTS longitude TEXT NOT NULL DEFAULT ''`
     await sql`ALTER TABLE website_visitor_hours ADD COLUMN IF NOT EXISTS timezone TEXT NOT NULL DEFAULT ''`
     await sql`
+    CREATE TABLE IF NOT EXISTS website_visitors (
+      visitor_hash TEXT PRIMARY KEY,
+      ip_hash TEXT NOT NULL DEFAULT '',
+      country TEXT NOT NULL DEFAULT '',
+      region TEXT NOT NULL DEFAULT '',
+      city TEXT NOT NULL DEFAULT '',
+      latitude TEXT NOT NULL DEFAULT '',
+      longitude TEXT NOT NULL DEFAULT '',
+      timezone TEXT NOT NULL DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      last_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+    `
+    await sql`
+    CREATE TABLE IF NOT EXISTS website_visitor_activity (
+      hour_key TEXT NOT NULL,
+      visitor_hash TEXT NOT NULL,
+      ip_hash TEXT NOT NULL DEFAULT '',
+      device_type TEXT NOT NULL DEFAULT 'unknown',
+      country TEXT NOT NULL DEFAULT '',
+      region TEXT NOT NULL DEFAULT '',
+      city TEXT NOT NULL DEFAULT '',
+      latitude TEXT NOT NULL DEFAULT '',
+      longitude TEXT NOT NULL DEFAULT '',
+      timezone TEXT NOT NULL DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (hour_key, visitor_hash)
+    )
+    `
+    // Preserve pre-browser-ID analytics as transitional identities. The first
+    // browser seen from that IP claims the identity without increasing totals.
+    await sql`INSERT INTO website_visitors (visitor_hash, ip_hash, country, region, city, latitude, longitude, timezone, created_at, last_seen_at)
+      SELECT 'legacy-ip:' || ip_hash, ip_hash, country, region, city, latitude, longitude, timezone, created_at, created_at
+      FROM website_visitor_ips legacy
+      WHERE NOT EXISTS (SELECT 1 FROM website_visitors current WHERE current.ip_hash=legacy.ip_hash)
+      ON CONFLICT (visitor_hash) DO NOTHING`
+    await sql`INSERT INTO website_visitor_activity (hour_key, visitor_hash, ip_hash, device_type, country, region, city, latitude, longitude, timezone, created_at)
+      SELECT legacy.hour_key, 'legacy-ip:' || legacy.ip_hash, legacy.ip_hash, legacy.device_type, legacy.country, legacy.region, legacy.city, legacy.latitude, legacy.longitude, legacy.timezone, legacy.created_at
+      FROM website_visitor_hours legacy
+      WHERE EXISTS (SELECT 1 FROM website_visitors current WHERE current.visitor_hash='legacy-ip:' || legacy.ip_hash)
+      ON CONFLICT (hour_key, visitor_hash) DO NOTHING`
+    await sql`CREATE INDEX IF NOT EXISTS website_visitors_ip_hash_idx ON website_visitors (ip_hash)`
+    await sql`CREATE INDEX IF NOT EXISTS website_visitor_activity_created_idx ON website_visitor_activity (created_at DESC)`
+    await sql`
     CREATE TABLE IF NOT EXISTS gallery_photos (
       id TEXT PRIMARY KEY,
       photo TEXT NOT NULL,

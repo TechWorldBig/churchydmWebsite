@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { createMockState, installApiMocks } from './support/mockData'
 
-test('visitor analytics distinguishes new lifetime IPs from daily traffic', async ({ page }) => {
+test('visitor analytics distinguishes new anonymous browsers from daily traffic', async ({ page }) => {
   const state = createMockState()
   state.adminAuthenticated = true
   await installApiMocks(page, state)
@@ -21,13 +21,13 @@ test('visitor analytics distinguishes new lifetime IPs from daily traffic', asyn
   }))
 
   await page.goto('/admin')
-  const section = page.getByRole('heading', { name: 'Website visitors' }).locator('..').locator('..').locator('..')
+  const section = page.getByRole('heading', { name: 'Website visitors' }).locator('xpath=ancestor::section[1]')
   await expect(page.getByRole('heading', { name: 'Website visitors' })).toBeVisible()
   await expect(section.getByText('New unique visitors')).toBeVisible()
-  await expect(section.getByText('First-seen IPs on')).toBeVisible()
+  await expect(section.getByText('First-seen browsers on')).toBeVisible()
   await expect(section.getByText('Daily traffic')).toBeVisible()
-  await expect(section.getByText('2 new unique + 5 returning unique IPs = 7 people')).toBeVisible()
-  await expect(section.getByText('197', { exact: true })).toBeVisible()
-  await expect(section.getByText('2', { exact: true })).toBeVisible()
-  await expect(section.getByText('7', { exact: true })).toBeVisible()
+  await expect(section.getByText('2 new + 5 returning anonymous browsers = 7 estimated visitors')).toBeVisible()
+  await expect(section.getByText('Total unique visitors').locator('..').getByText('197', { exact: true })).toBeVisible()
+  await expect(section.getByText('New unique visitors').locator('..').getByText('2', { exact: true })).toBeVisible()
+  await expect(section.getByText('Daily traffic').locator('..').getByText('7', { exact: true })).toBeVisible()
 })

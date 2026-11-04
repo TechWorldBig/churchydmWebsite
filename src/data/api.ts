@@ -41,7 +41,22 @@ export const updateProgramPoint = (point: ProgramPoint) => request<{ ok: boolean
 export const deleteProgramPoint = (id: string) => request<{ ok: boolean }>('/api/program-points', { method: 'DELETE', body: JSON.stringify({ id }) })
 export const getLastUpdated = () => request<{ value: string | null; version: string }>('/api/updated')
 export const getVisitorTotal = () => request<{ total: number }>('/api/visitors')
-export const recordVisitor = () => request<{ total: number }>('/api/visitors', { method: 'POST' })
+const VISITOR_ID_KEY = 'ydm-anonymous-visitor-id-v1'
+
+const anonymousVisitorId = () => {
+  let visitorId: string = crypto.randomUUID()
+  try {
+    const stored = window.localStorage.getItem(VISITOR_ID_KEY)
+    if (stored && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu.test(stored)) visitorId = stored
+    else window.localStorage.setItem(VISITOR_ID_KEY, visitorId)
+  } catch {
+    // Storage can be unavailable in hardened/private browser contexts. The
+    // in-memory ID still lets the request complete without fingerprinting.
+  }
+  return visitorId
+}
+
+export const recordVisitor = () => request<{ ok: boolean }>('/api/visitors', { method: 'POST', body: JSON.stringify({ visitorId: anonymousVisitorId() }) })
 export const getVisitorStats = (date?: string) => request<{ date: string; hours: Array<{ hour: number; count: number; devices: Record<string, number> }>; devices: Array<{ device: string; count: number }>; locations: VisitorLocation[]; dailyNew: number; dailyReturning: number; dailyTraffic: number; total: number }>(`/api/visitors${date ? `?date=${encodeURIComponent(date)}` : ''}`)
 export const getAuditLogs = () => request<AuditLog[]>('/api/audit-logs')
 export const createMember = (member: Member) => request<{ ok: boolean }>('/api/members', { method: 'POST', body: JSON.stringify(member) })
