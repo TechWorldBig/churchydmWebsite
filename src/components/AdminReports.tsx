@@ -17,7 +17,7 @@ const shell = (title: string, body: string) => `<html><head><meta charset="utf-8
 const groupLabel = (seniority: string, absent: number) => `${seniority} members · ${absent === 0 ? 'Present every day' : `${absent} day${absent === 1 ? '' : 's'} absent`}`
 
 type AttendanceSummary = { member: Member; seniority: string; absent: number; percentage: number }
-const attendanceReport = (members: Member[], records: AttendanceRecord[]) => {
+export const attendanceReport = (members: Member[], records: AttendanceRecord[]) => {
   const dailyAttendance = new Map<string, AttendanceRecord>()
   records.forEach(record => {
     const key = `${record.memberId || record.name}-${record.date}`
@@ -60,7 +60,12 @@ function ReportCard({ title, description, format, setFormat, download, message }
 export default function AdminReports() {
   const [members, setMembers] = useState<Member[]>([]); const [records, setRecords] = useState<AttendanceRecord[]>([]); const [points, setPoints] = useState<ProgramPoint[]>([])
   const [attendanceFormat, setAttendanceFormat] = useState('pdf'); const [programFormat, setProgramFormat] = useState('pdf'); const [attendanceMessage, setAttendanceMessage] = useState(''); const [programMessage, setProgramMessage] = useState('')
-  useEffect(() => { void Promise.all([getMembers(), getAttendance(), getProgramPoints()]).then(([savedMembers, savedRecords, savedPoints]) => { setMembers(savedMembers); setRecords(savedRecords); setPoints(savedPoints) }).catch(() => { setAttendanceMessage('Could not load saved attendance data.'); setProgramMessage('Could not load saved program points.') }) }, [])
+  useEffect(() => {
+    const load = () => { void Promise.all([getMembers(), getAttendance(), getProgramPoints()]).then(([savedMembers, savedRecords, savedPoints]) => { setMembers(savedMembers); setRecords(savedRecords); setPoints(savedPoints) }).catch(() => { setAttendanceMessage('Could not load saved attendance data.'); setProgramMessage('Could not load saved program points.') }) }
+    load()
+    window.addEventListener('ydm-member-updated', load)
+    return () => window.removeEventListener('ydm-member-updated', load)
+  }, [])
   const attendanceCount = useMemo(() => attendanceReport(members, records).match(/<tr><td>/g)?.length || 0, [members, records])
   const downloadAttendance = () => printOrWord(finalizeReportLayout(fixSignatureFooter(addGeneratedOn(attendanceReport(members, records)))), attendanceFormat, 'jsc-ydm-attendance-report', setAttendanceMessage)
   const downloadPrograms = () => printOrWord(finalizeReportLayout(fixSignatureFooter(addGeneratedOn(programReport(points)))), programFormat, 'jsc-ydm-program-points-report', setProgramMessage)

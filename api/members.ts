@@ -6,6 +6,27 @@ import { writeAuditLog } from './_lib/audit.js'
 const indiaYear = () => new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', year: 'numeric' }).format(new Date())
 const validYear = (value: unknown) => typeof value === 'string' && /^\d{4}$/u.test(value)
 const isPublicAttendanceYear = (year: string, currentYear: string) => year === String(Number(currentYear) - 1)
+const normalizedName = (value: unknown) => typeof value === 'string' ? value.trim().toLocaleLowerCase('en-US') : ''
+
+export const renameArchivePayload = (payload: any, memberId: string, oldName: string, newName: string, seniority: string) => {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return { payload, changed: false }
+  let changed = false
+  const belongsToMember = (item: any, nameKey = 'name') => item && typeof item === 'object'
+    && (item.memberId === memberId || item.id === memberId || normalizedName(item[nameKey]) === oldName)
+  const rename = (items: unknown, nameKey = 'name', includeSeniority = false) => Array.isArray(items) ? items.map(item => {
+    if (!belongsToMember(item, nameKey)) return item
+    changed = true
+    return { ...item, [nameKey]: newName, ...(includeSeniority ? { seniority } : {}) }
+  }) : items
+  const renamedPayload = {
+    ...payload,
+    members: rename(payload.members, 'name', true),
+    attendance: rename(payload.attendance),
+    points: rename(payload.points, 'name', true),
+    weekly: rename(payload.weekly, 'memberName'),
+  }
+  return { changed, payload: renamedPayload }
+}
 
 export default async function handler(req: any, res: any) {
   res.setHeader?.('Cache-Control', 'no-store, no-cache, must-revalidate')
@@ -38,18 +59,20 @@ export default async function handler(req: any, res: any) {
       await sql`INSERT INTO members (id, name, role, email, phone, address, gender, seniority, date_of_birth, focus, photo, photo_name, active_year) VALUES (${body.id}, ${body.name}, ${body.role || 'YDM Member'}, ${body.email || ''}, ${body.phone || ''}, ${body.address || ''}, ${body.gender || ''}, ${body.seniority || ''}, ${body.dateOfBirth || ''}, ${body.focus || ''}, ${body.photo || ''}, ${generatedPhotoName}, ${indiaYear()})`
       await writeAuditLog(req, { action: 'create', entity: 'member', entityId: body.id, summary: body.name })
     } else if (req.method === 'PUT') {
-      // Related rows keep a readable name copy. Synchronize every current-year
-      // copy in the same database statement when the member profile changes.
-      await sql`WITH updated_member AS (
-        UPDATE members SET name=${body.name}, role=${body.role || 'YDM Member'}, email=${body.email || ''}, phone=${body.phone || ''}, address=${body.address || ''}, gender=${body.gender || ''}, seniority=${body.seniority || ''}, date_of_birth=${body.dateOfBirth || ''}, focus=${body.focus || ''}, photo=${body.photo || ''}, photo_name=${generatedPhotoName}
-        WHERE id=${body.id} AND active_year=${indiaYear()}
-        RETURNING id, name, seniority
-      ), updated_attendance AS (
-        UPDATE attendance SET name=updated_member.name FROM updated_member WHERE attendance.member_id=updated_member.id RETURNING attendance.id
-      ), updated_points AS (
-        UPDATE program_points SET name=updated_member.name, seniority=updated_member.seniority FROM updated_member WHERE program_points.member_id=updated_member.id RETURNING program_points.id
-      )
-      UPDATE weekly_programs SET member_name=updated_member.name FROM updated_member WHERE weekly_programs.member_id=updated_member.id`
+      const existing = await sql`SELECT name FROM members WHERE id=${body.id} AND active_year=${indiaYear()} LIMIT 1`
+      if (!existing[0]) return res.status(404).json({ error: 'Member was not found.' })
+      const oldName = normalizedName(existing[0].name)
+      await sql`UPDATE members SET name=${body.name}, role=${body.role || 'YDM Member'}, email=${body.email || ''}, phone=${body.phone || ''}, address=${body.address || ''}, gender=${body.gender || ''}, seniority=${body.seniority || ''}, date_of_birth=${body.dateOfBirth || ''}, focus=${body.focus || ''}, photo=${body.photo || ''}, photo_name=${generatedPhotoName} WHERE id=${body.id} AND active_year=${indiaYear()}`
+      // Member IDs are authoritative. The old-name fallback repairs historical
+      // rows created before IDs were synchronized across every feature.
+      await sql`UPDATE attendance SET name=${body.name} WHERE member_id=${body.id} OR LOWER(TRIM(name))=${oldName}`
+      await sql`UPDATE program_points SET name=${body.name}, seniority=${body.seniority || ''} WHERE member_id=${body.id} OR LOWER(TRIM(name))=${oldName}`
+      await sql`UPDATE weekly_programs SET member_name=${body.name} WHERE member_id=${body.id} OR LOWER(TRIM(member_name))=${oldName}`
+      const archives = await sql`SELECT year, payload FROM yeararchive`
+      for (const archive of archives) {
+        const renamed = renameArchivePayload(archive.payload, body.id, oldName, body.name, body.seniority || '')
+        if (renamed.changed) await sql`UPDATE yeararchive SET payload=${JSON.stringify(renamed.payload)}::jsonb WHERE year=${archive.year}`
+      }
       await writeAuditLog(req, { action: 'update', entity: 'member', entityId: body.id, summary: body.name })
     } else if (req.method === 'DELETE') {
       await sql`DELETE FROM members WHERE id=${body.id} AND active_year=${indiaYear()}`
