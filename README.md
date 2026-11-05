@@ -80,6 +80,8 @@ npx playwright install chromium webkit
 npm test
 ```
 
+Gallery images are uploaded by the authenticated API to the connected Vercel Blob store. Configure `BLOB_READ_WRITE_TOKEN` through the Vercel Storage project connection; never expose it with a `VITE_` prefix. Neon stores only the returned Blob URL and gallery metadata. Existing base64 gallery rows migrate to Blob automatically after deployment, and deleting or replacing a gallery image removes its previous Blob object.
+
 The build type-checks frontend and API code and scans client artifacts for secrets. The test suite covers API refusal rules, authorization and CSRF rejection, session handling, input validation, chat, admin forms, gallery and attendance. Responsive tests visit every page at 320, 390, 768, 844 (landscape), 1366 and 1440 CSS-pixel widths, plus iPhone WebKit. They check page/control overflow, chat bounds, keyboard navigation and automated axe WCAG A/AA rules, and save screenshots under `test-results/`. View `playwright-report/index.html` after a run. Automated checks are not a full WCAG certification or physical-device test.
 
 GitHub Actions runs the build, dependency audit and browser suite on main pushes and pull requests, using immutable action revisions and read-only repository permissions. Credentials and local reports are excluded from Git.
