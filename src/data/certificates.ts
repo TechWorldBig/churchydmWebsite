@@ -23,7 +23,7 @@ export function getCertificateAwards(members: Member[], records: AttendanceRecor
     return [{
       id: `attendance-${year}-${member.id}`, member, kind: 'attendance' as const,
       title: 'Perfect attendance', year,
-      reason: `In recognition of 100% attendance at every recorded YDM meeting in ${year}.`,
+      reason: `With gratitude for your faithful presence at every YDM gathering throughout ${year}.`,
       detail: `${meetingDates.length} of ${meetingDates.length} meeting${meetingDates.length === 1 ? '' : 's'} attended`,
     }]
   })
@@ -54,7 +54,7 @@ export function getCertificateAwards(members: Member[], records: AttendanceRecor
       programAwards.push({
         id: `program-${year}-${program}-${level}-${memberId}`, member, kind: 'program',
         title: `${place} · ${program}`, year,
-        reason: `In recognition of ${place.toLowerCase()} in ${program} (${level}) for ${year}.`,
+        reason: `Celebrating your dedication to God's Word and your ${place.toLowerCase()} achievement in ${program} for ${level} in ${year}.`,
         detail: `${score} point${score === 1 ? '' : 's'} · ${level}`,
       })
     }
@@ -65,7 +65,7 @@ export function getCertificateAwards(members: Member[], records: AttendanceRecor
     return [{
       id: `appreciation-${year}-${member.id}`, member, kind: 'appreciation' as const,
       title: `Leadership & service appreciation · ${member.role}`, year,
-      reason: `In appreciation of your faithful leadership and service in making ${year} wonderful for JSC YDM.`,
+      reason: `With heartfelt thanks for the prayer, leadership and willing service you gave to JSC YDM throughout ${year}.`,
       detail: `Recognized role · ${member.role}`,
     }]
   }).sort((a, b) => a.member.name.localeCompare(b.member.name))
@@ -87,8 +87,8 @@ export function getCertificateAwards(members: Member[], records: AttendanceRecor
     return [{
       id: `overall-${year}-${member.seniority}-${member.id}`, member, kind: 'overall' as const,
       title: 'Overall champion award', year,
-      reason: `In recognition of 100% attendance and first place in Bible Quiz, Bible Reference and Song Survey for ${year}.`,
-      detail: `${member.seniority} · Perfect attendance · Three first-place program awards`,
+      reason: `Honouring your faithful presence and outstanding first-place achievements in Bible Quiz, Bible Reference and Song Survey throughout ${year}.`,
+      detail: `${member.seniority} · Faithful at every meeting · First place in all three programs`,
     }]
   }).sort((a, b) => a.member.name.localeCompare(b.member.name))
   return [...attendance.sort((a, b) => a.member.name.localeCompare(b.member.name)), ...programAwards, ...appreciationAwards, ...overallAwards]
