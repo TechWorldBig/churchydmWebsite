@@ -72,7 +72,7 @@ export default function AdminYearArchive() {
 
   return <section className="mt-6 rounded-3xl border border-emerald-100 bg-white p-5 shadow-[0_18px_45px_rgba(7,31,25,.08)] sm:p-7">
     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-      <div className="flex items-center gap-3"><span className="icon-box"><Archive size={20} /></span><div><p className="eyebrow">Protected history</p><h2 className="text-xl font-black text-slate-900">Year archive</h2><p className="mt-1 max-w-2xl text-sm text-slate-500">Completed years are kept here for review. Active attendance and program points automatically start fresh each India-calendar year; archive records are read-only.</p></div></div>
+      <div className="flex items-center gap-3"><span className="icon-box"><Archive size={20} /></span><div><p className="eyebrow">Protected history</p><h2 className="text-xl font-black text-slate-900">Year archive</h2><p className="mt-1 max-w-2xl text-sm text-slate-500">Each completed year remains here as a lasting record of the ministry&apos;s journey. A new attendance and program-points record begins every January in India time, while earlier years stay safely preserved and cannot be changed.</p></div></div>
       <button type="button" onClick={() => void load()} className="secondary-dark-btn shrink-0" disabled={loading}><RefreshCw size={16} className={loading ? 'animate-spin' : ''} /> Refresh</button>
     </div>
     {error && <p role="alert" className="mt-5 rounded-xl bg-rose-50 p-3 text-sm font-semibold text-rose-700">{error}</p>}
