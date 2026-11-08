@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
-import { CalendarCheck, CalendarDays, Clock3, Search, TrendingUp, Users, X } from 'lucide-react'
+import { CalendarCheck, CalendarDays, Search, X } from 'lucide-react'
 import PageHero from '../components/PageHero'
 import { AttendanceRecord, Member } from '../data/memberStore'
 import { getAttendance, getLastUpdated, getMembers } from '../data/api'
@@ -10,6 +10,11 @@ import memberMaleGif from '../assets/member-male-web.png'
 import memberFemaleGif from '../assets/member-female-web.png'
 import noRecordMale from '../assets/no-record-male.png'
 import noRecordFemale from '../assets/no-record-female.png'
+import activeMembersArt from '../assets/attendance-active-members.png'
+import calendarMonthArt from '../assets/attendance-calendar-month.png'
+import calendarYearArt from '../assets/attendance-calendar-year.png'
+import yearlyChartArt from '../assets/attendance-yearly-chart.png'
+import timeUpdatedArt from '../assets/attendance-time-updated.png'
 
 const formatDate = (value: string) => new Date(`${value}T00:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
 const formatDateTime = (value: string) => new Date(value).toLocaleString(undefined, { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' })
@@ -52,12 +57,12 @@ export default function Attendance() {
     const monthItems = records.filter(record => activeMemberIds.has(record.memberId) && record.date.startsWith(monthValue))
     return { label, percentage: percentage(monthItems) }
   })
-  const stats: Array<[string, string, typeof Users]> = [
-    [selectedYear === currentYear ? 'Active members' : 'Archived members', String(members.length), Users],
-    ['Meetings this month', String(new Set(monthRecords.map(record => record.date)).size), CalendarCheck],
-    ['Meetings this year', String(new Set(yearRecords.map(record => record.date)).size), CalendarCheck],
-    ['Yearly attendance', `${percentage(yearRecords)}%`, TrendingUp],
-    ['Attendance updated', lastUpdatedValue ? formatDateTime(lastUpdatedValue) : 'Not updated yet', Clock3],
+  const stats: Array<[string, string, string]> = [
+    [selectedYear === currentYear ? 'Active members' : 'Archived members', String(members.length), activeMembersArt],
+    ['Meetings this month', String(new Set(monthRecords.map(record => record.date)).size), calendarMonthArt],
+    ['Meetings this year', String(new Set(yearRecords.map(record => record.date)).size), calendarYearArt],
+    ['Yearly attendance', `${percentage(yearRecords)}%`, yearlyChartArt],
+    ['Attendance updated', lastUpdatedValue ? formatDateTime(lastUpdatedValue) : 'Not updated yet', timeUpdatedArt],
   ]
 
   const searchedMembers = useMemo(() => {
@@ -99,9 +104,9 @@ export default function Attendance() {
     <section className="attendance-page py-10 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-5 lg:px-8">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-3"><div><p className="eyebrow">Attendance year</p><p className="mt-1 text-sm text-slate-500">Choose the current year or the immediately completed year.</p></div><label className="field-label w-full sm:w-52">Year<select aria-label="Attendance year" className="field mt-1" value={selectedYear} onChange={event => { setSelectedYear(event.target.value); setFromDate(''); setToDate(''); resetSearch() }}><option value={currentYear}>{currentYear} · Current year</option><option value={String(Number(currentYear) - 1)}>{Number(currentYear) - 1} · Archived year</option></select></label></div>
-        <div className="attendance-stats-grid grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          {stats.map(([label, value, Icon]) => <article key={label} className={`soft-card p-4 sm:p-5${label === 'Attendance updated' ? ' attendance-updated-card' : ''}`}>
-            <Icon className="text-emerald-700" size={22} />
+        <div className="attendance-stats-grid grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          {stats.map(([label, value, artwork]) => <article key={label} className={`soft-card attendance-stat-card p-4 sm:p-5${label === 'Attendance updated' ? ' attendance-updated-card' : ''}`}>
+            <img src={artwork} width="400" height="400" alt="" aria-hidden="true" className="attendance-stat-art" />
             <p className="mt-4 break-words text-2xl font-black leading-tight xl:text-xl">{value}</p>
             <p className="mt-2 text-xs leading-5 text-slate-500">{label}</p>
           </article>)}
