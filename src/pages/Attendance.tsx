@@ -117,7 +117,7 @@ export default function Attendance() {
           <div className="flex items-center justify-between gap-3 border-b border-slate-200 pb-4"><p className="text-sm font-black uppercase tracking-[.14em] text-slate-500">Monthly attendance</p><span className="text-sm font-bold text-slate-600">{year}</span></div>
           <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-6 md:grid-cols-9 lg:grid-cols-12">
             {monthlyAttendance.map(({ label, percentage: monthPercentage }) => {
-              const isOnTrack = monthPercentage >= 65
+              const isOnTrack = monthPercentage >= 60
               return (
                 <div
                   key={label}
@@ -130,8 +130,8 @@ export default function Attendance() {
             })}
           </div>
           <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs font-semibold text-slate-600" aria-label="Monthly attendance color guide">
-            <span className="inline-flex items-center gap-1.5"><span aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-emerald-500" />65% and above: On track</span>
-            <span className="inline-flex items-center gap-1.5"><span aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-rose-300" />Below 65%: Needs encouragement</span>
+            <span className="inline-flex items-center gap-1.5"><span aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-emerald-500" />60% and above: On track</span>
+            <span className="inline-flex items-center gap-1.5"><span aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-rose-300" />Below 60%: Needs encouragement</span>
           </div>
         </section>
 
