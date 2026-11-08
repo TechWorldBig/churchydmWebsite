@@ -14,8 +14,8 @@ import missionaryStoryWebp from '../assets/missionary-story.webp'
 import musicGif from '../assets/music.gif'
 import bibleQuizPng from '../assets/bible-quiz.png'
 import bibleMessageGif from '../assets/bible-message-transparent.png'
-import memberMaleGif from '../assets/member-male-web.png'
-import memberFemaleGif from '../assets/member-female-web.png'
+import memberMaleGif from '../assets/member-male.gif'
+import memberFemaleGif from '../assets/member-female.gif'
 
 const scoreStyle = (score: number) => ({ background: `conic-gradient(#0b9f72 ${(score / 5) * 100}%, #e5484d 0)` })
 
