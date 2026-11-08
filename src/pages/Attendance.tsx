@@ -21,6 +21,7 @@ const formatDateTime = (value: string) => new Date(value).toLocaleString(undefin
 const memberInitials = (name: string) => name.split(/\s+/u).filter(Boolean).slice(0, 2).map(part => part[0]).join('').toUpperCase()
 const memberGender = (gender = ''): 'female' | 'male' => gender.trim().toLocaleLowerCase() === 'female' ? 'female' : 'male'
 const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const preventImageSave = (event: { preventDefault: () => void }) => event.preventDefault()
 
 export default function Attendance() {
   const currentYear = currentYearDateBounds().min.slice(0, 4)
@@ -106,7 +107,7 @@ export default function Attendance() {
         <div className="mb-6 flex flex-wrap items-end justify-between gap-3"><div><p className="eyebrow">Attendance year</p><p className="mt-1 text-sm text-slate-500">Choose the current year or the immediately completed year.</p></div><label className="field-label w-full sm:w-52">Year<select aria-label="Attendance year" className="field mt-1" value={selectedYear} onChange={event => { setSelectedYear(event.target.value); setFromDate(''); setToDate(''); resetSearch() }}><option value={currentYear}>{currentYear} · Current year</option><option value={String(Number(currentYear) - 1)}>{Number(currentYear) - 1} · Archived year</option></select></label></div>
         <div className="attendance-stats-grid grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {stats.map(([label, value, artwork]) => <article key={label} className={`soft-card attendance-stat-card p-4 sm:p-5${label === 'Attendance updated' ? ' attendance-updated-card' : ''}`}>
-            <img src={artwork} width="400" height="400" alt="" aria-hidden="true" className="attendance-stat-art" />
+            <img src={artwork} width="400" height="400" alt="" aria-hidden="true" draggable={false} onContextMenu={preventImageSave} onDragStart={preventImageSave} className="attendance-stat-art" />
             <p className="mt-4 break-words text-2xl font-black leading-tight xl:text-xl">{value}</p>
             <p className="mt-2 text-xs leading-5 text-slate-500">{label}</p>
           </article>)}
