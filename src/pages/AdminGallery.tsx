@@ -15,6 +15,7 @@ export default function AdminGallery() {
   const [photo, setPhoto] = useState(emptyPhoto)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [message, setMessage] = useState('')
+  const [optimizing, setOptimizing] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -29,14 +30,49 @@ export default function AdminGallery() {
     if (inputRef.current) inputRef.current.value = ''
   }
 
-  const upload = (event: ChangeEvent<HTMLInputElement>) => {
+  const upload = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
     if (file.size > 2_000_000 || !['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type)) { setMessage('Choose a JPG, PNG, WebP or GIF image under 2 MB.'); return }
 
-    const reader = new FileReader()
-    reader.onload = () => setPhoto(current => ({ ...current, photo: String(reader.result) }))
-    reader.readAsDataURL(file)
+    setOptimizing(true)
+    setMessage('')
+    try {
+      const source = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(String(reader.result))
+        reader.onerror = () => reject(reader.error)
+        reader.readAsDataURL(file)
+      })
+
+      // Keep animated GIFs intact. Photos are resized before upload so gallery
+      // cards do not make visitors download multi-megabyte camera originals.
+      if (file.type === 'image/gif') {
+        setPhoto(current => ({ ...current, photo: source }))
+      } else {
+        const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+          const element = new Image()
+          element.onload = () => resolve(element)
+          element.onerror = () => reject(new Error('The image could not be read.'))
+          element.src = source
+        })
+        const maxDimension = 1600
+        const scale = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight))
+        const canvas = document.createElement('canvas')
+        canvas.width = Math.max(1, Math.round(image.naturalWidth * scale))
+        canvas.height = Math.max(1, Math.round(image.naturalHeight * scale))
+        const context = canvas.getContext('2d')
+        if (!context) throw new Error('Image optimization is unavailable.')
+        context.drawImage(image, 0, 0, canvas.width, canvas.height)
+        const optimized = canvas.toDataURL('image/webp', .8)
+        setPhoto(current => ({ ...current, photo: optimized.length < source.length ? optimized : source }))
+      }
+    } catch {
+      setMessage('Could not prepare that photo. Choose another image and try again.')
+      if (inputRef.current) inputRef.current.value = ''
+    } finally {
+      setOptimizing(false)
+    }
   }
 
   const save = async () => {
@@ -93,7 +129,7 @@ export default function AdminGallery() {
           <div className="grid gap-3">
             <label className="field-label">
               Photo
-              <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={upload} className="field file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-50 file:px-3 file:py-2 file:font-bold file:text-emerald-700" />
+              <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={event => void upload(event)} className="field file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-50 file:px-3 file:py-2 file:font-bold file:text-emerald-700" />
             </label>
             {photo.photo && <img src={photo.photo} alt="Selected event" className="h-36 w-full rounded-xl object-cover" />}
             <label className="field-label">
@@ -105,7 +141,7 @@ export default function AdminGallery() {
               <textarea value={photo.description} onChange={event => setPhoto(current => ({ ...current, description: event.target.value }))} className="field min-h-20 resize-none" placeholder="Describe the event or ministry moment" />
             </label>
             <div className="flex gap-2">
-              <button onClick={() => void save()} className="primary-btn flex-1 justify-center"><ImagePlus size={16} /> {editingId ? 'Save changes' : 'Upload photo'}</button>
+              <button onClick={() => void save()} disabled={optimizing} className="primary-btn flex-1 justify-center disabled:cursor-wait disabled:opacity-60"><ImagePlus size={16} /> {optimizing ? 'Preparing photo…' : editingId ? 'Save changes' : 'Upload photo'}</button>
               {editingId && <button onClick={resetForm} className="secondary-dark-btn">Cancel</button>}
             </div>
             {message && <p className="text-sm text-emerald-700">{message}</p>}

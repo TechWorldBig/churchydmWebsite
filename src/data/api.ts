@@ -65,7 +65,7 @@ export const deleteMember = (id: string) => request<{ ok: boolean }>('/api/membe
 export const createAttendance = (record: AttendanceRecord) => request<{ ok: boolean }>('/api/attendance', { method: 'POST', body: JSON.stringify(record) })
 export const updateAttendance = (record: AttendanceRecord) => request<{ ok: boolean }>('/api/attendance', { method: 'PUT', body: JSON.stringify(record) })
 export const deleteAttendance = (id: string) => request<{ ok: boolean }>('/api/attendance', { method: 'DELETE', body: JSON.stringify({ id }) })
-export const getGallery = () => request<GalleryPhoto[]>('/api/gallery')
+export const getGallery = () => request<GalleryPhoto[]>('/api/gallery', { cache: 'default' })
 export const createGalleryPhoto = (photo: GalleryPhoto) => request<{ ok: boolean }>('/api/gallery', { method: 'POST', body: JSON.stringify(photo) })
 export const updateGalleryPhoto = (photo: GalleryPhoto) => request<{ ok: boolean }>('/api/gallery', { method: 'PUT', body: JSON.stringify(photo) })
 export const deleteGalleryPhoto = (id: string) => request<{ ok: boolean }>('/api/gallery', { method: 'DELETE', body: JSON.stringify({ id }) })
