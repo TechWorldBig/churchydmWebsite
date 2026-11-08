@@ -1,13 +1,11 @@
-import { createSession, credentialsConfigured, sameOriginMutation, sessionCookie, sharedRateLimited, verifyAdminCredentials } from '../_lib/security.js'
-
-const clientIp = (req: any) => String(req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || req.socket?.remoteAddress || 'unknown').split(',')[0].trim()
+import { clientIp, createSession, credentialsConfigured, isJsonContentType, sameOriginMutation, sessionCookie, sharedRateLimited, verifyAdminCredentials } from '../_lib/security.js'
 
 export default async function handler(req: any, res: any) {
   res.setHeader('Cache-Control', 'no-store')
   try {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
     if (!sameOriginMutation(req)) return res.status(403).json({ error: 'Request not allowed.' })
-    if (!String(req.headers['content-type'] || '').toLowerCase().startsWith('application/json')) return res.status(415).json({ error: 'JSON content type is required.' })
+    if (!isJsonContentType(req.headers['content-type'])) return res.status(415).json({ error: 'JSON content type is required.' })
 
     const raw = typeof req.body === 'string' ? req.body : JSON.stringify(req.body ?? null)
     if (Buffer.byteLength(raw) > 4096) return res.status(413).json({ error: 'Request too large.' })

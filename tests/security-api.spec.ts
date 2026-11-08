@@ -7,7 +7,7 @@ import visitors from '../api/visitors'
 import members from '../api/members'
 import attendance from '../api/attendance'
 import gallery from '../api/gallery'
-import { endpointRateLimited, sameSecret, sessionCookie, sessionToken } from '../api/_lib/security'
+import { clientIp, endpointRateLimited, isJsonContentType, sameOriginMutation, sameSecret, sessionCookie, sessionToken } from '../api/_lib/security'
 import { readMutation } from '../api/_lib/validation'
 
 function request(method = 'POST', body: unknown = {}) {
@@ -50,12 +50,23 @@ test('admin cookie is HttpOnly, Secure, host-scoped and SameSite in production',
     expect(cookie).toContain('HttpOnly')
     expect(cookie).toContain('Secure')
     expect(cookie).toContain('SameSite=Strict')
+    expect(cookie).toContain('Priority=High')
     expect(cookie).not.toContain('Domain=')
     expect(sessionCookie('', 0)).toContain('Max-Age=0')
   } finally {
     if (previous === undefined) delete process.env.NODE_ENV
     else process.env.NODE_ENV = previous
   }
+})
+
+test('security boundaries reject spoofed hosts and JSON lookalike media types', () => {
+  expect(sameOriginMutation({ headers: { origin: 'https://evil.example', host: 'ydm.example', 'x-forwarded-host': 'evil.example' } })).toBe(false)
+  expect(sameOriginMutation({ headers: { origin: 'https://ydm.example', host: 'ydm.example', 'x-forwarded-host': 'evil.example' } })).toBe(true)
+  expect(isJsonContentType('application/json')).toBe(true)
+  expect(isJsonContentType('application/json; charset=UTF-8')).toBe(true)
+  expect(isJsonContentType('application/jsonp')).toBe(false)
+  expect(isJsonContentType('application/json; charset=iso-8859-1')).toBe(false)
+  expect(clientIp({ headers: { 'x-real-ip': '203.0.113.10', 'x-forwarded-for': '198.51.100.5' } })).toBe('203.0.113.10')
 })
 
 test('rejects malformed cookies and compares secrets without length-dependent errors', () => {

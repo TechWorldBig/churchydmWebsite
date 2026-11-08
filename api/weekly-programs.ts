@@ -12,6 +12,7 @@ const indiaDate = () => {
 }
 
 export default async function handler(req: any, res: any) {
+  res.setHeader?.('Cache-Control', 'no-store, no-cache, must-revalidate')
   try {
     await ensureSchema()
     const sql = getSql()

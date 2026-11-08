@@ -41,6 +41,7 @@ const deviceType = (req: any): 'mobile' | 'tablet' | 'desktop' | 'unknown' => {
 }
 
 export default async function handler(req: any, res: any) {
+  res.setHeader?.('Cache-Control', 'no-store, no-cache, must-revalidate')
   try {
     if (req.method === 'POST' && !sameOriginMutation(req)) return res.status(403).json({ error: 'Request not allowed.' })
     if (req.method === 'GET' && !await getSessionExpiry(req)) return res.status(401).json({ error: 'Unauthorized' })

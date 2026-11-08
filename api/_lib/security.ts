@@ -27,8 +27,10 @@ export function sessionToken(req: any): string | null {
 }
 
 export function sessionCookie(value: string, maxAge = SESSION_SECONDS): string {
-  return `${cookieName()}=${value}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
+  return `${cookieName()}=${value}; Path=/; HttpOnly; SameSite=Strict; Priority=High; Max-Age=${maxAge}${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
 }
+
+export const isJsonContentType = (value: unknown): boolean => /^application\/json(?:\s*;\s*charset=utf-8)?$/iu.test(String(value || '').trim())
 
 export async function ensureSecuritySchema() {
   const sql = getSql()
@@ -105,7 +107,9 @@ export function sameOriginMutation(req: any): boolean {
   if (req.headers['sec-fetch-site'] === 'cross-site') return false
   try {
     const origin = new URL(String(req.headers.origin || ''))
-    const host = String(req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim().toLowerCase()
+    // Prefer the server Host header. A client-controlled forwarded value must
+    // not be able to make a hostile Origin appear same-origin.
+    const host = String(req.headers.host || req.headers['x-forwarded-host'] || '').split(',')[0].trim().toLowerCase()
     if (!host || origin.host.toLowerCase() !== host || origin.username || origin.password || origin.pathname !== '/' || origin.search || origin.hash) return false
     return origin.protocol === 'https:' || (process.env.NODE_ENV !== 'production' && origin.protocol === 'http:')
   } catch { return false }
@@ -149,7 +153,7 @@ export async function authorizeMutation(req: any, res: any): Promise<boolean> {
   res.setHeader?.('Cache-Control', 'no-store')
   if (!['POST', 'PUT', 'DELETE'].includes(req.method)) { res.status(405).json({ error: 'Method not allowed' }); return false }
   if (!sameOriginMutation(req)) { res.status(403).json({ error: 'Request not allowed.' }); return false }
-  if (!String(req.headers['content-type'] || '').toLowerCase().startsWith('application/json')) { res.status(415).json({ error: 'JSON content type is required.' }); return false }
+  if (!isJsonContentType(req.headers['content-type'])) { res.status(415).json({ error: 'JSON content type is required.' }); return false }
   if (!await getSessionExpiry(req)) { res.status(401).json({ error: 'Please sign in as an administrator.' }); return false }
   if (await sharedRateLimited('admin-mutation', clientIp(req), 120, 60)) {
     res.setHeader?.('Retry-After', '60')
