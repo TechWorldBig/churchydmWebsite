@@ -53,6 +53,37 @@ for (const path of ['/', '/members', '/gallery', '/programs', '/attendance', '/o
   })
 }
 
+test('long member names wrap cleanly in attendance and program results on phones', async ({ page }) => {
+  test.skip(page.viewportSize()!.width > 390, 'Phone layout only')
+  const state = createMockState()
+  const longName = 'Jonathan Christopher Bartholomew-Selvanathan'
+  state.members[0].name = longName
+  state.attendance.forEach(record => { if (record.memberId === state.members[0].id) record.name = longName })
+  await installApiMocks(page, state)
+  const currentMonth = new Date().toISOString().slice(0, 7)
+
+  const attendanceMembersLoaded = page.waitForResponse(response => response.url().includes('/api/members') && response.request().method() === 'GET')
+  await page.goto('/attendance')
+  await attendanceMembersLoaded
+  await page.getByLabel('Member name').fill(longName)
+  await page.getByLabel('From date').fill(`${currentMonth}-01`)
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
+  const attendanceName = page.getByRole('heading', { name: longName })
+  await expect(attendanceName).toBeVisible()
+  await expect(attendanceName).toHaveCSS('overflow-wrap', 'anywhere')
+
+  const programMembersLoaded = page.waitForResponse(response => response.url().includes('/api/members') && response.request().method() === 'GET')
+  await page.goto('/programs')
+  await programMembersLoaded
+  await page.getByLabel('Member name').fill(longName)
+  await page.getByLabel('From date').fill(`${currentMonth}-01`)
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
+  const programName = page.getByRole('heading', { name: longName })
+  await expect(programName).toBeVisible()
+  await expect(programName).toHaveCSS('overflow-wrap', 'anywhere')
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+})
+
 test('navigation and chat stay usable at this viewport', async ({ page }) => {
   await installApiMocks(page, createMockState())
   await page.goto('/')

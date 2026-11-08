@@ -142,7 +142,7 @@ export default function Attendance() {
               <div className="attendance-member-banner -m-5 mb-5 grid h-40 place-items-center sm:-m-6 sm:mb-6 sm:h-48">{member.photo ? <img src={member.photo} alt={`${member.name} profile`} className="h-full w-full object-cover" /> : <span>{memberInitials(member.name)}</span>}</div>
               <div>
                 <p className="text-center text-xs font-bold uppercase tracking-[.18em] text-emerald-700">{member.role || 'YDM member'}</p>
-                <h3 className="mt-2 text-center text-2xl font-black">{member.name}</h3>
+                <h3 className="member-display-name mt-2 text-center text-2xl font-black">{member.name}</h3>
                 <p className="mt-1 text-center text-sm text-slate-500">{formatDate(fromDate)}{toDate ? ` to ${formatDate(toDate)}` : ''}</p>
               </div>
               <div className="attendance-member-visual mt-5">

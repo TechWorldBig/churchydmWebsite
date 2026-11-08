@@ -105,7 +105,7 @@ export async function installApiMocks(
     if (method === 'DELETE') state.adminAuthenticated = false
     return fulfillJson(route, { authenticated: Boolean(state.adminAuthenticated), expiresAt: state.adminAuthenticated ? Date.now() + 3600000 : null })
   })
-  await page.route('**/api/members', async (route) => {
+  await page.route(/\/api\/members(?:\?.*)?$/, async (route) => {
     const method = route.request().method()
     const body = route.request().postDataJSON() as Partial<MockMember> | { id?: string } | null
     if (method === 'GET') return fulfillJson(route, state.members)
@@ -115,7 +115,7 @@ export async function installApiMocks(
     return fulfillJson(route, { ok: true })
   })
 
-  await page.route('**/api/attendance', async (route) => {
+  await page.route(/\/api\/attendance(?:\?.*)?$/, async (route) => {
     const method = route.request().method()
     const body = route.request().postDataJSON() as Partial<MockAttendance> | { id?: string } | null
     if (method === 'GET') return fulfillJson(route, state.attendance)
@@ -125,7 +125,7 @@ export async function installApiMocks(
     return fulfillJson(route, { ok: true })
   })
 
-  await page.route('**/api/gallery', async (route) => {
+  await page.route(/\/api\/gallery(?:\?.*)?$/, async (route) => {
     const method = route.request().method()
     const body = route.request().postDataJSON() as Partial<MockGalleryPhoto> | { id?: string } | null
     if (method === 'GET') return fulfillJson(route, state.gallery)
