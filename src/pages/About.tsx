@@ -2,8 +2,8 @@ import { useEffect, useRef } from 'react'
 import { Church } from 'lucide-react'
 import PageHero from '../components/PageHero'
 import missionGif from '../assets/mission.gif'
-import foundationGif from '../assets/foundation-3d.gif'
-import communityGif from '../assets/community-3d.gif'
+import foundationGif from '../assets/foundation-3d-web.png'
+import communityGif from '../assets/community-3d-web.png'
 
 function TransparentGif({ src, alt }: { src: string; alt: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)

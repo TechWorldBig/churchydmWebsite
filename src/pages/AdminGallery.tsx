@@ -98,6 +98,7 @@ export default function AdminGallery() {
   }
 
   const remove = async (id: string) => {
+    if (!window.confirm('Delete this gallery photo? This cannot be undone.')) return
     try {
       await deleteGalleryPhoto(id)
       setPhotos(current => current.filter(item => item.id !== id))

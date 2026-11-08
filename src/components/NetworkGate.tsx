@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useState } from 'react'
 import { RefreshCw, WifiOff } from 'lucide-react'
-import ydmLogo from '../assets/jsc-ydm-logo.png'
+import ydmLogo from '../assets/jsc-ydm-logo-web.png'
 
 export default function NetworkGate({ children }: { children: ReactNode }) {
   const [offline, setOffline] = useState(() => !navigator.onLine)
@@ -39,7 +39,7 @@ export default function NetworkGate({ children }: { children: ReactNode }) {
     <main className="grid min-h-dvh place-items-center overflow-hidden bg-[#071f19] px-5 py-10 text-white">
       <section className="relative w-full max-w-xl text-center" aria-labelledby="offline-title" aria-live="polite">
         <div className="relative mx-auto grid h-24 w-24 place-items-center rounded-full border border-white/10 bg-white/5 shadow-2xl shadow-black/25">
-          <img src={ydmLogo} alt="" aria-hidden="true" className="h-16 w-16 object-contain" />
+          <img src={ydmLogo} width="320" height="320" alt="" aria-hidden="true" className="h-16 w-16 object-contain" />
           <span className="absolute -bottom-2 -right-2 grid h-10 w-10 place-items-center rounded-full bg-[#e3bc62] text-[#071f19] shadow-lg"><WifiOff size={20} aria-hidden="true" /></span>
         </div>
         <p className="mt-8 text-xs font-black uppercase tracking-[.24em] text-[#e3bc62]">Connection paused</p>

@@ -1,12 +1,13 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import { CalendarCheck, CalendarDays, Clock3, Search, TrendingUp, Users, X } from 'lucide-react'
 import PageHero from '../components/PageHero'
 import { AttendanceRecord, Member } from '../data/memberStore'
 import { getAttendance, getLastUpdated, getMembers } from '../data/api'
 import { currentYearDateBounds } from '../data/dateBounds'
-import memberMaleGif from '../assets/member-male.gif'
-import memberFemaleGif from '../assets/member-female.gif'
+import { useRefreshOnFocus } from '../data/refresh'
+import memberMaleGif from '../assets/member-male-web.png'
+import memberFemaleGif from '../assets/member-female-web.png'
 import noRecordMale from '../assets/no-record-male.png'
 import noRecordFemale from '../assets/no-record-female.png'
 
@@ -29,19 +30,14 @@ export default function Attendance() {
   const [hasSearched, setHasSearched] = useState(false)
   const [searchNotice, setSearchNotice] = useState('')
 
-  useEffect(() => {
-    const load = () => Promise.all([getMembers(selectedYear === currentYear ? undefined : { archiveYear: selectedYear }), getAttendance({ year: selectedYear }), getLastUpdated()])
+  useRefreshOnFocus(() => {
+    void Promise.all([getMembers(selectedYear === currentYear ? undefined : { archiveYear: selectedYear }), getAttendance({ year: selectedYear }), getLastUpdated()])
       .then(([savedMembers, savedRecords, updated]) => {
-        if (!active) return
         setMembers(savedMembers)
         setRecords(savedRecords)
         setLastUpdatedValue(updated.value)
       })
-      .catch(() => { if (active) { setMembers([]); setRecords([]) } })
-    let active = true
-    void load()
-    const timer = window.setInterval(() => { void load() }, 15_000)
-    return () => { active = false; window.clearInterval(timer) }
+      .catch(() => { setMembers([]); setRecords([]) })
   }, [currentYear, selectedYear])
 
   const year = selectedYear

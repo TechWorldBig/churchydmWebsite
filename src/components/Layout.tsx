@@ -4,7 +4,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import ChurchAssistant from './ChurchAssistant'
 import { getLastUpdated } from '../data/api'
-import ydmLogo from '../assets/jsc-ydm-logo.png'
+import ydmLogo from '../assets/jsc-ydm-logo-web.png'
 
 const links = [
   ['Home', '/'],
@@ -54,7 +54,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:h-14 sm:px-5 lg:px-8">
           <Link to="/" className="group flex items-center gap-3" onClick={() => setOpen(false)}>
             <span className="grid h-9 w-9 shrink-0 place-items-center transition group-hover:rotate-3 sm:h-10 sm:w-10">
-              <img src={ydmLogo} alt="" aria-hidden="true" className="h-full w-full object-contain drop-shadow-[0_2px_3px_rgba(0,0,0,0.3)]" />
+              <img src={ydmLogo} width="320" height="320" alt="" aria-hidden="true" className="h-full w-full object-contain drop-shadow-[0_2px_3px_rgba(0,0,0,0.3)]" />
             </span>
             <span className="leading-tight">
               <span className="block text-sm font-black tracking-[0.08em] sm:text-base">JSC YDM</span>
@@ -110,7 +110,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       <footer className="site-footer bg-[#041511] text-white">
         <div className="footer-content mx-auto grid max-w-7xl gap-5 px-5 py-3 lg:px-8">
           <div className="footer-brand">
-            <div className="mb-3 flex items-center gap-3 text-sm font-black sm:text-base"><span className="footer-logo-wrap grid h-12 w-12 shrink-0 place-items-center"><img src={ydmLogo} alt="" aria-hidden="true" className="h-full w-full object-contain drop-shadow-[0_2px_3px_rgba(0,0,0,0.3)]" /></span><span>JSC Youth Divine Movement</span></div>
+            <div className="mb-3 flex items-center gap-3 text-sm font-black sm:text-base"><span className="footer-logo-wrap grid h-12 w-12 shrink-0 place-items-center"><img src={ydmLogo} width="320" height="320" alt="" aria-hidden="true" className="h-full w-full object-contain drop-shadow-[0_2px_3px_rgba(0,0,0,0.3)]" /></span><span>JSC Youth Divine Movement</span></div>
             <p className="max-w-md text-sm leading-7 text-white/55">A Christ-centered youth community growing together through worship, Scripture, fellowship, service and leadership.</p>
           </div>
           <div className="footer-explore">
@@ -119,7 +119,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           </div>
           <div className="footer-connect">
             <h3 className="mb-2 text-sm font-bold uppercase tracking-[0.18em] text-[#e3bc62]">Connect</h3>
-            <div className="flex gap-3" role="group" aria-label="Social media"><span className="social-icon"><Instagram size={18} /></span><span className="social-icon"><Youtube size={18} /></span></div>
+            <div className="flex items-center gap-3 text-white/60" aria-label="Instagram and YouTube channels coming soon"><Instagram aria-hidden="true" size={18} /><Youtube aria-hidden="true" size={18} /><span className="text-xs">Channels coming soon</span></div>
           </div>
         </div>
         <div className="border-t border-white/10 px-5 py-2 text-center text-xs text-white/65">© {new Date().getFullYear()} JSC Youth Divine Movement. Faith • Fellowship • Service.</div>

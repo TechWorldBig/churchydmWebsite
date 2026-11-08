@@ -4,6 +4,7 @@ import { CalendarDays, Images, X } from 'lucide-react'
 import PageHero from '../components/PageHero'
 import { getGallery } from '../data/api'
 import { GalleryPhoto } from '../data/memberStore'
+import { useRefreshOnFocus } from '../data/refresh'
 
 const formatDate = (value: string) => new Date(`${value}T00:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
 
@@ -12,12 +13,7 @@ export default function Gallery() {
   const closeRef = useRef<HTMLButtonElement>(null)
   const [photos, setPhotos] = useState<GalleryPhoto[]>([])
   const [active, setActive] = useState<GalleryPhoto | null>(null)
-  useEffect(() => {
-    const load = () => { void getGallery().then(setPhotos).catch(() => undefined) }
-    load()
-    const timer = window.setInterval(load, 60_000)
-    return () => window.clearInterval(timer)
-  }, [])
+  useRefreshOnFocus(() => { void getGallery().then(setPhotos).catch(() => undefined) })
   useEffect(() => {
     if (!active) return
     const previousFocus = document.activeElement as HTMLElement | null

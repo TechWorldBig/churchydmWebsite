@@ -4,6 +4,7 @@ import { downloadHtmlPdf } from '../data/pdf'
 import { createWeeklyProgram, deleteWeeklyProgram, getMembers, getWeeklyPrograms } from '../data/api'
 import { Member, WeeklyProgram } from '../data/memberStore'
 import { currentYearDateBounds, todayDate } from '../data/dateBounds'
+import { useRefreshOnFocus } from '../data/refresh'
 
 const today = todayDate()
 const ordered = (items: WeeklyProgram[]) => [...items].sort((a, b) => b.date.localeCompare(a.date) || a.serialNo - b.serialNo)
@@ -21,12 +22,7 @@ const esc = (value: string) => value.replaceAll('&', '&amp;').replaceAll('<', '&
 export function WeeklyProgramPublic() {
   const [items, setItems] = useState<WeeklyProgram[]>([])
 
-  useEffect(() => {
-    const load = () => { void getWeeklyPrograms().then(setItems).catch(() => setItems([])) }
-    load()
-    const timer = window.setInterval(load, 30_000)
-    return () => window.clearInterval(timer)
-  }, [])
+  useRefreshOnFocus(() => { void getWeeklyPrograms().then(setItems).catch(() => setItems([])) })
 
   const groups = useMemo(() => groupsFor(items), [items])
   if (!groups.length) return null
@@ -89,6 +85,7 @@ export default function AdminWeeklyPrograms() {
   }
 
   const remove = async (id: string) => {
+    if (!window.confirm('Delete this weekly program? This cannot be undone.')) return
     try { await deleteWeeklyProgram(id); setItems(current => current.filter(item => item.id !== id)); setMessage('Weekly program deleted successfully.') }
     catch { setMessage('Could not delete weekly program.') }
   }

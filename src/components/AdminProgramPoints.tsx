@@ -72,6 +72,7 @@ export default function AdminProgramPoints() {
   }
 
   const remove = async (point: ProgramPoint) => {
+    if (!window.confirm(`Delete ${point.name}'s ${point.program} points for ${point.date}? This cannot be undone.`)) return
     try {
       await deleteProgramPoint(point.id)
       setPoints(current => current.filter(item => item.id !== point.id))

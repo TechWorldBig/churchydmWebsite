@@ -39,7 +39,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .program-bible-icon img { display: block; width: 5.25rem; height: 5.25rem; object-fit: contain; filter: drop-shadow(0 6px 0 rgba(77,38,20,.2)) drop-shadow(0 14px 16px rgba(7,31,25,.18)); transform: perspective(12rem) rotateX(6deg) rotateY(-5deg); animation: program-symbol-float 3.2s ease-in-out infinite; transition: transform .25s ease, filter .25s ease; }
 .soft-card.group:hover .program-bible-icon img { filter: drop-shadow(0 7px 0 rgba(77,38,20,.2)) drop-shadow(0 16px 18px rgba(7,31,25,.2)); transform: perspective(12rem) translateY(-.2rem) rotateX(8deg) rotateY(-7deg) rotateZ(-2deg); }
   .social-icon { @apply grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-white/65; }
-  .footer-link { @apply transition hover:translate-x-1 hover:text-[#e3bc62]; }
+  .footer-link { @apply inline-flex min-h-8 items-center transition hover:translate-x-1 hover:text-[#e3bc62]; }
   .field-label { @apply grid gap-2 text-xs font-bold uppercase tracking-[0.12em] text-slate-500; }
 .field { @apply w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium normal-case tracking-normal text-slate-900 outline-none transition placeholder:font-normal focus:border-emerald-700 focus:bg-white focus:ring-2 focus:ring-emerald-700/10; }
 input[type='date'] { border-color: #cce9dc; background: linear-gradient(145deg, #fff, #edf9f3); box-shadow: inset 0 1px 0 #fff, inset 0 -3px 0 rgba(5,150,105,.08), 0 4px 0 #b6decb, 0 9px 15px rgba(7,31,25,.1); transform: perspective(20rem) rotateX(2deg); transition: transform .25s ease, box-shadow .25s ease, background .25s ease; }
@@ -205,6 +205,7 @@ input[type='date']:active { transform: perspective(20rem) translateY(.18rem) rot
 .attendance-member-card > .attendance-member-banner img { height: 100%; width: 100%; object-fit: cover; }
 .attendance-member-card > .attendance-member-banner img, .soft-card.overflow-hidden.p-0 > div.h-52 img { object-fit: contain; object-position: center; background: #eef3f5; }
 .soft-card.overflow-hidden.p-0 > div.h-52 { height: auto; min-height: 0; background: #dfeaf0; }
+.soft-card.overflow-hidden.p-0 > div.member-photo-panel { background: #071f19; }
 .soft-card.overflow-hidden.p-0 > div.h-52 img { height: auto; max-height: none; }
 .soft-card.overflow-hidden.p-0 { display: flex; min-height: 25rem; flex-direction: column; }
 .soft-card.overflow-hidden.p-0 > div.h-52 { display: grid; height: 17rem; min-height: 17rem; place-items: center; overflow: hidden; }

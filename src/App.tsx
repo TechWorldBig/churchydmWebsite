@@ -1,17 +1,20 @@
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
-import Home from './pages/Home'
-import Members from './pages/Members'
-import Gallery from './pages/Gallery'
-import Attendance from './pages/Attendance'
-import About from './pages/About'
-import Admin from './pages/Admin'
-import Programs from './pages/Programs'
-import Offering from './pages/Offering'
-import NotFound from './pages/NotFound'
 import NetworkGate from './components/NetworkGate'
 import { recordVisitor } from './data/api'
+
+const Home = lazy(() => import('./pages/Home'))
+const Members = lazy(() => import('./pages/Members'))
+const Gallery = lazy(() => import('./pages/Gallery'))
+const Attendance = lazy(() => import('./pages/Attendance'))
+const About = lazy(() => import('./pages/About'))
+const Admin = lazy(() => import('./pages/Admin'))
+const Programs = lazy(() => import('./pages/Programs'))
+const Offering = lazy(() => import('./pages/Offering'))
+const NotFound = lazy(() => import('./pages/NotFound'))
+
+const RouteLoading = () => <div className="grid min-h-[45vh] place-items-center px-5" role="status"><p className="text-sm font-bold text-emerald-800">Loading page…</p></div>
 
 export default function App() {
   useEffect(() => {
@@ -20,7 +23,7 @@ export default function App() {
   return (
     <NetworkGate>
       <Layout>
-        <Routes>
+        <Suspense fallback={<RouteLoading />}><Routes>
           <Route path="/" element={<Home />} />
           <Route path="/members" element={<Members />} />
           <Route path="/gallery" element={<Gallery />} />
@@ -35,7 +38,7 @@ export default function App() {
           <Route path="/admin/annual-speeches" element={<Admin section="annual-speeches" />} />
           <Route path="/admin/yearly-report" element={<Admin section="yearly-report" />} />
           <Route path="*" element={<NotFound />} />
-        </Routes>
+        </Routes></Suspense>
       </Layout>
     </NetworkGate>
   )

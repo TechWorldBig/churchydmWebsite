@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ArrowRight, Search, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import PageHero from '../components/PageHero'
@@ -8,13 +8,14 @@ import { getMembers, getProgramPoints } from '../data/api'
 import { Member, ProgramPoint } from '../data/memberStore'
 import { currentYearDateBounds } from '../data/dateBounds'
 import { formatMeetingDate, formatPercentage, summarizeProgramPoints } from '../data/programPoints'
+import { useRefreshOnFocus } from '../data/refresh'
 import holyBibleGif from '../assets/holy-bible.gif'
 import missionaryStoryWebp from '../assets/missionary-story.webp'
 import musicGif from '../assets/music.gif'
 import bibleQuizPng from '../assets/bible-quiz.png'
 import bibleMessageGif from '../assets/bible-message-transparent.png'
-import memberMaleGif from '../assets/member-male.gif'
-import memberFemaleGif from '../assets/member-female.gif'
+import memberMaleGif from '../assets/member-male-web.png'
+import memberFemaleGif from '../assets/member-female-web.png'
 
 const scoreStyle = (score: number) => ({ background: `conic-gradient(#0b9f72 ${(score / 5) * 100}%, #e5484d 0)` })
 
@@ -29,18 +30,10 @@ export default function Programs() {
   const [searched, setSearched] = useState(false)
   const [notice, setNotice] = useState('')
 
-  useEffect(() => {
-    const load = () => { void getMembers().then(setMembers).catch(() => undefined) }
-    load()
-    const timer = window.setInterval(load, 15_000)
-    return () => window.clearInterval(timer)
-  }, [])
-  useEffect(() => {
+  useRefreshOnFocus(() => { void getMembers().then(setMembers).catch(() => undefined) })
+  useRefreshOnFocus(() => {
     if (!name.trim() || !from || (to && to < from)) { setPoints([]); return }
-    const load = () => { void getProgramPoints({ name, program, from, to }).then(setPoints).catch(() => setPoints([])) }
-    load()
-    const timer = window.setInterval(load, 15_000)
-    return () => window.clearInterval(timer)
+    void getProgramPoints({ name, program, from, to }).then(setPoints).catch(() => setPoints([]))
   }, [name, program, from, to])
   const result = useMemo(() => { const member = members.find(item => item.name.trim().toLowerCase() === name.trim().toLowerCase()); return member ? { member, rows: points } : null }, [members, points, name])
   const summaries = useMemo(() => summarizeProgramPoints(result?.rows || []), [result])
@@ -55,7 +48,7 @@ export default function Programs() {
             {programs.map(item => {
               const image = item.id === 1 ? holyBibleGif : item.id === 2 ? missionaryStoryWebp : item.id === 3 ? musicGif : item.id === 4 ? bibleQuizPng : bibleMessageGif
               const attachedSymbol = item.id === 4 || item.id === 5
-              return <article key={item.id} className="soft-card group relative overflow-hidden"><span className="absolute right-6 top-5 text-5xl font-black text-emerald-700">{item.icon}</span><span className={`program-bible-icon relative ${attachedSymbol ? 'program-symbol-attached' : ''}`}><img src={image} alt={item.title} /></span><p className="mt-7 text-xs font-bold uppercase tracking-[.16em] text-emerald-700">{item.schedule}</p><h2 className="mt-2 text-2xl font-black">{item.title}</h2><p className="mt-3 text-sm leading-7 text-slate-600">{item.description}</p></article>
+              return <article key={item.id} className="soft-card group relative overflow-hidden"><span className="absolute right-6 top-5 text-5xl font-black text-emerald-700">{item.icon}</span><span className={`program-bible-icon relative ${attachedSymbol ? 'program-symbol-attached' : ''}`}><img loading="lazy" decoding="async" width="220" height="220" src={image} alt={item.title} /></span><p className="mt-7 text-xs font-bold uppercase tracking-[.16em] text-emerald-700">{item.schedule}</p><h2 className="mt-2 text-2xl font-black">{item.title}</h2><p className="mt-3 text-sm leading-7 text-slate-600">{item.description}</p></article>
             })}
           </div>
           <WeeklyProgramPublic />

@@ -1,5 +1,5 @@
 import { Home, RefreshCw, ServerCrash } from 'lucide-react'
-import ydmLogo from '../assets/jsc-ydm-logo.png'
+import ydmLogo from '../assets/jsc-ydm-logo-web.png'
 import { systemErrorCopy, type SystemErrorStatus } from '../data/systemError'
 
 export default function SystemErrorPage({ status = 500 }: { status?: SystemErrorStatus }) {
@@ -15,7 +15,7 @@ export default function SystemErrorPage({ status = 500 }: { status?: SystemError
 
       <section className="w-full max-w-2xl text-center" aria-labelledby="system-error-title" role="alert">
         <div className="relative mx-auto grid h-24 w-24 place-items-center rounded-[28px] border border-white/10 bg-white/[.06] shadow-2xl shadow-black/25">
-          <img src={ydmLogo} alt="" aria-hidden="true" className="h-16 w-16 object-contain opacity-90" />
+          <img src={ydmLogo} width="320" height="320" alt="" aria-hidden="true" className="h-16 w-16 object-contain opacity-90" />
           <span className="absolute -bottom-2 -right-2 grid h-10 w-10 place-items-center rounded-full bg-[#e3bc62] text-[#071f19] shadow-lg"><ServerCrash size={20} aria-hidden="true" /></span>
         </div>
         <p className="mt-8 text-xs font-black uppercase tracking-[.24em] text-[#e3bc62]">{content.eyebrow}</p>

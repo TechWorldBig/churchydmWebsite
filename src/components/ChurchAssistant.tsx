@@ -7,7 +7,8 @@ import { getBibleReply, isBibleRequest } from '../data/bibleApi'
 import type { BibleLanguage } from '../data/bibleApi'
 import type { AttendanceRecord, Member } from '../data/memberStore'
 import dove3d from '../assets/dove-3d.png'
-import ydmLogo from '../assets/jsc-ydm-logo.png'
+import ydmLogo from '../assets/jsc-ydm-logo-web.png'
+import downloadableYdmLogo from '../assets/jsc-ydm-logo.png'
 
 type Message = {
   id: string
@@ -498,7 +499,7 @@ export default function ChurchAssistant() {
         id: crypto.randomUUID(),
         role: 'bot',
         text: getLogoReply(responseLanguage),
-        attachment: { href: ydmLogo, label: getLogoDownloadLabel(responseLanguage), downloadName: 'jsc-ydm-logo.png' },
+        attachment: { href: downloadableYdmLogo, label: getLogoDownloadLabel(responseLanguage), downloadName: 'jsc-ydm-logo.png' },
       }])
       return
     }
