@@ -115,6 +115,32 @@ input[type='date']:active { transform: perspective(20rem) translateY(.18rem) rot
 .admin-page .attendance-entry-grid { grid-template-columns: minmax(0, 1.4fr) 150px 125px minmax(0, 1fr) auto; align-items: end; }
 .admin-page .attendance-entry-grid select, .admin-page .attendance-entry-grid input { min-width: 0; }
 .admin-gallery-photo-list { max-height: 38rem; align-content: start; overflow-y: auto; padding-right: .35rem; scrollbar-gutter: stable; }
+.admin-section-art { position: relative; display: grid; width: 4.5rem; height: 4.5rem; flex: 0 0 4.5rem; place-items: center; overflow: hidden; border: 1px solid rgba(5,150,105,.13); border-radius: 1.25rem; background: linear-gradient(145deg, #fff, #e8f5ef); box-shadow: inset 0 1px 0 #fff, 0 5px 0 #b6decb, 0 12px 18px rgba(7,31,25,.12); transform: perspective(14rem) rotateX(4deg) rotateY(-3deg); }
+.admin-section-art img { width: 100%; height: 100%; object-fit: contain; }
+.admin-section-art-dark { background: #050505; }
+.admin-section-art-light { background: #fff; }
+.event-calendar-3d { position: relative; overflow: hidden; border: 1px solid #cce9dc; border-radius: 1.5rem; background: linear-gradient(145deg, #ffffff 0%, #f3fbf7 55%, #e8f5ef 100%); padding: 1.1rem; box-shadow: inset 0 1px 0 #fff, inset 0 -4px 0 rgba(5,150,105,.08), 0 7px 0 #b6decb, 0 16px 28px rgba(7,31,25,.12); transform: perspective(50rem) rotateX(.45deg); }
+.event-calendar-3d::after { position: absolute; top: 0; left: 8%; width: 84%; height: 35%; border-radius: 999px; background: linear-gradient(to bottom, rgba(255,255,255,.68), transparent); content: ''; pointer-events: none; }
+.event-calendar-toolbar, .event-calendar-summary { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.event-calendar-nav, .event-calendar-today { position: relative; z-index: 1; display: inline-grid; min-height: 2.5rem; place-items: center; border: 1px solid #b8ddcc; background: #fff; color: #075f46; box-shadow: 0 3px 0 #a8d1bd, 0 7px 12px rgba(7,31,25,.09); cursor: pointer; transition: transform .16s ease, box-shadow .16s ease, background-color .16s ease; }
+.event-calendar-nav { width: 2.5rem; border-radius: .8rem; }
+.event-calendar-today { border-radius: 999px; padding: 0 .85rem; font-size: .75rem; font-weight: 900; }
+.event-calendar-nav:hover, .event-calendar-today:hover { background: #f0faf5; transform: translateY(-1px); box-shadow: 0 4px 0 #8fc5aa, 0 9px 14px rgba(7,31,25,.12); }
+.event-calendar-nav:active, .event-calendar-today:active { transform: translateY(2px); box-shadow: 0 1px 0 #8fc5aa, 0 3px 7px rgba(7,31,25,.1); }
+.event-calendar-nav:focus-visible, .event-calendar-today:focus-visible, .event-calendar-day:focus-visible { outline: 3px solid rgba(8,127,91,.28); outline-offset: 2px; }
+.event-calendar-weekdays, .event-calendar-grid { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .35rem; }
+.event-calendar-weekdays { margin-top: 1rem; }
+.event-calendar-weekdays span { padding: .3rem 0; text-align: center; font-size: .65rem; font-weight: 900; letter-spacing: .08em; color: #64748b; text-transform: uppercase; }
+.event-calendar-day, .event-calendar-blank { min-height: 2.85rem; border-radius: .8rem; }
+.event-calendar-day { position: relative; display: grid; place-items: center; border: 1px solid rgba(203,213,225,.8); background: rgba(255,255,255,.82); color: #334155; font-size: .8rem; font-weight: 900; box-shadow: 0 2px 0 rgba(148,163,184,.28); cursor: pointer; transition: transform .16s ease, border-color .16s ease, background-color .16s ease, box-shadow .16s ease; }
+.event-calendar-day:hover { z-index: 2; border-color: #8fc5aa; background: #fff; transform: translateY(-2px); box-shadow: 0 4px 0 #b6decb, 0 8px 12px rgba(7,31,25,.1); }
+.event-calendar-day.has-events { border-color: #d6b04f; background: linear-gradient(145deg, #fffdf6, #f7e8b9); color: #6b4b09; box-shadow: inset 0 1px 0 #fff, 0 3px 0 #d5ad4c, 0 7px 10px rgba(124,79,7,.1); }
+.event-calendar-day small { position: absolute; right: .25rem; bottom: .22rem; display: grid; width: 1rem; height: 1rem; place-items: center; border-radius: 999px; background: #087f5b; color: #fff; font-size: .58rem; line-height: 1; }
+.event-calendar-day.is-today::before { position: absolute; top: .23rem; left: 50%; width: .28rem; height: .28rem; border-radius: 999px; background: #087f5b; content: ''; transform: translateX(-50%); }
+.event-calendar-day.is-selected { border-color: #071f19; background: #071f19; color: #fff; box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 4px 0 #d2a63d, 0 9px 14px rgba(7,31,25,.2); }
+.event-calendar-day.is-selected small { background: #e3bc62; color: #071f19; }
+.event-calendar-summary { margin-top: .9rem; border-top: 1px solid rgba(8,127,91,.15); padding-top: .9rem; font-size: .75rem; color: #475569; }
+.event-calendar-date-badge { display: inline-flex; flex: none; align-items: center; gap: .4rem; border-radius: 999px; background: #071f19; padding: .5rem .75rem; color: #fff; font-weight: 900; }
 .admin-page .grid.sm\:grid-cols-2.xl\:grid-cols-\[1fr_150px_120px\] { grid-template-columns: minmax(0, 1.4fr) 150px 125px minmax(0, 1fr) auto; align-items: end; }
 .admin-page .overflow-hidden > .flex.flex-col.gap-3.border-b { min-width: 0; align-items: stretch; }
 .admin-page .attendance-table-toolbar { min-width: 0; align-items: stretch; }
@@ -396,6 +422,9 @@ main > section + section .soft-card.overflow-hidden.p-0 > div.h-52 img { height:
   .admin-gallery-inline article img { height: 12rem; }
   .admin-gallery-inline article .p-4 { padding: 1rem; }
   .admin-gallery-inline article .flex { flex-wrap: wrap; }
+  .event-calendar-toolbar, .event-calendar-summary { align-items: flex-start; flex-direction: column; }
+  .event-calendar-day, .event-calendar-blank { min-height: 2.5rem; border-radius: .65rem; }
+  .event-calendar-weekdays, .event-calendar-grid { gap: .22rem; }
   .admin-page aside .primary-btn { @apply w-auto; }
   .admin-page aside .secondary-dark-btn { @apply w-auto; }
   .admin-page .overflow-x-auto { -webkit-overflow-scrolling: touch; }

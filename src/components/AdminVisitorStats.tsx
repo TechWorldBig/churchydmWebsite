@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { BarChart3, CalendarDays, RefreshCw } from 'lucide-react'
+import { CalendarDays, RefreshCw } from 'lucide-react'
 import { VisitorLocation, getVisitorStats } from '../data/api'
+import analyticsArtwork from '../assets/admin-website-analytics.jpg'
 
 type VisitorStats = {
   date: string
@@ -29,7 +30,7 @@ export default function AdminVisitorStats() {
 
   return <section className="soft-card mt-6 border border-emerald-100 bg-white shadow-[0_18px_40px_rgba(7,31,25,.08)]">
     <div className="flex flex-wrap items-start justify-between gap-4">
-      <div className="flex items-center gap-3"><span className="icon-box"><BarChart3 size={20} /></span><div><p className="eyebrow">Private analytics</p><h2 className="font-black">Website visitors</h2><p className="mt-1 text-sm text-slate-500">Anonymous browser IDs · India time</p></div></div>
+      <div className="flex items-center gap-3"><span className="admin-section-art admin-section-art-light"><img src={analyticsArtwork} alt="" /></span><div><p className="eyebrow">Private analytics</p><h2 className="font-black">Website visitors</h2><p className="mt-1 text-sm text-slate-500">Anonymous browser IDs · India time</p></div></div>
       <div className="flex items-center gap-2"><label className="sr-only" htmlFor="visitor-date">Visitor date</label><div className="relative"><CalendarDays className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} /><input id="visitor-date" type="date" value={date} onChange={event => setDate(event.target.value)} className="field pl-10" /></div><button onClick={load} className="secondary-dark-btn" aria-label="Refresh visitor statistics" title="Refresh"><RefreshCw size={17} /></button></div>
     </div>
     {message ? <p role="alert" className="mt-5 text-sm text-rose-700">{message}</p> : <>

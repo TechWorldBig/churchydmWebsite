@@ -12,3 +12,8 @@ declare module '*.webp' {
   const source: string
   export default source
 }
+
+declare module '*.jpg' {
+  const source: string
+  export default source
+}
