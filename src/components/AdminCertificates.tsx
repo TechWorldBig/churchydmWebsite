@@ -11,6 +11,7 @@ const escapeHtml = (value: string) => value.replaceAll('&', '&amp;').replaceAll(
 
 const certificateCss = `
 .ydm-certificate{container-type:inline-size;position:relative;isolation:isolate;display:flex;flex-direction:column;justify-content:space-between;aspect-ratio:297/210;min-width:640px;overflow:hidden;border:10px solid #071f19;background:#fffdf7;color:#071f19;font-family:Georgia,'Times New Roman',serif;text-align:center;box-shadow:inset 0 0 0 3px #e3bc62,inset 0 0 0 12px #fffdf7,inset 0 0 0 13px #c4a04d}
+.ydm-certificate::before,.ydm-certificate::after{content:none!important;display:none!important}
 .ydm-cert-top{position:relative;padding:5.4cqw 10cqw 0}
 .ydm-cert-logo{position:absolute;right:5.6cqw;top:3.8cqw;width:10cqw;height:10cqw;object-fit:contain}
 .ydm-cert-ministry{margin:0;color:#087f5b;font:700 1.35cqw Arial,sans-serif;letter-spacing:.24em;text-transform:uppercase}

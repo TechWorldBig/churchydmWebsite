@@ -76,6 +76,10 @@ test('admin can preview and print an eligible certificate', async ({ page }, tes
   await section.getByRole('button', { name: /Sarah Perfect attendance/ }).click()
   await expect(section.locator('.ydm-certificate').first().locator('.ydm-cert-name')).toHaveText('Sarah')
   await expect(section.locator('.ydm-certificate').first().locator('.ydm-cert-reason')).toContainText('faithful presence at every YDM gathering')
+  await expect.poll(() => section.locator('.ydm-certificate').first().evaluate(node => ({
+    before: getComputedStyle(node, '::before').content,
+    after: getComputedStyle(node, '::after').content,
+  }))).toEqual({ before: 'none', after: 'none' })
   await section.locator('.ydm-certificate').first().screenshot({ path: testInfo.outputPath('certificate-preview.png') })
   const popupPromise = page.waitForEvent('popup')
   await section.getByRole('button', { name: 'Download PDF' }).click()
