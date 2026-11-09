@@ -116,10 +116,13 @@ export function sameOriginMutation(req: any): boolean {
 }
 
 export function clientIp(req: any): string {
-  const real = req.headers['x-real-ip']
-  const forwarded = req.headers['x-forwarded-for']
-  const value = Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(',')[0]
-  return String(real || value || req.socket?.remoteAddress || 'unknown').trim().slice(0, 128)
+  if (process.env.VERCEL) {
+    const real = req.headers['x-real-ip']
+    const forwarded = req.headers['x-forwarded-for']
+    const value = Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(',')[0]
+    return String(real || value || req.socket?.remoteAddress || 'unknown').trim().slice(0, 128)
+  }
+  return String(req.socket?.remoteAddress || 'unknown').trim().slice(0, 128)
 }
 
 const localEndpointLimits = new Map<string, { count: number; resetAt: number }>()

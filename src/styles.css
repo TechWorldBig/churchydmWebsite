@@ -173,6 +173,12 @@ input[type='date']:active { transform: perspective(20rem) translateY(.18rem) rot
 .program-result-character { width: 8rem; height: 8rem; margin: 0; flex: 0 0 auto; }
 .program-result-character img { mix-blend-mode: multiply; }
 .program-score-ring { display: grid; width: 5.5rem; height: 5.5rem; flex: 0 0 auto; place-items: center; border-radius: 999px; box-shadow: 0 8px 16px rgba(7,31,25,.14); }
+.program-score-0 { background: #e5484d; }
+.program-score-1 { background: conic-gradient(#0b9f72 20%, #e5484d 0); }
+.program-score-2 { background: conic-gradient(#0b9f72 40%, #e5484d 0); }
+.program-score-3 { background: conic-gradient(#0b9f72 60%, #e5484d 0); }
+.program-score-4 { background: conic-gradient(#0b9f72 80%, #e5484d 0); }
+.program-score-5 { background: #0b9f72; }
 .program-score-ring span { display: grid; width: 4rem; height: 4rem; place-items: center; border-radius: 999px; background: #fff; color: #071f19; font-size: .9rem; font-weight: 900; }
 .attendance-search-panel select[aria-label='Program name'] option:first-child { display: none; }
 .attendance-search-panel > * { position: relative; z-index: 1; }
@@ -197,8 +203,12 @@ input[type='date']:active { transform: perspective(20rem) translateY(.18rem) rot
 .attendance-member-banner span { color: var(--gold); font-size: clamp(3.5rem, 9vw, 5rem); font-weight: 900; letter-spacing: -.06em; line-height: 1; text-shadow: 0 7px 0 rgba(0,0,0,.16), 0 16px 24px rgba(0,0,0,.24); }
 .attendance-search-summary { border-radius: 1.5rem; background: #f5f7f9; padding: 1rem 1.25rem; }
 .attendance-page > .mx-auto > .mt-10.grid.sm\:grid-cols-2.lg\:grid-cols-3 { display: none; }
-.attendance-year-chart { display: grid; width: 5.5rem; height: 5.5rem; flex: 0 0 auto; place-items: center; border-radius: 999px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.55), 0 8px 16px rgba(7,31,25,.16); }
-.attendance-year-chart span { display: grid; width: 3.95rem; height: 3.95rem; place-items: center; border-radius: 999px; background: #fff; color: #071f19; font-size: .9rem; font-weight: 900; box-shadow: inset 0 1px 4px rgba(7,31,25,.1); }
+.attendance-year-chart { position: relative; display: grid; width: 5.5rem; height: 5.5rem; flex: 0 0 auto; place-items: center; border-radius: 999px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.55), 0 8px 16px rgba(7,31,25,.16); }
+.attendance-year-chart svg { position: absolute; inset: 0; height: 100%; width: 100%; transform: rotate(-90deg); }
+.attendance-year-chart circle { fill: none; stroke-width: 12; }
+.attendance-year-chart-track { stroke: #ef4444; }
+.attendance-year-chart-value { stroke: #059669; stroke-linecap: butt; }
+.attendance-year-chart span { position: relative; display: grid; width: 3.95rem; height: 3.95rem; place-items: center; border-radius: 999px; background: #fff; color: #071f19; font-size: .9rem; font-weight: 900; box-shadow: inset 0 1px 4px rgba(7,31,25,.1); }
 .attendance-member-visual { display: flex; align-items: center; justify-content: center; gap: 1.5rem; min-height: 9.4rem; }
 .attendance-member-card { display: grid; grid-template-columns: minmax(11rem, 32%) minmax(0, 1fr); gap: 1.75rem; align-items: start; }
 .attendance-member-card > .attendance-member-banner { grid-column: 1; grid-row: 1 / span 4; width: 100%; height: 100%; min-height: 22rem; margin: 0; border-radius: 1.25rem; }

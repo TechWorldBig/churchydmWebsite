@@ -1,12 +1,9 @@
 import { ensureSchema, getSql, sendError } from './_lib/db.js'
-import { endpointRateLimited, getSessionExpiry, sameOriginMutation, sharedRateLimited } from './_lib/security.js'
-import { createHash } from 'node:crypto'
+import { clientIp, endpointRateLimited, getSessionExpiry, isJsonContentType, sameOriginMutation, sharedRateLimited } from './_lib/security.js'
+import { createHash, randomUUID } from 'node:crypto'
 
-const getClientIp = (req: any) => {
-  const forwarded = req.headers['x-forwarded-for']
-  const value = Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(',')[0]
-  return (value || req.headers['x-real-ip'] || req.socket?.remoteAddress || '').trim()
-}
+const visitorCookieName = () => process.env.NODE_ENV === 'production' ? '__Host-ydm-visitor' : 'ydm-visitor'
+const visitorCookie = (value: string) => `${visitorCookieName()}=${value}; Path=/; HttpOnly; SameSite=Lax; Priority=Medium; Max-Age=31536000${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
 const indiaHourParts = () => {
   const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hourCycle: 'h23' }).formatToParts(new Date())
   const value = (type: string) => parts.find(part => part.type === type)?.value || ''
@@ -14,6 +11,11 @@ const indiaHourParts = () => {
 }
 const validDate = (value: unknown): value is string => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/u.test(value)
 const validVisitorId = (value: unknown): value is string => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu.test(value)
+const visitorCookieId = (req: any): string => {
+  const prefix = `${visitorCookieName()}=`
+  const value = String(req.headers.cookie || '').split(';').map((part: string) => part.trim()).find((part: string) => part.startsWith(prefix))?.slice(prefix.length)
+  return validVisitorId(value) ? value.toLowerCase() : ''
+}
 const indiaDayBounds = (date: string) => {
   const start = new Date(`${date}T00:00:00+05:30`)
   return { start, end: new Date(start.getTime() + 86_400_000) }
@@ -44,6 +46,7 @@ export default async function handler(req: any, res: any) {
   res.setHeader?.('Cache-Control', 'no-store, no-cache, must-revalidate')
   try {
     if (req.method === 'POST' && !sameOriginMutation(req)) return res.status(403).json({ error: 'Request not allowed.' })
+    if (req.method === 'POST' && !isJsonContentType(req.headers['content-type'])) return res.status(415).json({ error: 'JSON content type is required.' })
     if (req.method === 'GET' && !await getSessionExpiry(req)) return res.status(401).json({ error: 'Unauthorized' })
     await ensureSchema()
     const sql = getSql()
@@ -92,26 +95,24 @@ export default async function handler(req: any, res: any) {
     }
 
     if (req.method === 'POST') {
-      const ip = getClientIp(req)
+      const ip = clientIp(req)
       if (!ip) return res.status(400).json({ error: 'Unable to determine visitor IP.' })
       if (await sharedRateLimited('visitors', ip, 30, 60)) {
         res.setHeader('Retry-After', '60')
         return res.status(429).json({ error: 'Too many visitor requests. Please try again later.' })
       }
       const ipHash = createHash('sha256').update(ip).digest('hex')
-      const visitorId = validVisitorId(req.body?.visitorId) ? req.body.visitorId.toLowerCase() : ''
-      // Keep old cached clients operational during deployment, while all new
-      // clients use the anonymous browser ID as the primary identity.
-      const visitorHash = visitorId ? createHash('sha256').update(`browser-v1:${visitorId}`).digest('hex') : `legacy-ip:${ipHash}`
+      const storedVisitorId = visitorCookieId(req)
+      const visitorId = storedVisitorId || randomUUID()
+      if (!storedVisitorId) res.setHeader('Set-Cookie', visitorCookie(visitorId))
+      const visitorHash = createHash('sha256').update(`browser-v1:${visitorId}`).digest('hex')
       const legacyHash = `legacy-ip:${ipHash}`
       const location = visitorLocation(req)
-      if (visitorId) {
-        // Convert one legacy IP identity into its first browser identity. This
-        // keeps existing production totals stable through the migration.
-        await sql`UPDATE website_visitors SET visitor_hash=${visitorHash} WHERE visitor_hash=${legacyHash} AND NOT EXISTS (SELECT 1 FROM website_visitors WHERE visitor_hash=${visitorHash})`
-        await sql`UPDATE website_visitor_activity SET visitor_hash=${visitorHash} WHERE visitor_hash=${legacyHash} AND NOT EXISTS (SELECT 1 FROM website_visitor_activity existing WHERE existing.visitor_hash=${visitorHash} AND existing.hour_key=website_visitor_activity.hour_key)`
-        await sql`DELETE FROM website_visitor_activity WHERE visitor_hash=${legacyHash}`
-      }
+      // Convert one legacy IP identity into its first server-issued browser
+      // identity so the migration does not inflate the cumulative total.
+      await sql`UPDATE website_visitors SET visitor_hash=${visitorHash} WHERE visitor_hash=${legacyHash} AND NOT EXISTS (SELECT 1 FROM website_visitors WHERE visitor_hash=${visitorHash})`
+      await sql`UPDATE website_visitor_activity SET visitor_hash=${visitorHash} WHERE visitor_hash=${legacyHash} AND NOT EXISTS (SELECT 1 FROM website_visitor_activity existing WHERE existing.visitor_hash=${visitorHash} AND existing.hour_key=website_visitor_activity.hour_key)`
+      await sql`DELETE FROM website_visitor_activity WHERE visitor_hash=${legacyHash}`
       await sql`INSERT INTO website_visitors (visitor_hash, ip_hash, country, region, city, latitude, longitude, timezone) VALUES (${visitorHash}, ${ipHash}, ${location.country}, ${location.region}, ${location.city}, ${location.latitude}, ${location.longitude}, ${location.timezone}) ON CONFLICT (visitor_hash) DO UPDATE SET ip_hash=EXCLUDED.ip_hash, country=COALESCE(NULLIF(EXCLUDED.country, ''), website_visitors.country), region=COALESCE(NULLIF(EXCLUDED.region, ''), website_visitors.region), city=COALESCE(NULLIF(EXCLUDED.city, ''), website_visitors.city), latitude=COALESCE(NULLIF(EXCLUDED.latitude, ''), website_visitors.latitude), longitude=COALESCE(NULLIF(EXCLUDED.longitude, ''), website_visitors.longitude), timezone=COALESCE(NULLIF(EXCLUDED.timezone, ''), website_visitors.timezone), last_seen_at=NOW()`
       const current = indiaHourParts()
       const hourKey = `${current.date}-${String(current.hour).padStart(2, '0')}`

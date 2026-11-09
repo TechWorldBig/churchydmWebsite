@@ -36,7 +36,7 @@ test('leadership appreciation excludes YDM members and children', () => {
   ], [], [], year)
   const appreciation = awards.filter(award => award.kind === 'appreciation')
   expect(appreciation.map(award => award.member.name)).toEqual(['Finny', 'Jayan'])
-  expect(appreciation[0].reason).toContain(`making ${year} wonderful`)
+  expect(appreciation[0].reason).toContain('prayer, leadership and willing service')
 })
 
 test('overall champion requires perfect attendance and all three program wins', () => {
@@ -51,13 +51,21 @@ test('overall champion requires perfect attendance and all three program wins', 
   })))
   const awards = getCertificateAwards([champion, otherLevel], records, points, year)
   expect(awards.filter(award => award.kind === 'overall').map(award => award.member.name)).toEqual(['Champion', 'Other Level'])
-  expect(awards.find(award => award.kind === 'overall')?.reason).toContain('first place in Bible Quiz, Bible Reference and Song Survey')
+  expect(awards.find(award => award.kind === 'overall')?.reason).toContain('first-place achievements in Bible Quiz, Bible Reference and Song Survey')
 })
 
 test('admin can preview and print an eligible certificate', async ({ page }, testInfo) => {
   const state = createMockState()
   state.adminAuthenticated = true
-  state.attendance.push({ id: 'attendance-4', memberId: 'member-sarah', name: 'Sarah', date: `${year}-09-01`, present: true, note: '' })
+  const meetingDates = [...new Set(state.attendance.map(record => record.date))]
+  meetingDates.forEach((date, index) => state.attendance.push({
+    id: `sarah-perfect-${index}`,
+    memberId: 'member-sarah',
+    name: 'Sarah',
+    date,
+    present: true,
+    note: '',
+  }))
   await installApiMocks(page, state)
   await page.route('**/api/program-points', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([
     point('p1', 'member-mary', 'Mary Stella', 'Junior', 5), point('p2', 'member-sarah', 'Sarah', 'Senior', 4),
@@ -67,7 +75,7 @@ test('admin can preview and print an eligible certificate', async ({ page }, tes
   await expect(section.getByText('3 certificates ready')).toBeVisible({ timeout: 15000 })
   await section.getByRole('button', { name: /Sarah Perfect attendance/ }).click()
   await expect(section.locator('.ydm-certificate').first().locator('.ydm-cert-name')).toHaveText('Sarah')
-  await expect(section.locator('.ydm-certificate').first().locator('.ydm-cert-reason')).toContainText('100% attendance')
+  await expect(section.locator('.ydm-certificate').first().locator('.ydm-cert-reason')).toContainText('faithful presence at every YDM gathering')
   await section.locator('.ydm-certificate').first().screenshot({ path: testInfo.outputPath('certificate-preview.png') })
   const popupPromise = page.waitForEvent('popup')
   await section.getByRole('button', { name: 'Download PDF' }).click()

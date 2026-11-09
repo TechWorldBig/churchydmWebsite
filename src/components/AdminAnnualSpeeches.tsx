@@ -89,7 +89,7 @@ function documentHtmlBase(title: string, kind: SpeechKind, language: Language, y
 }
 
 function documentHtml(title: string, kind: SpeechKind, language: Language, year: string, content: string) {
-  const logo = `<img src="${ydmLogo}" alt="Youth Divine Movement logo" style="display:block;width:76px;height:76px;object-fit:contain;margin:0 auto 12px">`
+  const logo = `<img src="${ydmLogo}" width="76" height="76" alt="Youth Divine Movement logo">`
   return documentHtmlBase(title, kind, language, year, content).replace('<header>', `<header>${logo}`)
 }
 

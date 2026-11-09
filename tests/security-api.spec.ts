@@ -59,14 +59,20 @@ test('admin cookie is HttpOnly, Secure, host-scoped and SameSite in production',
   }
 })
 
-test('security boundaries reject spoofed hosts and JSON lookalike media types', () => {
+test('security boundaries reject spoofed hosts, untrusted proxy IPs and JSON lookalike media types', () => {
   expect(sameOriginMutation({ headers: { origin: 'https://evil.example', host: 'ydm.example', 'x-forwarded-host': 'evil.example' } })).toBe(false)
   expect(sameOriginMutation({ headers: { origin: 'https://ydm.example', host: 'ydm.example', 'x-forwarded-host': 'evil.example' } })).toBe(true)
   expect(isJsonContentType('application/json')).toBe(true)
   expect(isJsonContentType('application/json; charset=UTF-8')).toBe(true)
   expect(isJsonContentType('application/jsonp')).toBe(false)
   expect(isJsonContentType('application/json; charset=iso-8859-1')).toBe(false)
-  expect(clientIp({ headers: { 'x-real-ip': '203.0.113.10', 'x-forwarded-for': '198.51.100.5' } })).toBe('203.0.113.10')
+  const previousVercel = process.env.VERCEL
+  delete process.env.VERCEL
+  expect(clientIp({ headers: { 'x-real-ip': '203.0.113.10', 'x-forwarded-for': '198.51.100.5' }, socket: { remoteAddress: '127.0.0.1' } })).toBe('127.0.0.1')
+  process.env.VERCEL = '1'
+  expect(clientIp({ headers: { 'x-real-ip': '203.0.113.10', 'x-forwarded-for': '198.51.100.5' }, socket: { remoteAddress: '127.0.0.1' } })).toBe('203.0.113.10')
+  if (previousVercel === undefined) delete process.env.VERCEL
+  else process.env.VERCEL = previousVercel
 })
 
 test('rejects malformed cookies and compares secrets without length-dependent errors', () => {

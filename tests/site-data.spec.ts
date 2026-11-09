@@ -14,8 +14,14 @@ test('renders mocked members, attendance statistics, and history', async ({ page
 
   await page.goto('/attendance')
   await expect(page.getByText('Active members').locator('..').getByText('2', { exact: true })).toBeVisible()
-  await expect(page.getByText('Overall attendance').locator('..').getByText('67%', { exact: true })).toBeVisible()
-  await expect(page.getByText('1/2 present', { exact: true })).toBeVisible()
+  await expect(page.getByText('Yearly attendance').locator('..').getByText('67%', { exact: true })).toBeVisible()
+  const currentMonth = new Date().toISOString().slice(0, 7)
+  await page.getByPlaceholder('Search by name').fill('Mary Stella')
+  await page.getByLabel('From date').fill(`${currentMonth}-01`)
+  await page.getByLabel('To date', { exact: true }).fill(`${currentMonth}-15`)
+  await page.getByRole('button', { name: 'Search', exact: true }).click()
+  await expect(page.getByText('Present: 1', { exact: true })).toBeVisible()
+  await expect(page.getByText('Absent: 1', { exact: true })).toBeVisible()
   await expect(page.getByText('Recorded absent', { exact: true })).not.toBeVisible()
   await expect(page.getByText('Present', { exact: true }).first()).toBeVisible()
   await expect(page.getByText('Absent', { exact: true }).first()).toBeVisible()
@@ -56,7 +62,7 @@ test('renders gallery data and opens and closes the photo dialog', async ({ page
 test('supports mocked admin member and attendance writes without production data', async ({ page }) => {
   await page.route('**/api/auth', route => route.fulfill({ contentType: 'application/json', body: JSON.stringify({ authenticated: true, expiresAt: Date.now() + 3600000 }) }))
   await page.goto('/admin')
-  await expect(page.getByText('Connected to shared database')).toBeVisible()
+  await expect(page.getByText('Connected to shared database')).toBeVisible({ timeout: 15000 })
   await expect(page.getByRole('heading', { name: 'Saved members (2)' })).toBeVisible()
 
   await page.getByLabel('Full name').fill('Daniel')
@@ -65,9 +71,9 @@ test('supports mocked admin member and attendance writes without production data
   await expect(page.getByText('Member saved successfully.')).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Saved members (3)' })).toBeVisible()
 
-  await page.locator('select').first().selectOption({ label: 'Daniel' })
+  await page.getByLabel('Attendance member').selectOption({ label: 'Daniel' })
   await page.getByPlaceholder('Optional note').fill('First gathering')
-  await page.getByRole('button', { name: /^Save/ }).click()
+  await page.getByRole('button', { name: 'Save', exact: true }).first().click()
   await expect(page.getByText('Attendance saved successfully.')).toBeVisible()
   await expect(page.getByRole('cell', { name: 'Daniel', exact: true })).toBeVisible()
 })

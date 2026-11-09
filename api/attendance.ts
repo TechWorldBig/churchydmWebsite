@@ -21,13 +21,16 @@ export default async function handler(req: any, res: any) {
       const query = req.query || {}
       const allYears = query.allYears === '1'
       const requestedYear = typeof query.year === 'string' ? query.year : indiaYear()
+      const isAdministrator = Boolean(await getSessionExpiry(req))
       if (!validYear(requestedYear)) return res.status(400).json({ error: 'Invalid attendance year.' })
       // Visitors can review the immediately completed year; deeper history is
       // kept in the protected admin archive.
-      if ((allYears || !isPublicAttendanceYear(requestedYear)) && !await getSessionExpiry(req)) return res.status(401).json({ error: 'Please sign in as an administrator.' })
+      if ((allYears || !isPublicAttendanceYear(requestedYear)) && !isAdministrator) return res.status(401).json({ error: 'Please sign in as an administrator.' })
       const rows = allYears
         ? await sql`SELECT attendance.id, attendance.member_id AS "memberId", COALESCE(members.name, attendance.name) AS name, attendance.date, attendance.present, attendance.note FROM attendance LEFT JOIN members ON members.id=attendance.member_id ORDER BY attendance.date DESC, attendance.created_at DESC`
-        : await sql`SELECT attendance.id, attendance.member_id AS "memberId", COALESCE(members.name, attendance.name) AS name, attendance.date, attendance.present, attendance.note FROM attendance LEFT JOIN members ON members.id=attendance.member_id WHERE attendance.date >= ${`${requestedYear}-01-01`} AND attendance.date <= ${`${requestedYear}-12-31`} ORDER BY attendance.date DESC, attendance.created_at DESC`
+        : isAdministrator
+          ? await sql`SELECT attendance.id, attendance.member_id AS "memberId", COALESCE(members.name, attendance.name) AS name, attendance.date, attendance.present, attendance.note FROM attendance LEFT JOIN members ON members.id=attendance.member_id WHERE attendance.date >= ${`${requestedYear}-01-01`} AND attendance.date <= ${`${requestedYear}-12-31`} ORDER BY attendance.date DESC, attendance.created_at DESC`
+          : await sql`SELECT attendance.id, attendance.member_id AS "memberId", COALESCE(members.name, attendance.name) AS name, attendance.date, attendance.present, '' AS note FROM attendance LEFT JOIN members ON members.id=attendance.member_id WHERE attendance.date >= ${`${requestedYear}-01-01`} AND attendance.date <= ${`${requestedYear}-12-31`} ORDER BY attendance.date DESC, attendance.created_at DESC`
       return res.status(200).json(rows)
     }
     if (req.method !== 'DELETE' && !isCurrentYearDate(body.date)) return res.status(400).json({ error: 'Attendance can only be saved for the current ministry year.' })

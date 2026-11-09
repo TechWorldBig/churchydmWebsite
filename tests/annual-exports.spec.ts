@@ -55,7 +55,7 @@ test('annual document screens produce printable PDF and PPT downloads', async ({
   await expectDownload(page, 'Download detailed PDF', '.pdf', 2)
 
   await page.goto('/admin/cake-cover')
-  await expect(page.getByRole('heading', { name: 'Cake cover' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Cake cover', exact: true })).toBeVisible()
   await expectDownload(page, 'Download cake cover PDF', '.pdf', 1)
 
   await page.goto('/admin/annual-speeches')

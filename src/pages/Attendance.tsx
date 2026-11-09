@@ -169,7 +169,7 @@ export default function Attendance() {
                   <img src={memberGender(member.gender) === 'female' ? memberFemaleGif : memberMaleGif} alt={`${memberGender(member.gender) === 'female' ? 'Female' : 'Male'} member animation`} />
                 </div>
                 <div className="flex flex-col items-center gap-2">
-                  <div className="attendance-year-chart" style={{ background: `conic-gradient(#059669 0 ${annualPercentage}%, #ef4444 ${annualPercentage}% 100%)` }} aria-label={`${year} attendance: ${annualPercentage}% present`}><span>{annualPercentage}%</span></div>
+                  <div className="attendance-year-chart" role="img" aria-label={`${year} attendance: ${annualPercentage}% present`}><svg viewBox="0 0 100 100" aria-hidden="true"><circle className="attendance-year-chart-track" cx="50" cy="50" r="44" pathLength="100" /><circle className="attendance-year-chart-value" cx="50" cy="50" r="44" pathLength="100" strokeDasharray={`${annualPercentage} 100`} /></svg><span>{annualPercentage}%</span></div>
                   <p className="text-xs font-bold uppercase tracking-[.12em] text-slate-500">{year} overall</p>
                 </div>
               </div>
