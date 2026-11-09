@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { Download, FileText, Palette } from 'lucide-react'
+import { Download, FileText } from 'lucide-react'
 import { downloadHtmlPdf } from '../data/pdf'
 import ydmLogo from '../assets/jsc-ydm-logo-certificate.png'
+import themeBuilderArtwork from '../assets/admin-theme-builder.jpg'
 
 const escapeHtml = (value: string) => value.replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character] || character)
 
@@ -74,7 +75,7 @@ export default function AdminAnnualThemeBuilder() {
   }
 
   return <section className="soft-card mb-6 overflow-hidden border border-emerald-100">
-    <div className="mb-6 flex items-center gap-3"><span className="icon-box"><Palette size={20} /></span><div><p className="eyebrow">Annual year</p><h2 className="text-xl font-black">Theme builder</h2><p className="text-sm text-slate-500">Edit the ministry theme and create a bright, dimensional annual PDF.</p></div></div>
+    <div className="mb-6 flex items-center gap-3"><span className="admin-section-art admin-section-art-dark"><img src={themeBuilderArtwork} alt="" /></span><div><p className="eyebrow">Annual year</p><h2 className="text-xl font-black">Theme builder</h2><p className="text-sm text-slate-500">Edit the ministry theme and create a bright, dimensional annual PDF.</p></div></div>
     <div className="grid gap-6 xl:grid-cols-[390px_1fr]">
       <div className="grid content-start gap-4"><label className="field-label">Annual year<input className="field" inputMode="numeric" maxLength={4} value={year} onChange={event => setYear(event.target.value.replace(/\D/g, ''))} /></label><label className="field-label">English theme<input className="field" value={englishTheme} onChange={event => setEnglishTheme(event.target.value)} /></label><label className="field-label">Tamil theme<input className="field" value={tamilTheme} onChange={event => setTamilTheme(event.target.value)} /></label><label className="field-label">Bible verse<textarea className="field min-h-24 resize-none" value={verse} onChange={event => setVerse(event.target.value)} /></label><label className="field-label">Annual message<textarea className="field min-h-24 resize-none" value={message} onChange={event => setMessage(event.target.value)} /></label><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1"><button type="button" className="primary-btn justify-center" onClick={() => void createPdf()}><Download size={17} /> Download one-page PDF</button><button type="button" className="secondary-dark-btn justify-center" onClick={() => void createPowerPoint()}><FileText size={17} /> Download one-slide PPT</button></div>{status && <p role="status" className="text-sm font-semibold text-emerald-800">{status}</p>}</div>
       <div className="min-w-0 overflow-x-auto rounded-[28px] border border-[#e3bc62]/60 bg-[#f5f0e4] p-3 shadow-inner" tabIndex={0} aria-label="Annual theme preview. Scroll horizontally on a small screen to view the full design."><style>{themeCss}</style><div className="mx-auto h-[545px] w-[770px] max-w-none"><div className="theme-preview-scale" dangerouslySetInnerHTML={{ __html: themeMarkup(year || 'Year', englishTheme || 'English theme', tamilTheme || 'Tamil theme', verse || 'Bible verse', message) }} /></div></div>

@@ -5,6 +5,7 @@ import { createWeeklyProgram, deleteWeeklyProgram, getMembers, getWeeklyPrograms
 import { Member, WeeklyProgram } from '../data/memberStore'
 import { currentYearDateBounds, todayDate } from '../data/dateBounds'
 import { useRefreshOnFocus } from '../data/refresh'
+import calendarMonthArt from '../assets/attendance-calendar-month.png'
 
 const today = todayDate()
 const ordered = (items: WeeklyProgram[]) => [...items].sort((a, b) => b.date.localeCompare(a.date) || a.serialNo - b.serialNo)
@@ -102,7 +103,7 @@ export default function AdminWeeklyPrograms() {
   }
 
   return <section className="soft-card mt-6">
-    <div className="mb-5 flex items-center gap-3"><span className="icon-box"><CalendarDays size={19} /></span><div><p className="eyebrow">Weekly program</p><h2 className="mt-1 text-2xl font-black">Add weekly program</h2><p className="mt-1 text-sm text-slate-500">Add up to 15 program rows for each date.</p></div></div>
+    <div className="mb-5 flex items-center gap-3"><span className="admin-section-art"><img src={calendarMonthArt} alt="" /></span><div><p className="eyebrow">Weekly program</p><h2 className="mt-1 text-2xl font-black">Add weekly program</h2><p className="mt-1 text-sm text-slate-500">Add up to 15 program rows for each date.</p></div></div>
     <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-[150px_110px_1fr_1fr_auto]">
       <label className="field-label">Date<input type="date" min={yearBounds.min} max={yearBounds.max} value={date} onChange={event => setDate(event.target.value)} className="field" /></label>
       <label className="field-label">Sl.No<input type="number" min="1" max="15" value={serialNo} onChange={event => setSerialNo(event.target.value)} className="field" placeholder="1–15" /></label>

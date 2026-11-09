@@ -1,25 +1,14 @@
-import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
-import { CalendarDays, ChevronLeft, ChevronRight, ImagePlus, Pencil, Trash2 } from 'lucide-react'
+import { ChangeEvent, useEffect, useRef, useState } from 'react'
+import { ImagePlus, Pencil, Trash2 } from 'lucide-react'
 import { createGalleryPhoto, deleteGalleryPhoto, getGallery, updateGalleryPhoto } from '../data/api'
 import { GalleryPhoto } from '../data/memberStore'
 import { todayDate } from '../data/dateBounds'
+import calendarYearArt from '../assets/attendance-calendar-year.png'
 
 const emptyPhoto: Omit<GalleryPhoto, 'id'> = {
   photo: '',
   date: todayDate(),
   description: '',
-}
-
-const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-const monthLabel = new Intl.DateTimeFormat(undefined, { month: 'long', year: 'numeric' })
-const fullDateLabel = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'long', year: 'numeric' })
-
-const dateKey = (year: number, month: number, day: number) =>
-  `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-
-const monthFromDate = (value: string) => {
-  const [year, month] = value.split('-').map(Number)
-  return new Date(year, month - 1, 1)
 }
 
 export default function AdminGallery() {
@@ -28,29 +17,7 @@ export default function AdminGallery() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [message, setMessage] = useState('')
   const [optimizing, setOptimizing] = useState(false)
-  const [visibleMonth, setVisibleMonth] = useState(() => monthFromDate(emptyPhoto.date))
-  const [selectedDate, setSelectedDate] = useState(emptyPhoto.date)
-  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-
-  const photosByDate = useMemo(() => {
-    const grouped = new Map<string, GalleryPhoto[]>()
-    photos.forEach(item => grouped.set(item.date, [...(grouped.get(item.date) || []), item]))
-    return grouped
-  }, [photos])
-
-  const calendarDays = useMemo(() => {
-    const year = visibleMonth.getFullYear()
-    const month = visibleMonth.getMonth()
-    const firstWeekday = new Date(year, month, 1).getDay()
-    const daysInMonth = new Date(year, month + 1, 0).getDate()
-    return Array.from({ length: 42 }, (_, index) => {
-      const day = index - firstWeekday + 1
-      return day > 0 && day <= daysInMonth ? { day, key: dateKey(year, month, day) } : null
-    })
-  }, [visibleMonth])
-
-  const selectedEvents = photosByDate.get(selectedDate) || []
 
   useEffect(() => {
     getGallery()
@@ -61,18 +28,7 @@ export default function AdminGallery() {
   const resetForm = () => {
     setPhoto(emptyPhoto)
     setEditingId(null)
-    setSelectedDate(emptyPhoto.date)
-    setVisibleMonth(monthFromDate(emptyPhoto.date))
     if (inputRef.current) inputRef.current.value = ''
-  }
-
-  const chooseCalendarDate = (value: string) => {
-    setSelectedDate(value)
-    setPhoto(current => ({ ...current, date: value }))
-  }
-
-  const changeMonth = (offset: number) => {
-    setVisibleMonth(current => new Date(current.getFullYear(), current.getMonth() + offset, 1))
   }
 
   const upload = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -143,10 +99,10 @@ export default function AdminGallery() {
   }
 
   const remove = async (id: string) => {
+    if (!window.confirm('Delete this gallery photo? This cannot be undone.')) return
     try {
       await deleteGalleryPhoto(id)
       setPhotos(current => current.filter(item => item.id !== id))
-      setPendingDeleteId(null)
       setMessage('Gallery photo deleted successfully.')
     } catch {
       setMessage('Could not delete gallery photo.')
@@ -156,58 +112,17 @@ export default function AdminGallery() {
   const edit = (item: GalleryPhoto) => {
     setEditingId(item.id)
     setPhoto({ photo: item.photo, date: item.date, description: item.description })
-    setSelectedDate(item.date)
-    setVisibleMonth(monthFromDate(item.date))
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   return (
     <section className="admin-gallery-inline mt-6 border-t border-slate-200 pt-8">
       <div className="mb-5 flex items-center gap-3">
-        <span className="icon-box"><CalendarDays size={19} /></span>
+        <span className="admin-section-art"><img src={calendarYearArt} alt="" /></span>
         <div>
           <p className="eyebrow">Gallery</p>
           <h2 className="mt-1 text-2xl font-black">Add event photos</h2>
           <p className="mt-1 text-sm text-slate-500">Upload a photo, event date and description. It will appear in the public Gallery.</p>
-        </div>
-      </div>
-
-      <div className="event-calendar-3d mb-6" aria-labelledby="event-calendar-title">
-        <div className="event-calendar-toolbar">
-          <div>
-            <p className="eyebrow">Event calendar</p>
-            <h3 id="event-calendar-title" className="mt-1 text-xl font-black">{monthLabel.format(visibleMonth)}</h3>
-          </div>
-          <div className="flex items-center gap-2">
-            <button type="button" className="event-calendar-nav" aria-label="Previous month" onClick={() => changeMonth(-1)}><ChevronLeft size={18} /></button>
-            <button type="button" className="event-calendar-today" onClick={() => { const today = todayDate(); setVisibleMonth(monthFromDate(today)); chooseCalendarDate(today) }}>Today</button>
-            <button type="button" className="event-calendar-nav" aria-label="Next month" onClick={() => changeMonth(1)}><ChevronRight size={18} /></button>
-          </div>
-        </div>
-        <div className="event-calendar-weekdays" aria-hidden="true">
-          {dayNames.map(day => <span key={day}>{day}</span>)}
-        </div>
-        <div className="event-calendar-grid">
-          {calendarDays.map((item, index) => item ? (() => {
-            const count = photosByDate.get(item.key)?.length || 0
-            const isSelected = item.key === selectedDate
-            const isToday = item.key === todayDate()
-            return <button
-              type="button"
-              key={item.key}
-              className={`event-calendar-day${count ? ' has-events' : ''}${isSelected ? ' is-selected' : ''}${isToday ? ' is-today' : ''}`}
-              aria-label={`${fullDateLabel.format(new Date(`${item.key}T00:00:00`))}${count ? `, ${count} event photo${count === 1 ? '' : 's'}` : ''}`}
-              aria-pressed={isSelected}
-              onClick={() => chooseCalendarDate(item.key)}
-            >
-              <span>{item.day}</span>
-              {count > 0 && <small>{count}</small>}
-            </button>
-          })() : <span key={`blank-${index}`} className="event-calendar-blank" />)}
-        </div>
-        <div className="event-calendar-summary" aria-live="polite">
-          <span className="event-calendar-date-badge"><CalendarDays size={16} /> {fullDateLabel.format(new Date(`${selectedDate}T00:00:00`))}</span>
-          <p>{selectedEvents.length ? `${selectedEvents.length} event photo${selectedEvents.length === 1 ? '' : 's'} saved for this date.` : 'No event photos saved for this date. The upload form is ready for it.'}</p>
         </div>
       </div>
 
@@ -221,7 +136,7 @@ export default function AdminGallery() {
             {photo.photo && <img src={photo.photo} alt="Selected event" className="h-36 w-full rounded-xl object-cover" />}
             <label className="field-label">
               Event date
-              <input type="date" value={photo.date} onChange={event => { const value = event.target.value; if (!value) return; setPhoto(current => ({ ...current, date: value })); setSelectedDate(value); setVisibleMonth(monthFromDate(value)) }} className="field" />
+              <input type="date" value={photo.date} onChange={event => setPhoto(current => ({ ...current, date: event.target.value }))} className="field" />
             </label>
             <label className="field-label">
               Description
@@ -246,11 +161,7 @@ export default function AdminGallery() {
                 {item.description && <p className="mt-2 text-sm leading-6 text-slate-600">{item.description}</p>}
                 <div className="mt-3 flex gap-2">
                   <button onClick={() => edit(item)} className="secondary-dark-btn"><Pencil size={14} /> Edit</button>
-                  {pendingDeleteId === item.id ? <div className="flex flex-wrap items-center gap-2" role="group" aria-label={`Confirm deletion of event photo from ${item.date}`}>
-                    <span className="text-xs font-bold text-rose-700">Delete permanently?</span>
-                    <button type="button" onClick={() => void remove(item.id)} className="rounded-xl bg-rose-700 px-3 py-2 text-sm font-bold text-white">Delete</button>
-                    <button type="button" onClick={() => setPendingDeleteId(null)} className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700">Cancel</button>
-                  </div> : <button type="button" onClick={() => setPendingDeleteId(item.id)} className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-bold text-rose-700"><Trash2 size={14} /> Delete</button>}
+                  <button onClick={() => void remove(item.id)} className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-bold text-rose-700"><Trash2 size={14} /> Delete</button>
                 </div>
               </div>
             </article>

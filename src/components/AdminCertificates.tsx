@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Award, Download, RefreshCw } from 'lucide-react'
+import { Download, RefreshCw } from 'lucide-react'
 import { getAttendance, getMembers, getProgramPoints } from '../data/api'
 import { getCertificateAwards, type CertificateAward } from '../data/certificates'
 import { downloadHtmlPdf } from '../data/pdf'
 import type { AttendanceRecord, Member, ProgramPoint } from '../data/memberStore'
 import ydmLogo from '../assets/jsc-ydm-logo-certificate.png'
+import certificateArtwork from '../assets/admin-certificate-3d.jpg'
 
 const verse = 'And whatsoever ye do, do it heartily, as to the Lord, and not unto men;'
 const escapeHtml = (value: string) => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;')
@@ -86,7 +87,7 @@ export default function AdminCertificates() {
 
   return <section className="soft-card admin-certificates" aria-labelledby="admin-certificates-title">
     <div className="flex flex-wrap items-start justify-between gap-4">
-      <div className="flex items-start gap-3"><span className="icon-box shrink-0"><Award size={20} /></span><div><p className="eyebrow">Recognition</p><h2 id="admin-certificates-title" className="mt-1 text-2xl font-black">Certificates</h2><p className="mt-1 text-sm text-slate-500">Honour the young people who showed faithfulness in attendance and gave their best in Bible Quiz, Bible Reference and Song Survey.</p></div></div>
+      <div className="flex items-start gap-3"><span className="admin-section-art admin-section-art-light shrink-0"><img src={certificateArtwork} alt="" /></span><div><p className="eyebrow">Recognition</p><h2 id="admin-certificates-title" className="mt-1 text-2xl font-black">Certificates</h2><p className="mt-1 text-sm text-slate-500">Honour the young people who showed faithfulness in attendance and gave their best in Bible Quiz, Bible Reference and Song Survey.</p></div></div>
       <button type="button" onClick={() => void refresh()} disabled={loading} className="secondary-dark-btn disabled:cursor-not-allowed disabled:opacity-60"><RefreshCw size={17} /> Refresh results</button>
     </div>
     <div className="mt-5 grid gap-3 sm:grid-cols-[180px_220px_1fr]"><label className="field-label">Year<select className="field" value={year} onChange={event => { setYear(event.target.value); setSelectedId('') }}>{years.map(value => <option key={value} value={value}>{value}</option>)}</select></label><label className="field-label">Award type<select className="field" value={filter} onChange={event => { setFilter(event.target.value as typeof filter); setSelectedId('') }}><option value="all">All certificates</option><option value="attendance">Perfect attendance</option><option value="program">Program awards</option></select></label><p className="self-end text-sm text-slate-500">Perfect attendance means being present at every recorded meeting in the selected year. Program honours are based on total points within each seniority group, and members with equal scores share the same place.</p></div>
