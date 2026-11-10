@@ -104,7 +104,10 @@ export default async function handler(req: any, res: any) {
       const ipHash = createHash('sha256').update(ip).digest('hex')
       const storedVisitorId = visitorCookieId(req)
       const visitorId = storedVisitorId || randomUUID()
-      if (!storedVisitorId) res.setHeader('Set-Cookie', visitorCookie(visitorId))
+      // Keep the anonymous browser identity on a rolling expiry. Returning
+      // visitors receive the same ID again, so ordinary browser/device
+      // restarts and new deployments do not create a replacement identity.
+      res.setHeader('Set-Cookie', visitorCookie(visitorId))
       const visitorHash = createHash('sha256').update(`browser-v1:${visitorId}`).digest('hex')
       const legacyHash = `legacy-ip:${ipHash}`
       const location = visitorLocation(req)
