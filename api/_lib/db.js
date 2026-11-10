@@ -191,7 +191,19 @@ export async function ensureSchema() {
     for (const row of previousYears) {
       const year = String(row.year)
       const exists = await sql`SELECT 1 FROM yeararchive WHERE year=${year}`
-      if (exists[0]) continue
+      if (exists[0]) {
+        // A year archive may already have been created from attendance or
+        // program points before weekly programs for that year are processed.
+        // Merge those rows into the existing protected payload instead of
+        // leaving completed-year programs in the active table.
+        const weekly = await sql`SELECT id,date,serial_no AS "serialNo",program_name AS "programName",member_id AS "memberId",member_name AS "memberName",archived_at AS "archivedAt" FROM weekly_programs WHERE LEFT(date,4)=${year}`
+        if (weekly.length) {
+          const weeklyPayload = JSON.stringify(weekly)
+          await sql`UPDATE yeararchive SET payload=jsonb_set(payload, '{weekly}', COALESCE(payload->'weekly', '[]'::jsonb) || ${weeklyPayload}::jsonb) WHERE year=${year}`
+          await sql`DELETE FROM weekly_programs WHERE LEFT(date,4)=${year}`
+        }
+        continue
+      }
       const [members, attendance, points, weekly] = await Promise.all([
         sql`SELECT id,name,role,email,phone,address,gender,seniority,date_of_birth AS "dateOfBirth",focus,photo,photo_name AS "photoName",active_year AS "activeYear" FROM members WHERE active_year=${year}`,
         sql`SELECT id,member_id AS "memberId",name,date,present,note FROM attendance WHERE LEFT(date,4)=${year}`,

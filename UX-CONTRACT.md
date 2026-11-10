@@ -24,7 +24,7 @@ The sign-in form calls `POST /api/auth/login` with same-origin JSON. A successfu
 
 ## Weekly-program archive
 
-The public program section is absent when there are no active rows. Rows expire after their program date and become archive records. The admin archive has an internal maximum-height scroll surface; each date row has one PDF download action for that week's records. The action is disabled only when no corresponding archive row exists.
+The public program section is absent when there are no active rows. Rows expire after their program date and become archive records. The admin archive has an internal maximum-height scroll surface; each date row has one PDF download action for that week's records. The action is disabled only when no corresponding archive row exists. At the India-calendar new-year boundary, completed-year weekly programs move into the protected Year Archive with that year's members, attendance, and program points. They remain read-only and are included in the annual archive PDF.
 
 ## Annual member archive
 
