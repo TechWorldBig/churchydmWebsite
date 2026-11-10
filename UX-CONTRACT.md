@@ -30,6 +30,10 @@ The public program section is absent when there are no active rows. Rows expire 
 
 Anonymous visitor totals use a rolling HttpOnly browser identifier and exclude recognized automated user agents before database writes. First-visit requests are serialized across tabs where the browser supports Web Locks. Daily totals and device counts deduplicate browser identifiers for the selected India-calendar day. The location table is limited to that same day and groups matching approximate location and device values; its activity count represents browser-hour records, not people or exact addresses.
 
+## Public leadership details
+
+The homepage reads YDM president names from active-year member records. Only roles normalized exactly to `President` or `YDM President` qualify; Vice President, former-president labels, and all other roles are excluded. Multiple current presidents retain database order and are joined for display. If no current president is assigned, the homepage states that directly instead of showing a stale hardcoded name.
+
 ## Annual member archive
 
 Members belong to an India-calendar ministry year. At a new year boundary, current members are automatically hidden from active public and admin member lists, while their profiles remain read-only in the protected Year Archive alongside that year's attendance and program points. This is a safe logical archive: no historical member, attendance, or score data is deleted. The selected archive year can be downloaded as an admin-only PDF.

@@ -201,6 +201,20 @@ input[type='date']:active { transform: perspective(20rem) translateY(.18rem) rot
 .search-button-3d { border: 1px solid rgba(227,188,98,.35); box-shadow: inset 0 1px 1px rgba(255,255,255,.16), 0 6px 0 #0a382d, 0 14px 22px rgba(7,31,25,.2); transform: perspective(14rem) rotateX(3deg); }
 .search-button-3d:hover { box-shadow: inset 0 1px 1px rgba(255,255,255,.16), 0 8px 0 #0a382d, 0 18px 25px rgba(7,31,25,.22); }
 .search-button-3d:active { box-shadow: inset 0 2px 5px rgba(0,0,0,.28), 0 2px 0 #0a382d; transform: translateY(.28rem) perspective(14rem) rotateX(3deg); }
+.attendance-year-card {
+  position: relative;
+  overflow: hidden;
+}
+.attendance-year-card::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #087f5b 0%, #e3bc62 100%);
+  content: "";
+  opacity: 0.9;
+}
 .attendance-search-card { box-shadow: 0 10px 0 rgba(15,23,42,.035), 0 18px 30px rgba(7,31,25,.07); transition: transform .3s ease, box-shadow .3s ease; }
 .attendance-search-card:hover { box-shadow: 0 16px 0 rgba(15,23,42,.035), 0 28px 40px rgba(7,31,25,.12); transform: translateY(-.3rem) rotateX(1deg) rotateY(-1deg); }
 .attendance-member-banner { background: radial-gradient(circle at 50% 20%, rgba(227,188,98,.12), transparent 35%), #061e18; border-bottom: 1px solid rgba(227,188,98,.18); }

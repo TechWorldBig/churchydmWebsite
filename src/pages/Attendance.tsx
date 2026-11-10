@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
-import { CalendarCheck, CalendarDays, Search, X } from 'lucide-react'
+import { CalendarCheck, CalendarDays, ChevronDown, History, Search, X } from 'lucide-react'
 import PageHero from '../components/PageHero'
 import { AttendanceRecord, Member } from '../data/memberStore'
 import { getAttendance, getLastUpdated, getMembers } from '../data/api'
@@ -104,7 +104,66 @@ export default function Attendance() {
     <PageHero compact eyebrow="Participation" title="Attendance" description="View member attendance information in one place." icon={<CalendarCheck size={15} />} />
     <section className="attendance-page py-10 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-5 lg:px-8">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-3"><div><p className="eyebrow">Attendance year</p><p className="mt-1 text-sm text-slate-500">Choose the current year or the immediately completed year.</p></div><label className="field-label w-full sm:w-52">Year<select aria-label="Attendance year" className="field mt-1" value={selectedYear} onChange={event => { setSelectedYear(event.target.value); setFromDate(''); setToDate(''); resetSearch() }}><option value={currentYear}>{currentYear} · Current year</option><option value={String(Number(currentYear) - 1)}>{Number(currentYear) - 1} · Archived year</option></select></label></div>
+        <div className="attendance-year-card mb-8 rounded-3xl border border-slate-200/80 bg-white p-5 shadow-[0_12px_36px_rgba(7,31,25,0.04)] transition duration-300 sm:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3.5 sm:items-center">
+              <span className="icon-box shrink-0" aria-hidden="true">
+                <CalendarCheck size={20} className="text-emerald-800" />
+              </span>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="eyebrow">Attendance year</p>
+                  {selectedYear === currentYear ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-800">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                      Live {currentYear}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-800">
+                      <History size={11} className="text-amber-700" />
+                      Archived {Number(currentYear) - 1}
+                    </span>
+                  )}
+                </div>
+                <h2 className="mt-1 text-lg font-black text-slate-900 sm:text-xl">
+                  {selectedYear === currentYear ? `Current Ministry Cycle · ${currentYear}` : `Archived Ministry Records · ${selectedYear}`}
+                </h2>
+                <p className="mt-0.5 text-xs text-slate-500 sm:text-sm">
+                  Choose the current year or the immediately completed year.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5 sm:items-end">
+              <label htmlFor="attendance-year-select" className="field-label">
+                Year
+              </label>
+              <div className="relative w-full sm:w-60">
+                <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-emerald-800" aria-hidden="true">
+                  <CalendarDays size={16} />
+                </span>
+                <select
+                  id="attendance-year-select"
+                  aria-label="Attendance year"
+                  className="w-full appearance-none rounded-xl border border-slate-200/90 bg-slate-50/80 py-2.5 pl-10 pr-9 text-sm font-bold text-slate-900 shadow-sm transition hover:border-emerald-300 hover:bg-white focus:border-emerald-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600/20 cursor-pointer min-h-[2.65rem]"
+                  value={selectedYear}
+                  onChange={event => {
+                    setSelectedYear(event.target.value)
+                    setFromDate('')
+                    setToDate('')
+                    resetSearch()
+                  }}
+                >
+                  <option value={currentYear}>{currentYear} · Current year</option>
+                  <option value={String(Number(currentYear) - 1)}>{Number(currentYear) - 1} · Archived year</option>
+                </select>
+                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400" aria-hidden="true">
+                  <ChevronDown size={16} />
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
         <div className="attendance-stats-grid grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {stats.map(([label, value, artwork]) => <article key={label} className={`soft-card attendance-stat-card p-4 sm:p-5${label === 'Attendance updated' ? ' attendance-updated-card' : ''}`}>
             <img src={artwork} width="400" height="400" alt="" aria-hidden="true" draggable={false} onContextMenu={preventImageSave} onDragStart={preventImageSave} className="attendance-stat-art" />
