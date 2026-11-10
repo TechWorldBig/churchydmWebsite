@@ -15,10 +15,13 @@ const Offering = lazy(() => import('./pages/Offering'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 const RouteLoading = () => <div className="grid min-h-[45vh] place-items-center px-5" role="status"><p className="text-sm font-bold text-emerald-800">Loading page…</p></div>
+const recordAnonymousVisitor = () => navigator.locks
+  ? navigator.locks.request('ydm-anonymous-visitor', { mode: 'exclusive' }, () => recordVisitor())
+  : recordVisitor()
 
 export default function App() {
   useEffect(() => {
-    recordVisitor().catch(() => undefined)
+    recordAnonymousVisitor().catch(() => undefined)
   }, [])
   return (
     <NetworkGate>

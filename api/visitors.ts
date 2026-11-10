@@ -9,7 +9,11 @@ const indiaHourParts = () => {
   const value = (type: string) => parts.find(part => part.type === type)?.value || ''
   return { date: `${value('year')}-${value('month')}-${value('day')}`, hour: Number(value('hour')) }
 }
-const validDate = (value: unknown): value is string => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/u.test(value)
+export const validVisitorDate = (value: unknown): value is string => {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/u.test(value)) return false
+  const parsed = new Date(`${value}T00:00:00.000Z`)
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value
+}
 const validVisitorId = (value: unknown): value is string => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu.test(value)
 const visitorCookieId = (req: any): string => {
   const prefix = `${visitorCookieName()}=`
@@ -33,10 +37,11 @@ const visitorLocation = (req: any) => ({
   longitude: headerValue(req, 'x-vercel-ip-longitude'),
   timezone: headerValue(req, 'x-vercel-ip-timezone'),
 })
+export const isAutomatedVisitor = (userAgent: unknown): boolean => /bot|crawler|spider|preview|headlesschrome|lighthouse|pagespeed|uptime|monitoring|vercel-screenshot|facebookexternalhit|curl|wget|python-requests|go-http-client/u.test(String(userAgent || '').toLowerCase())
 const deviceType = (req: any): 'mobile' | 'tablet' | 'desktop' | 'unknown' => {
   const agent = String(req.headers['user-agent'] || '').toLowerCase()
   if (!agent) return 'unknown'
-  if (/bot|crawler|spider|preview/u.test(agent)) return 'unknown'
+  if (isAutomatedVisitor(agent)) return 'unknown'
   if (/ipad|tablet|playbook|silk/u.test(agent) || (agent.includes('android') && !agent.includes('mobile'))) return 'tablet'
   if (/mobile|iphone|ipod|android|windows phone/u.test(agent)) return 'mobile'
   return 'desktop'
@@ -47,13 +52,15 @@ export default async function handler(req: any, res: any) {
   try {
     if (req.method === 'POST' && !sameOriginMutation(req)) return res.status(403).json({ error: 'Request not allowed.' })
     if (req.method === 'POST' && !isJsonContentType(req.headers['content-type'])) return res.status(415).json({ error: 'JSON content type is required.' })
+    if (req.method === 'POST' && isAutomatedVisitor(req.headers['user-agent'])) return res.status(200).json({ ok: true, ignored: true })
     if (req.method === 'GET' && !await getSessionExpiry(req)) return res.status(401).json({ error: 'Unauthorized' })
+    if (req.method === 'GET' && req.query?.date !== undefined && !validVisitorDate(req.query.date)) return res.status(400).json({ error: 'Invalid visitor date.' })
     await ensureSchema()
     const sql = getSql()
 
     if (req.method === 'GET') {
       if (await endpointRateLimited(req, res, 'visitors-admin', 120)) return
-      const requestedDate = validDate(req.query?.date) ? req.query.date : indiaHourParts().date
+      const requestedDate = req.query?.date || indiaHourParts().date
       const { start, end } = indiaDayBounds(requestedDate)
       const rows = await sql`SELECT RIGHT(hour_key, 2)::int AS hour, device_type AS device, COUNT(DISTINCT visitor_hash)::int AS count FROM website_visitor_activity WHERE hour_key LIKE ${requestedDate + '-%'} GROUP BY hour, device_type ORDER BY hour`
       const dayVisitors = await sql`SELECT DISTINCT ON (visitor_hash) visitor_hash, device_type AS device FROM website_visitor_activity WHERE hour_key LIKE ${requestedDate + '-%'} ORDER BY visitor_hash, created_at DESC`
@@ -78,10 +85,13 @@ export default async function handler(req: any, res: any) {
           COALESCE(NULLIF(h.longitude, ''), i.longitude) AS longitude,
           COALESCE(NULLIF(h.timezone, ''), i.timezone) AS timezone,
           h.device_type AS device,
-          h.created_at AS "lastSeenAt"
+          MAX(h.created_at) AS "lastSeenAt",
+          COUNT(*)::int AS "activityCount"
         FROM website_visitor_activity h
         JOIN website_visitors i ON i.visitor_hash = h.visitor_hash
-        ORDER BY h.created_at DESC
+        WHERE h.hour_key LIKE ${requestedDate + '-%'}
+        GROUP BY 1, 2, 3, 4, 5, 6, 7
+        ORDER BY MAX(h.created_at) DESC
         LIMIT 5000
       `
       const counts = Array.from({ length: 24 }, (_, hour) => ({ hour, count: rows.filter(row => row.hour === hour).reduce((sum, row) => sum + Number(row.count), 0) }))

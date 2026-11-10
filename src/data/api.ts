@@ -19,6 +19,7 @@ export type VisitorLocation = {
   timezone: string
   device: string
   lastSeenAt: string
+  activityCount: number
 }
 
 export type AssistantTurn = {
@@ -41,7 +42,7 @@ export const updateProgramPoint = (point: ProgramPoint) => request<{ ok: boolean
 export const deleteProgramPoint = (id: string) => request<{ ok: boolean }>('/api/program-points', { method: 'DELETE', body: JSON.stringify({ id }) })
 export const getLastUpdated = () => request<{ value: string | null; version: string }>('/api/updated')
 export const getVisitorTotal = () => request<{ total: number }>('/api/visitors')
-export const recordVisitor = () => request<{ ok: boolean }>('/api/visitors', { method: 'POST', body: '{}' })
+export const recordVisitor = () => request<{ ok: boolean; ignored?: boolean }>('/api/visitors', { method: 'POST', body: '{}' })
 export const getVisitorStats = (date?: string) => request<{ date: string; hours: Array<{ hour: number; count: number; devices: Record<string, number> }>; devices: Array<{ device: string; count: number }>; locations: VisitorLocation[]; dailyNew: number; dailyReturning: number; dailyTraffic: number; total: number }>(`/api/visitors${date ? `?date=${encodeURIComponent(date)}` : ''}`)
 export const getAuditLogs = () => request<AuditLog[]>('/api/audit-logs')
 export const createMember = (member: Member) => request<{ ok: boolean }>('/api/members', { method: 'POST', body: JSON.stringify(member) })

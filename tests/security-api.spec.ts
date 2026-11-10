@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs'
 import { expect, test } from '@playwright/test'
 import auth from '../api/auth'
 import login from '../api/auth/login'
-import visitors from '../api/visitors'
+import visitors, { isAutomatedVisitor, validVisitorDate } from '../api/visitors'
 import members from '../api/members'
 import attendance from '../api/attendance'
 import gallery from '../api/gallery'
@@ -104,6 +104,21 @@ test('visitor tracking rejects cross-origin writes before database access', asyn
   call.req.headers.origin = 'https://attacker.test'
   await visitors(call.req, call.res)
   expect(call.result.status).toBe(403)
+})
+
+test('visitor analytics identifies impossible dates and ignores recognized automation before database access', async () => {
+  expect(validVisitorDate('2026-11-10')).toBe(true)
+  expect(validVisitorDate('2026-02-29')).toBe(false)
+  expect(validVisitorDate('2026-99-99')).toBe(false)
+  expect(isAutomatedVisitor('Mozilla/5.0 HeadlessChrome/141.0')).toBe(true)
+  expect(isAutomatedVisitor('Mozilla/5.0 Chrome/141.0 Safari/537.36')).toBe(false)
+
+  const bot = request('POST')
+  ;(bot.req.headers as Record<string, string>)['user-agent'] = 'Mozilla/5.0 HeadlessChrome/141.0'
+  await visitors(bot.req, bot.res)
+  expect(bot.result.status).toBe(200)
+  expect(bot.result.body).toEqual({ ok: true, ignored: true })
+  expect(bot.result.headers['Set-Cookie']).toBeUndefined()
 })
 
 test('shared endpoint limiter returns retry guidance after the route limit', async () => {
