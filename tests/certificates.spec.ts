@@ -40,8 +40,8 @@ test('leadership appreciation excludes YDM members and children', () => {
 })
 
 test('overall champion requires perfect attendance and all three program wins', () => {
-  const champion = member('champion', 'Champion', 'Junior', 'President')
-  const otherLevel = member('other-level', 'Other Level', 'Kutties', 'Secretary')
+  const champion = member('champion', 'Champion', 'Junior', 'Member')
+  const otherLevel = member('other-level', 'Other Level', 'Kutties', 'Children')
   const records: AttendanceRecord[] = [
     { id: 'a1', memberId: champion.id, name: champion.name, date: `${year}-09-01`, present: true, note: '' },
     { id: 'a2', memberId: otherLevel.id, name: otherLevel.name, date: `${year}-09-01`, present: true, note: '' },

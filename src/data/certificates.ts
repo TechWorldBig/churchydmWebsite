@@ -80,8 +80,7 @@ export function getCertificateAwards(members: Member[], records: AttendanceRecor
     }
   }
   const overallAwards: CertificateAward[] = members.flatMap(member => {
-    const normalizedRole = member.role.trim().toLowerCase().replace(/^ydm\s+/u, '')
-    if (!perfectAttendanceIds.has(member.id) || !normalizedRole || normalizedRole === 'member' || normalizedRole === 'children' || normalizedRole.includes('children')) return []
+    if (!perfectAttendanceIds.has(member.id)) return []
     const isFirstInEveryProgram = programs.every(program => firstPlaceByProgram.get(`${member.seniority}-${program}`)?.has(member.id))
     if (!isFirstInEveryProgram) return []
     return [{
