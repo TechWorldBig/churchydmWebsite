@@ -13,7 +13,7 @@ test('homepage displays only current database presidents', async ({ page }) => {
 
   await page.goto('/')
 
-  const leadership = page.locator('.home-cta').getByText(/^YDM Presidents:/)
+  const leadership = page.locator('.home-cta p').filter({ hasText: 'YDM Presidents:' })
   await expect(leadership).toHaveText('YDM Presidents: Current One & Current Two', { timeout: 15_000 })
   await expect(page.locator('.home-cta')).not.toContainText('Vice Person')
   await expect(page.locator('.home-cta')).not.toContainText('Former Person')
