@@ -15,6 +15,7 @@ import calendarMonthArt from '../assets/attendance-calendar-month.png'
 import calendarYearArt from '../assets/attendance-calendar-year.png'
 import yearlyChartArt from '../assets/attendance-yearly-chart.png'
 import timeUpdatedArt from '../assets/attendance-time-updated.png'
+import attendanceYearArt from '../assets/attendance-year-clipboard.png'
 
 const formatDate = (value: string) => new Date(`${value}T00:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
 const formatDateTime = (value: string) => new Date(value).toLocaleString(undefined, { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' })
@@ -107,8 +108,17 @@ export default function Attendance() {
         <div className="attendance-year-card mb-8 rounded-3xl border border-slate-200/80 bg-white p-5 shadow-[0_12px_36px_rgba(7,31,25,0.04)] transition duration-300 sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-3.5 sm:items-center">
-              <span className="icon-box shrink-0" aria-hidden="true">
-                <CalendarCheck size={20} className="text-emerald-800" />
+              <span className="relative grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-emerald-200/70 bg-gradient-to-br from-emerald-50 via-white to-emerald-100/60 p-1.5 shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_6px_18px_rgba(7,31,25,0.08)] sm:h-16 sm:w-16" aria-hidden="true">
+                <img
+                  src={attendanceYearArt}
+                  width="400"
+                  height="400"
+                  alt=""
+                  draggable={false}
+                  onContextMenu={preventImageSave}
+                  onDragStart={preventImageSave}
+                  className="h-full w-full object-contain filter drop-shadow-[0_4px_8px_rgba(7,31,25,0.16)] select-none pointer-events-none transition-transform duration-300 hover:scale-105"
+                />
               </span>
               <div>
                 <div className="flex flex-wrap items-center gap-2">
