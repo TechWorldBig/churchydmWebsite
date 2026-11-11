@@ -36,6 +36,37 @@ test('attendance PDF includes Senior 2 days absent under Senior members · 2 day
   expect(html).toContain('Kabin')
 
   // Junior sections
+  expect(html).toContain('Junior members · Present every day')
   expect(html).toContain('Junior members · 1 day absent')
   expect(html).toContain('Mary')
+  expect(html).toContain('Junior members · 2 days absent')
+  expect(html).toContain('No qualifying members')
 })
+
+test('attendance PDF always includes all award tiers even when a tier has no qualifying members', () => {
+  const members: Member[] = [
+    { id: 'senior-1', name: 'Abhishek M A', role: 'Leader', email: '', phone: '', address: '', gender: 'Male', seniority: 'Senior', dateOfBirth: '', focus: '', photo: '' },
+    { id: 'senior-2', name: 'Jeba Kiruba', role: 'Member', email: '', phone: '', address: '', gender: 'Female', seniority: 'Senior', dateOfBirth: '', focus: '', photo: '' },
+  ]
+
+  const records: AttendanceRecord[] = [
+    { id: 'a1', memberId: 'senior-1', name: 'Abhishek M A', date: '2026-01-04', present: true, note: '' },
+    { id: 'a2', memberId: 'senior-1', name: 'Abhishek M A', date: '2026-01-11', present: true, note: '' },
+    { id: 'a3', memberId: 'senior-2', name: 'Jeba Kiruba', date: '2026-01-04', present: true, note: '' },
+    { id: 'a4', memberId: 'senior-2', name: 'Jeba Kiruba', date: '2026-01-11', present: false, note: '' },
+  ]
+
+  const html = attendanceReport(members, records)
+
+  // Every tier must always be present in the report
+  expect(html).toContain('Senior members · Present every day')
+  expect(html).toContain('Abhishek M A')
+
+  expect(html).toContain('Senior members · 1 day absent')
+  expect(html).toContain('Jeba Kiruba')
+
+  // Crucial check: 2 days absent header must ALWAYS show, never omitted!
+  expect(html).toContain('Senior members · 2 days absent')
+  expect(html).toContain('No qualifying members')
+})
+

@@ -16,7 +16,7 @@ const printOrWord = (html: string, format: string, filename: string, setMessage:
 const shell = (title: string, body: string) => `<html><head><meta charset="utf-8"><title>${esc(title)}</title><style>@page{margin:18mm 14mm 25mm}body{font-family:Arial;padding:8px 18px 90px;color:#071f19}header{text-align:center;margin-bottom:24px}header .blessing{font-size:13px;margin:0 0 5px}header .church{font-size:20px;font-weight:700;margin:0 0 5px}header .report-title{font-size:13px;margin:0}h1,h2{color:#087f5b}h1{border-bottom:2px solid #087f5b;padding-bottom:8px}h2{margin-top:28px}table{border-collapse:collapse;width:100%;font-size:11px;margin-bottom:16px}th,td{border:1px solid #cbd5e1;padding:7px;text-align:left}th{background:#e8f5ef}.empty{color:#64748b;font-style:italic}.signatures{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-between;align-items:flex-end;font-size:12px;padding:10px 18px 0;background:#fff}.presidents{line-height:1.5;font-size:0}.presidents:before{content:'Signature\A YDM President 1 -----------------\A YDM President 2 -----------------';white-space:pre;font-size:12px}.pastor{text-align:right;min-width:170px}.signature-line{border-top:1px solid #071f19;margin-top:28px;padding-top:4px}@media print{.signatures{position:fixed}}</style></head><body><header><p class="blessing">கர்த்தருக்கு ஸ்தோத்திரம்</p><p class="church">JSC YDM Kollemcode</p><p class="report-title">2026 - ${esc(title)}</p></header>${body}<footer class="signatures"><div class="presidents">YDM President 1<br>YDM President 2</div><div class="pastor"><div class="signature-line">Pastor Signature</div></div></footer></body></html>`
 const groupLabel = (seniority: string, absent: number) => `${seniority} members · ${absent === 0 ? 'Present every day' : `${absent} day${absent === 1 ? '' : 's'} absent`}`
 const normalizeSeniority = (value: unknown) => String(value ?? '').trim().toLocaleLowerCase()
-const normalizeName = (value: unknown) => String(value ?? '').trim().toLocaleLowerCase()
+const normalizeName = (value: unknown) => String(value ?? '').trim().toLocaleLowerCase().replace(/\s+/g, ' ')
 const belongsToMember = (record: AttendanceRecord, member: Member) =>
   record.memberId === member.id || (!record.memberId && normalizeName(record.name) === normalizeName(member.name)) || normalizeName(record.name) === normalizeName(member.name)
 
@@ -31,7 +31,10 @@ export const attendanceReport = (members: Member[], records: AttendanceRecord[])
   const deduplicatedRecords = [...dailyAttendance.values()]
 
   const sections = ['Senior', 'Junior'].flatMap(targetSeniority => {
-    const groupMembers = members.filter(m => normalizeSeniority(m.seniority) === normalizeSeniority(targetSeniority))
+    const groupMembers = members.filter(m =>
+      normalizeSeniority(m.seniority) === normalizeSeniority(targetSeniority) ||
+      (!m.seniority && normalizeSeniority(m.role).includes(normalizeSeniority(targetSeniority)))
+    )
     const groupRecords = deduplicatedRecords.filter(record => groupMembers.some(m => belongsToMember(record, m)))
     const groupDays = [...new Set(groupRecords.map(record => record.date))].sort()
 
@@ -56,13 +59,15 @@ export const attendanceReport = (members: Member[], records: AttendanceRecord[])
       const totalRelevantDays = Math.max(groupDays.length, rows.length, presentDays.size + absent)
       const percentage = totalRelevantDays ? Math.round((presentDays.size / totalRelevantDays) * 100) : 100
 
-      return [{ member, seniority: member.seniority || targetSeniority, absent, percentage }]
+      return [{ member, seniority: targetSeniority, absent, percentage }]
     }).filter(item => item.absent <= 2)
 
     return [0, 1, 2].map(absent => {
       const rows = summaries.filter(item => item.absent === absent).sort((a, b) => a.member.name.localeCompare(b.member.name))
-      if (!rows.length) return ''
-      return `<h2>${groupLabel(targetSeniority, absent)}</h2><table><thead><tr><th>Name</th><th>Seniority</th><th>Overall percentage</th></tr></thead><tbody>${rows.map(row => `<tr><td>${esc(row.member.name)}</td><td>${esc(row.seniority)}</td><td>${row.percentage}%</td></tr>`).join('')}</tbody></table>`
+      const bodyRows = rows.length
+        ? rows.map(row => `<tr><td>${esc(row.member.name)}</td><td>${esc(row.seniority)}</td><td>${row.percentage}%</td></tr>`).join('')
+        : '<tr><td colspan="3" class="empty">No qualifying members</td></tr>'
+      return `<h2>${groupLabel(targetSeniority, absent)}</h2><table><thead><tr><th>Name</th><th>Seniority</th><th>Overall percentage</th></tr></thead><tbody>${bodyRows}</tbody></table>`
     })
   }).join('')
 
