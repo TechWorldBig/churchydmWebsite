@@ -1,17 +1,8 @@
-import { randomUUID, createHash } from 'node:crypto'
+import { randomUUID } from 'node:crypto'
 import { ensureSchema, getSql } from './db.js'
-import { getSessionUsername } from './security.js'
+import { clientIp, getSessionUsername, hashClientIp } from './security.js'
 
-const clientIp = (req: any) => {
-  const forwarded = req.headers['x-forwarded-for']
-  const value = Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(',')[0]
-  return String(value || req.headers['x-real-ip'] || req.socket?.remoteAddress || '').trim()
-}
-
-const hashIp = (req: any) => {
-  const ip = clientIp(req)
-  return ip ? createHash('sha256').update(ip).digest('hex') : ''
-}
+const hashIp = (req: any) => hashClientIp(clientIp(req), 'audit-log')
 
 export async function writeAuditLog(req: any, details: { action: string; entity: string; entityId?: string; summary?: string }) {
   await ensureSchema()

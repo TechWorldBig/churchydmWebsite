@@ -1,10 +1,12 @@
-import { createHash, randomBytes, timingSafeEqual } from 'node:crypto'
+import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto'
 import bcrypt from 'bcryptjs'
 import { getSql } from './db.js'
 
 export const SESSION_SECONDS = 8 * 60 * 60
 const cookieName = () => process.env.NODE_ENV === 'production' ? '__Host-ydm-session' : 'ydm-session'
 export const digest = (value: string) => createHash('sha256').update(value).digest('hex')
+const privacyKey = () => process.env.IP_HASH_SECRET || process.env.DATABASE_URL || process.env.POSTGRES_URL || [process.env.PGHOST, process.env.PGUSER, process.env.PGPASSWORD, process.env.PGDATABASE].filter(Boolean).join(':') || 'local-development-ip-hash-key'
+export const hashClientIp = (ip: string, purpose: string) => ip ? createHmac('sha256', privacyKey()).update(`${purpose}:${ip}`).digest('hex') : ''
 const canonicalUsername = (value: string) => value.trim().toLocaleLowerCase('en-US')
 const dummyPasswordHash = '$2b$12$IZna9cstU/wimGDatk8IM.c.zaJnIedsJ9Nfw.cbOGGF4vZBYXpuK'
 
@@ -170,7 +172,7 @@ export async function sharedRateLimited(scope: string, ip: string, limit: number
   await ensureSecuritySchema()
   const sql = getSql()
   const window = Math.floor(Date.now() / (seconds * 1000))
-  const bucket = digest(`${scope}:${ip}:${window}`)
+  const bucket = hashClientIp(ip, `rate-limit:${scope}:${window}`)
   const expires = new Date((window + 1) * seconds * 1000).toISOString()
   await sql`DELETE FROM api_rate_limits WHERE expires_at <= NOW()`
   const rows = await sql`INSERT INTO api_rate_limits (bucket, count, expires_at) VALUES (${bucket}, 1, ${expires}) ON CONFLICT (bucket) DO UPDATE SET count=api_rate_limits.count + 1 RETURNING count`

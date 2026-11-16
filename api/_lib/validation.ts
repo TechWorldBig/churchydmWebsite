@@ -1,7 +1,25 @@
 const text = (value: unknown, limit: number, required = false): boolean => typeof value === 'string' && value.length <= limit && (!required || Boolean(value.trim()))
 const date = (value: unknown): boolean => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/u.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value
-const photo = (value: unknown): boolean => value === '' || (text(value, 2_800_000) && /^data:image\/(?:png|jpeg|webp|gif);base64,[A-Za-z0-9+/]+={0,2}$/u.test(value as string))
+const imageData = /^data:image\/(png|jpeg|webp|gif);base64,([A-Za-z0-9+/]+={0,2})$/u
 const blobPhoto = (value: unknown): boolean => typeof value === 'string' && /^https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com\/[A-Za-z0-9._~!$&'()*+,;=:@%/-]+$/iu.test(value)
+
+const validImageSignature = (type: string, bytes: Buffer) => {
+  if (type === 'png') return bytes.length >= 8 && bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
+  if (type === 'jpeg') return bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff
+  if (type === 'gif') return bytes.length >= 6 && (bytes.subarray(0, 6).toString('ascii') === 'GIF87a' || bytes.subarray(0, 6).toString('ascii') === 'GIF89a')
+  return bytes.length >= 12 && bytes.subarray(0, 4).toString('ascii') === 'RIFF' && bytes.subarray(8, 12).toString('ascii') === 'WEBP'
+}
+
+export const parseImageData = (value: unknown): { type: 'png' | 'jpeg' | 'webp' | 'gif'; bytes: Buffer } | null => {
+  if (typeof value !== 'string' || value.length > 2_800_000) return null
+  const match = value.match(imageData)
+  if (!match) return null
+  const bytes = Buffer.from(match[2], 'base64')
+  const type = match[1] as 'png' | 'jpeg' | 'webp' | 'gif'
+  return bytes.length && bytes.length <= 2_000_000 && validImageSignature(type, bytes) ? { type, bytes } : null
+}
+
+const photo = (value: unknown): boolean => value === '' || Boolean(parseImageData(value))
 
 export function readMutation(req: any, res: any, kind: 'members' | 'attendance' | 'gallery'): any | null {
   try {

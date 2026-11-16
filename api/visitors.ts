@@ -1,5 +1,5 @@
 import { ensureSchema, getSql, sendError } from './_lib/db.js'
-import { clientIp, endpointRateLimited, getSessionExpiry, isJsonContentType, sameOriginMutation, sharedRateLimited } from './_lib/security.js'
+import { clientIp, endpointRateLimited, getSessionExpiry, hashClientIp, isJsonContentType, sameOriginMutation, sharedRateLimited } from './_lib/security.js'
 import { createHash, randomUUID } from 'node:crypto'
 
 const visitorCookieName = () => process.env.NODE_ENV === 'production' ? '__Host-ydm-visitor' : 'ydm-visitor'
@@ -111,7 +111,7 @@ export default async function handler(req: any, res: any) {
         res.setHeader('Retry-After', '60')
         return res.status(429).json({ error: 'Too many visitor requests. Please try again later.' })
       }
-      const ipHash = createHash('sha256').update(ip).digest('hex')
+      const ipHash = hashClientIp(ip, 'visitor-analytics')
       const storedVisitorId = visitorCookieId(req)
       const visitorId = storedVisitorId || randomUUID()
       // Keep the anonymous browser identity on a rolling expiry. Returning

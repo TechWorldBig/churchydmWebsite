@@ -1,5 +1,6 @@
 import { neonConfig } from '@neondatabase/serverless'
 import bcrypt from 'bcryptjs'
+import { createHash } from 'node:crypto'
 import { expect, test } from '@playwright/test'
 import auth from '../api/auth'
 import login from '../api/auth/login'
@@ -7,8 +8,8 @@ import visitors, { isAutomatedVisitor, validVisitorDate } from '../api/visitors'
 import members from '../api/members'
 import attendance from '../api/attendance'
 import gallery from '../api/gallery'
-import { clientIp, endpointRateLimited, isJsonContentType, sameOriginMutation, sameSecret, sessionCookie, sessionToken } from '../api/_lib/security'
-import { readMutation } from '../api/_lib/validation'
+import { clientIp, endpointRateLimited, hashClientIp, isJsonContentType, sameOriginMutation, sameSecret, sessionCookie, sessionToken } from '../api/_lib/security'
+import { parseImageData, readMutation } from '../api/_lib/validation'
 
 function request(method = 'POST', body: unknown = {}) {
   const result = { status: 200, body: null as any, headers: {} as Record<string, string> }
@@ -162,6 +163,22 @@ test('rejects executable images and invalid attendance dates', () => {
   const record = request('POST', { id: 'record', memberId: 'member', name: 'Friend', date: '2026-02-30', present: true })
   expect(readMutation(record.req, record.res, 'attendance')).toBeNull()
   expect(record.result.status).toBe(400)
+})
+
+test('accepts only declared raster image formats with matching binary signatures', () => {
+  const png = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScL9WQAAAABJRU5ErkJggg=='
+  expect(parseImageData(png)).not.toBeNull()
+  expect(parseImageData('data:image/png;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==')).toBeNull()
+})
+
+test('uses purpose-scoped keyed hashes for IP-derived records', () => {
+  const previous = process.env.IP_HASH_SECRET
+  process.env.IP_HASH_SECRET = 'test-keyed-ip-hash-secret'
+  try {
+    const ip = '203.0.113.10'
+    expect(hashClientIp(ip, 'visitor-analytics')).not.toBe(createHash('sha256').update(ip).digest('hex'))
+    expect(hashClientIp(ip, 'visitor-analytics')).not.toBe(hashClientIp(ip, 'audit-log'))
+  } finally { if (previous === undefined) delete process.env.IP_HASH_SECRET; else process.env.IP_HASH_SECRET = previous }
 })
 
 test('login uses a bcrypt password_hash in Neon, rate limits attempts, and creates revocable sessions', async () => {
