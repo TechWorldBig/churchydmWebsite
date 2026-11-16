@@ -1,6 +1,6 @@
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { AlertTriangle, Check, Download, Eye, EyeOff, Github, LoaderCircle, LockKeyhole, Pencil, Plus, Search, ShieldCheck, Sparkles, Trash2, UserCog, WandSparkles, X } from 'lucide-react'
+import { AlertTriangle, Check, Download, Eye, EyeOff, Github, LoaderCircle, LockKeyhole, Pencil, Plus, Search, ShieldCheck, Trash2, UserCog, X } from 'lucide-react'
 import PageHero from '../components/PageHero'
 import { AttendanceRecord, Member } from '../data/memberStore'
 import { createAttendance, createMember, deleteAttendance, deleteMember, getAttendance, getMembers, updateAttendance, updateMember } from '../data/api'
@@ -10,6 +10,7 @@ import AdminMemberExport from '../components/AdminMemberExport'
 import AdminGallery from './AdminGallery'
 import AdminAttendanceExport from '../components/AdminAttendanceExport'
 import AdminVisitorStats from '../components/AdminVisitorStats'
+import adminMario from '../assets/admin-mario.jpg'
 import AdminAuditLogs from '../components/AdminAuditLogs'
 import AdminReports from '../components/AdminReports'
 import AdminCertificates from '../components/AdminCertificates'
@@ -126,20 +127,8 @@ export default function Admin({ section = 'management' }: { section?: 'managemen
 
   if (!isAuthed) return <main className="admin-login flex min-h-[100svh] items-center justify-center px-4 py-24 sm:px-6">
     <section aria-labelledby="admin-login-title" className={`admin-login-card grid w-full max-w-[58rem] overflow-hidden rounded-[2rem] border border-white/80 bg-white shadow-[0_32px_90px_rgba(54,91,128,.18)] lg:grid-cols-[.92fr_1.08fr] ${loginMessage && !loginLocked ? 'admin-login-error' : ''}`}>
-      <aside className="admin-login-art relative isolate flex min-h-56 overflow-hidden p-7 text-[#17324f] sm:p-9 lg:min-h-[38rem] lg:flex-col lg:justify-between" aria-label="AI design workspace illustration">
-        <div className="admin-art-dots" aria-hidden="true" />
-        <span className="admin-art-blob admin-art-blob-one" aria-hidden="true" />
-        <span className="admin-art-blob admin-art-blob-two" aria-hidden="true" />
-        <div className="relative z-10 max-w-xs">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/60 px-3 py-1.5 text-[11px] font-black uppercase tracking-[.13em] backdrop-blur"><Sparkles size={14} /> Creative admin studio</span>
-          <h2 className="mt-5 text-3xl font-black leading-[1.05] tracking-[-.04em] sm:text-4xl">Shape ideas.<br />Guide the story.</h2>
-          <p className="mt-3 max-w-[17rem] text-sm font-semibold leading-6 text-[#294c6c]">A focused workspace for the people building the ministry experience.</p>
-        </div>
-        <div className="admin-art-window relative z-10 ml-auto hidden w-56 rounded-[1.5rem] border border-white/80 bg-white/75 p-4 shadow-[0_18px_40px_rgba(28,71,111,.16)] backdrop-blur sm:block lg:ml-0 lg:w-full">
-          <div className="mb-4 flex gap-1.5" aria-hidden="true"><span className="size-2 rounded-full bg-[#ff7b70]" /><span className="size-2 rounded-full bg-[#ffd36e]" /><span className="size-2 rounded-full bg-[#7ad6c3]" /></div>
-          <div className="grid grid-cols-[2.5rem_1fr] gap-3"><span className="flex size-10 items-center justify-center rounded-xl bg-[#ff806f] text-white"><WandSparkles size={20} /></span><div><span className="block h-2.5 w-4/5 rounded-full bg-[#456e91]/25" /><span className="mt-2 block h-2.5 w-3/5 rounded-full bg-[#456e91]/15" /></div></div>
-          <div className="mt-4 grid grid-cols-3 gap-2" aria-hidden="true"><span className="h-16 rounded-xl bg-[#bde8ff]" /><span className="h-16 rounded-xl bg-[#ffb3a9]" /><span className="h-16 rounded-xl bg-[#ffe29a]" /></div>
-        </div>
+      <aside className="admin-login-art flex min-h-56 items-end justify-center overflow-hidden px-4 pt-5 sm:px-8 lg:min-h-[38rem]" aria-label="Admin character illustration">
+        <img src={adminMario} alt="Admin character" className="admin-login-character max-h-[22rem] w-auto max-w-full object-contain lg:max-h-[36rem]" />
       </aside>
 
       <div className="flex flex-col justify-center p-6 sm:p-10 lg:p-12">
