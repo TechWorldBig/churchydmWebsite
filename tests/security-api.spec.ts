@@ -201,6 +201,11 @@ test('login uses a bcrypt password_hash in Neon, rate limits attempts, and creat
       fields = [{ name: 'count', dataTypeID: 23 }]
       rows = [[String(count)]]
     }
+    if (query.startsWith('SELECT 1 AS locked FROM api_rate_limits')) {
+      fields = [{ name: 'locked', dataTypeID: 23 }]
+      if ((rateLimits.get(params[0]) || 0) >= 5) rows = [['1']]
+    }
+    if (query.startsWith('DELETE FROM api_rate_limits WHERE bucket')) rateLimits.delete(params[0])
     if (query.startsWith('SELECT password_hash FROM admin_credentials')) {
       fields = [{ name: 'password_hash', dataTypeID: 25 }]
       if (passwordHash) rows = [[passwordHash]]
@@ -248,11 +253,18 @@ test('login uses a bcrypt password_hash in Neon, rate limits attempts, and creat
     await members(replay.req, replay.res)
     expect(replay.result.status).toBe(401)
     expect(mutations).toHaveLength(1)
-    for (let index = 0; index < 4; index += 1) await login(request('POST', { username: 'test-admin', password: 'bad-password' }).req, request().res)
-    const limited = request('POST', { username: 'test-admin', password: 'bad-password' })
-    await login(limited.req, limited.res)
-    expect(limited.result.status).toBe(429)
-    expect(limited.result.headers['Retry-After']).toBe('900')
+    for (let index = 0; index < 4; index += 1) {
+      const failed = request('POST', { username: 'test-admin', password: 'bad-password' })
+      await login(failed.req, failed.res)
+      expect(failed.result.status).toBe(401)
+    }
+    const fifthFailure = request('POST', { username: 'test-admin', password: 'bad-password' })
+    await login(fifthFailure.req, fifthFailure.res)
+    expect(fifthFailure.result.status).toBe(429)
+    expect(fifthFailure.result.headers['Retry-After']).toBe('7200')
+    const correctDuringLock = request('POST', { username: 'test-admin', password: process.env.ADMIN_PASSWORD })
+    await login(correctDuringLock.req, correctDuringLock.res)
+    expect(correctDuringLock.result.status).toBe(429)
   } finally {
     neonConfig.fetchFunction = originalFetch
     for (const [key, value] of Object.entries(originalEnv)) {
