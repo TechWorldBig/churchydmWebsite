@@ -3,6 +3,7 @@ import { ImagePlus, Pencil, Trash2 } from 'lucide-react'
 import { createGalleryPhoto, deleteGalleryPhoto, getGallery, updateGalleryPhoto } from '../data/api'
 import { GalleryPhoto } from '../data/memberStore'
 import { todayDate } from '../data/dateBounds'
+import { formatDayMonthYear } from '../data/dateFormat'
 import calendarYearArt from '../assets/attendance-calendar-year.png'
 
 const emptyPhoto: Omit<GalleryPhoto, 'id'> = {
@@ -157,7 +158,7 @@ export default function AdminGallery() {
             <article key={item.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
               <img loading="lazy" decoding="async" src={item.photo} alt={item.description || 'Event photo'} className="h-40 w-full object-cover" />
               <div className="p-4">
-                <p className="text-xs font-bold uppercase tracking-[.14em] text-emerald-700">{item.date}</p>
+                <p className="text-xs font-bold uppercase tracking-[.14em] text-emerald-700">{formatDayMonthYear(item.date)}</p>
                 {item.description && <p className="mt-2 text-sm leading-6 text-slate-600">{item.description}</p>}
                 <div className="mt-3 flex gap-2">
                   <button onClick={() => edit(item)} className="secondary-dark-btn"><Pencil size={14} /> Edit</button>

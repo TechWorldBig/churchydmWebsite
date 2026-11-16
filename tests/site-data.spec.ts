@@ -53,6 +53,8 @@ test('keeps the matching male 3D asset on a desktop attendance search', async ({
 test('renders gallery data and opens and closes the photo dialog', async ({ page }) => {
   await page.goto('/gallery')
   await expect(page.getByText('Youth worship gathering', { exact: true })).toBeVisible()
+  const [year, month] = new Date().toISOString().slice(0, 7).split('-')
+  await expect(page.getByText(`05/${month}/${year}`, { exact: true })).toBeVisible()
   await page.getByText('Youth worship gathering', { exact: true }).click()
   await expect(page.getByRole('dialog', { name: 'Expanded gallery photo' })).toBeVisible()
   await page.keyboard.press('Escape')
