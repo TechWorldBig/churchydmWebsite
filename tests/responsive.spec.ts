@@ -119,7 +119,7 @@ test('admin sign-in remains keyboard accessible and cannot be unlocked by browse
   await expect(page.getByRole('heading', { name: 'Sign in to continue' })).toBeVisible()
   const accessibility = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()
   expect(accessibility.violations.map(item => item.id)).toEqual([])
-  await page.getByLabel('Username').fill('test-admin')
+  await page.getByLabel('Email address').fill('test-admin')
   await page.getByLabel('Password').fill('test-password-only')
   await page.getByLabel('Password').press('Enter')
   await expect(page.getByRole('heading', { name: 'Saved members (2)' })).toBeVisible()

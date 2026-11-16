@@ -1,6 +1,6 @@
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { AlertTriangle, Check, Download, Eye, EyeOff, LoaderCircle, LockKeyhole, Pencil, Plus, Search, ShieldCheck, Trash2, UserCog, X } from 'lucide-react'
+import { AlertTriangle, Check, Download, Eye, EyeOff, Github, LoaderCircle, LockKeyhole, Pencil, Plus, Search, ShieldCheck, Sparkles, Trash2, UserCog, WandSparkles, X } from 'lucide-react'
 import PageHero from '../components/PageHero'
 import { AttendanceRecord, Member } from '../data/memberStore'
 import { createAttendance, createMember, deleteAttendance, deleteMember, getAttendance, getMembers, updateAttendance, updateMember } from '../data/api'
@@ -124,39 +124,61 @@ export default function Admin({ section = 'management' }: { section?: 'managemen
   }
   if (checkingSession) return <section className="px-4 pb-20 pt-32"><p role="status" className="text-center">Checking your session...</p></section>
 
-  if (!isAuthed) return <main className="admin-login flex min-h-[100svh] items-center justify-center bg-[#f4f7f5] px-4 py-28 sm:px-6">
-    <section aria-labelledby="admin-login-title" className={`admin-login-card w-full max-w-[30rem] rounded-2xl border border-[#e2eae6] bg-white p-6 shadow-[0_24px_60px_rgba(15,81,50,.10)] sm:p-8 ${loginMessage && !loginLocked ? 'admin-login-error' : ''}`}>
-      <header className="mb-8 flex items-start gap-4">
-        <span className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-emerald-100 bg-emerald-50 text-[#0a6847]" aria-hidden="true"><ShieldCheck size={24} strokeWidth={1.8} /></span>
-        <div className="min-w-0">
-          <p className="text-[11px] font-bold uppercase tracking-[.16em] text-[#0a6847]">Admin access</p>
-          <h1 id="admin-login-title" className="mt-1 text-2xl font-black tracking-[-.025em] text-slate-900">Sign in to continue</h1>
+  if (!isAuthed) return <main className="admin-login flex min-h-[100svh] items-center justify-center px-4 py-24 sm:px-6">
+    <section aria-labelledby="admin-login-title" className={`admin-login-card grid w-full max-w-[58rem] overflow-hidden rounded-[2rem] border border-white/80 bg-white shadow-[0_32px_90px_rgba(54,91,128,.18)] lg:grid-cols-[.92fr_1.08fr] ${loginMessage && !loginLocked ? 'admin-login-error' : ''}`}>
+      <aside className="admin-login-art relative isolate flex min-h-56 overflow-hidden p-7 text-[#17324f] sm:p-9 lg:min-h-[38rem] lg:flex-col lg:justify-between" aria-label="AI design workspace illustration">
+        <div className="admin-art-dots" aria-hidden="true" />
+        <span className="admin-art-blob admin-art-blob-one" aria-hidden="true" />
+        <span className="admin-art-blob admin-art-blob-two" aria-hidden="true" />
+        <div className="relative z-10 max-w-xs">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/60 px-3 py-1.5 text-[11px] font-black uppercase tracking-[.13em] backdrop-blur"><Sparkles size={14} /> Creative admin studio</span>
+          <h2 className="mt-5 text-3xl font-black leading-[1.05] tracking-[-.04em] sm:text-4xl">Shape ideas.<br />Guide the story.</h2>
+          <p className="mt-3 max-w-[17rem] text-sm font-semibold leading-6 text-[#294c6c]">A focused workspace for the people building the ministry experience.</p>
         </div>
-      </header>
+        <div className="admin-art-window relative z-10 ml-auto hidden w-56 rounded-[1.5rem] border border-white/80 bg-white/75 p-4 shadow-[0_18px_40px_rgba(28,71,111,.16)] backdrop-blur sm:block lg:ml-0 lg:w-full">
+          <div className="mb-4 flex gap-1.5" aria-hidden="true"><span className="size-2 rounded-full bg-[#ff7b70]" /><span className="size-2 rounded-full bg-[#ffd36e]" /><span className="size-2 rounded-full bg-[#7ad6c3]" /></div>
+          <div className="grid grid-cols-[2.5rem_1fr] gap-3"><span className="flex size-10 items-center justify-center rounded-xl bg-[#ff806f] text-white"><WandSparkles size={20} /></span><div><span className="block h-2.5 w-4/5 rounded-full bg-[#456e91]/25" /><span className="mt-2 block h-2.5 w-3/5 rounded-full bg-[#456e91]/15" /></div></div>
+          <div className="mt-4 grid grid-cols-3 gap-2" aria-hidden="true"><span className="h-16 rounded-xl bg-[#bde8ff]" /><span className="h-16 rounded-xl bg-[#ffb3a9]" /><span className="h-16 rounded-xl bg-[#ffe29a]" /></div>
+        </div>
+      </aside>
 
-      <form className="grid gap-5" onSubmit={event => { event.preventDefault(); void handleLogin() }} noValidate>
-        <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em] text-slate-600">
-          Username
-          <input value={username} onChange={event => setUsername(event.target.value)} className="admin-login-input" autoComplete="username" disabled={loginLocked} required aria-invalid={Boolean(loginMessage && !loginLocked)} />
+      <div className="flex flex-col justify-center p-6 sm:p-10 lg:p-12">
+        <header className="mb-7">
+          <span className="mb-5 flex size-11 items-center justify-center rounded-2xl bg-[#eaf7ff] text-[#287bb5]" aria-hidden="true"><ShieldCheck size={23} strokeWidth={2} /></span>
+          <p className="text-[11px] font-black uppercase tracking-[.15em] text-[#b63d35]">Admin access</p>
+          <h1 id="admin-login-title" className="mt-1 text-3xl font-black tracking-[-.035em] text-[#17283b]">Sign in to continue</h1>
+          <p className="mt-2 text-sm font-semibold text-slate-500">Welcome back to your creative workspace.</p>
+        </header>
+
+        <form className="grid gap-4" onSubmit={event => { event.preventDefault(); void handleLogin() }} noValidate>
+        <label className="grid gap-2 text-xs font-extrabold text-[#334e68]">
+          Email address
+          <input value={username} onChange={event => setUsername(event.target.value)} className="admin-login-input" autoComplete="username" inputMode="email" disabled={loginLocked} required aria-invalid={Boolean(loginMessage && !loginLocked)} placeholder="admin@example.com" />
         </label>
-        <div className="grid gap-2 text-xs font-bold uppercase tracking-[.1em] text-slate-600">
-          <span className="flex items-center justify-between gap-4"><label htmlFor="admin-password">Password</label><button type="button" aria-label="Account recovery assistance" onClick={() => setLoginMessage('Please contact the site administrator to reset your password.')} className="normal-case tracking-normal text-[#0a6847] underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0a6847]">Forgot password?</button></span>
+        <div className="grid gap-2 text-xs font-extrabold text-[#334e68]">
+          <span className="flex items-center justify-between gap-4"><label htmlFor="admin-password">Password</label><button type="button" aria-label="Account recovery assistance" onClick={() => setLoginMessage('Please contact the site administrator to reset your password.')} className="font-extrabold text-[#b63d35] underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3294d2]">Forgot password?</button></span>
           <span className="relative">
             <input id="admin-password" value={password} onChange={event => setPassword(event.target.value)} type={showPassword ? 'text' : 'password'} className="admin-login-input pr-12" autoComplete="current-password" disabled={loginLocked} required aria-invalid={Boolean(loginMessage && !loginLocked)} />
-            <button type="button" onClick={() => setShowPassword(current => !current)} disabled={loginLocked} aria-label={showPassword ? 'Hide entered characters' : 'Show entered characters'} aria-pressed={showPassword} className="absolute right-1.5 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-lg text-slate-500 transition hover:bg-emerald-50 hover:text-[#0a6847] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0a6847] disabled:opacity-50">{showPassword ? <EyeOff size={19} /> : <Eye size={19} />}</button>
+            <button type="button" onClick={() => setShowPassword(current => !current)} disabled={loginLocked} aria-label={showPassword ? 'Hide entered characters' : 'Show entered characters'} aria-pressed={showPassword} className="absolute right-1.5 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-xl text-slate-500 transition hover:bg-[#eaf7ff] hover:text-[#287bb5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3294d2] disabled:opacity-50">{showPassword ? <EyeOff size={19} /> : <Eye size={19} />}</button>
           </span>
         </div>
-        <button type="submit" disabled={signingIn || loginLocked} className="admin-login-submit mt-1 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#d9a73e] px-5 py-3 font-bold text-[#1a1a1a] transition hover:-translate-y-0.5 hover:bg-[#e0b34f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0a6847] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0">
+        <button type="submit" disabled={signingIn || loginLocked} className="admin-login-submit mt-1 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#c9473e] px-5 py-3 font-extrabold text-white transition hover:-translate-y-0.5 hover:bg-[#b63d35] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3294d2] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0">
           {signingIn ? <LoaderCircle size={18} className="animate-spin" aria-hidden="true" /> : <LockKeyhole size={18} aria-hidden="true" />}
-          {signingIn ? 'Signing in…' : loginLocked ? 'Sign-in locked' : 'Enter admin area'}
+          {signingIn ? 'Signing in…' : loginLocked ? 'Sign-in locked' : 'Continue'}
         </button>
 
         {loginLocked ? <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-[#991b1b]">
           <div className="flex items-start gap-3"><AlertTriangle size={19} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="text-sm font-semibold">{loginMessage || 'Too many incorrect attempts. Sign-in is temporarily locked.'}</p><p className="mt-3 text-[11px] font-bold uppercase tracking-[.12em] text-[#b91c1c]">Time remaining</p><p role="timer" aria-live="off" aria-label={`${lockRemaining} seconds remaining`} className="mt-0.5 font-mono text-2xl font-black tabular-nums tracking-tight">{countdown(lockRemaining)}</p></div></div>
         </div> : loginMessage && <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3.5 py-3 text-sm font-medium text-[#b91c1c]"><AlertTriangle size={18} className="mt-0.5 shrink-0" aria-hidden="true" /><span>{loginMessage}</span></div>}
-      </form>
+        <div className="flex items-center gap-3 py-1 text-[11px] font-extrabold uppercase tracking-[.12em] text-slate-600"><span className="h-px flex-1 bg-slate-200" />Or continue with<span className="h-px flex-1 bg-slate-200" /></div>
+        <div className="grid grid-cols-2 gap-3" aria-label="Social sign-in options">
+          <button type="button" disabled title="Google sign-in is not configured" className="admin-social-button"><span className="text-base font-black text-[#4285f4]" aria-hidden="true">G</span><span>Google</span><span className="sr-only"> unavailable</span></button>
+          <button type="button" disabled title="GitHub sign-in is not configured" className="admin-social-button"><Github size={17} aria-hidden="true" /><span>GitHub</span><span className="sr-only"> unavailable</span></button>
+        </div>
+        </form>
 
-      <footer className="mt-7 border-t border-slate-100 pt-5 text-center text-xs leading-5 text-slate-500"><LockKeyhole size={13} className="mr-1 inline-block align-[-2px]" aria-hidden="true" />Protected by encrypted access <span aria-hidden="true">•</span> Authorized personnel only</footer>
+        <footer className="mt-6 text-center text-[11px] font-semibold leading-5 text-slate-600"><LockKeyhole size={12} className="mr-1 inline-block align-[-2px]" aria-hidden="true" />Encrypted access <span aria-hidden="true">•</span> Authorized personnel only</footer>
+      </div>
     </section>
   </main>
 

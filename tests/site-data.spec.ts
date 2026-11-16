@@ -88,12 +88,12 @@ test('shows a live countdown while admin sign-in is locked', async ({ page }) =>
     body: JSON.stringify({ error: 'Too many incorrect attempts. Sign-in is temporarily locked.', retryAfter: 3 }),
   }))
   await page.goto('/admin')
-  await page.getByLabel('Username').fill('ydm_admin')
+  await page.getByLabel('Email address').fill('ydm_admin')
   await page.getByLabel('Password').fill('wrong-password')
-  await page.getByRole('button', { name: 'Enter admin area' }).click()
+  await page.getByRole('button', { name: 'Continue', exact: true }).click()
   await expect(page.getByRole('button', { name: 'Sign-in locked' })).toBeDisabled()
   await expect(page.getByRole('timer')).toContainText(/00:00:0[12]/, { timeout: 2500 })
-  await expect(page.getByRole('button', { name: 'Enter admin area' })).toBeEnabled({ timeout: 5000 })
+  await expect(page.getByRole('button', { name: 'Continue', exact: true })).toBeEnabled({ timeout: 5000 })
 })
 
 test('exports correct Junior and Senior attendance summaries', async ({ page }) => {

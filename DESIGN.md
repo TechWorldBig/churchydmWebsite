@@ -54,6 +54,8 @@ Cards are rounded and spacious; fields are compact rounded rectangles. Use the s
 
 Tables use native semantic markup, sticky headers only inside their own scrolling panel, and a clearly labelled action column. Icon-only actions have an accessible name and title. Native selects and dates remain intentionally platform-owned controls in this application.
 
+The signed-out admin login is a deliberate route-scoped welcome surface: a sky-blue and coral illustrated two-panel card uses the existing rounded Nunito language without changing authenticated admin screens or public pages. Its expressive illustration is confined to the login body; security and error states remain direct and readable.
+
 ## Do's and Don'ts
 
 Do preserve clear loading, empty, error, and keyboard-focus states. Do use server-verified authorization for all admin data. Do not make a decorative icon the only action label. Do not use browser alerts or confirmation dialogs. Do not put passwords, session tokens, or admin data in client storage.
