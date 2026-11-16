@@ -1,4 +1,4 @@
-import { endpointRateLimited, getSessionExpiry, revokeSession, sameOriginMutation, sessionCookie } from './_lib/security.js'
+import { adminLoginRetryAfter, clientIp, credentialsConfigured, endpointRateLimited, getSessionExpiry, revokeSession, sameOriginMutation, sessionCookie } from './_lib/security.js'
 
 export default async function handler(req: any, res: any) {
   res.setHeader('Cache-Control', 'no-store')
@@ -6,7 +6,8 @@ export default async function handler(req: any, res: any) {
     if (await endpointRateLimited(req, res, 'auth', 120)) return
     if (req.method === 'GET') {
       const expiresAt = await getSessionExpiry(req)
-      return res.status(200).json({ authenticated: Boolean(expiresAt), expiresAt })
+      const retryAfter = expiresAt || !credentialsConfigured() ? 0 : await adminLoginRetryAfter(clientIp(req))
+      return res.status(200).json({ authenticated: Boolean(expiresAt), expiresAt, retryAfter })
     }
     if (req.method !== 'DELETE') return res.status(405).json({ error: 'Method not allowed' })
     if (!sameOriginMutation(req)) return res.status(403).json({ error: 'Request not allowed.' })

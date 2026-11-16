@@ -20,7 +20,7 @@
 
 ## Admin authentication
 
-The sign-in form calls `POST /api/auth/login` with same-origin JSON. A successful sign-in receives only an opaque HttpOnly session cookie. Invalid credentials, expired sessions, and protected mutations recover through the existing inline sign-in state. `/admin/dashboard` is a protected server route: unauthenticated requests receive `401`; authenticated requests continue to `/admin`.
+The sign-in form calls `POST /api/auth/login` with same-origin JSON. A successful sign-in receives only an opaque HttpOnly session cookie. Invalid credentials, expired sessions, and protected mutations recover through the existing inline sign-in state. After five incorrect passwords, the form disables sign-in and displays a server-derived `HH:MM:SS` countdown for the remaining two-hour lock; refreshing the page restores the current remaining time. `/admin/dashboard` is a protected server route: unauthenticated requests receive `401`; authenticated requests continue to `/admin`.
 
 ## Weekly-program archive
 

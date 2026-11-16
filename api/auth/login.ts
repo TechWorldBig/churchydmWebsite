@@ -1,4 +1,9 @@
-import { adminLoginLocked, clearAdminLoginFailures, clientIp, createSession, credentialsConfigured, isJsonContentType, recordAdminLoginFailure, sameOriginMutation, sessionCookie, verifyAdminCredentials } from '../_lib/security.js'
+import { adminLoginRetryAfter, clearAdminLoginFailures, clientIp, createSession, credentialsConfigured, isJsonContentType, recordAdminLoginFailure, sameOriginMutation, sessionCookie, verifyAdminCredentials } from '../_lib/security.js'
+
+const locked = (res: any, retryAfter: number) => {
+  res.setHeader('Retry-After', String(retryAfter))
+  return res.status(429).json({ error: 'Too many incorrect attempts. Sign-in is temporarily locked.', retryAfter })
+}
 
 export default async function handler(req: any, res: any) {
   res.setHeader('Cache-Control', 'no-store')
@@ -17,17 +22,13 @@ export default async function handler(req: any, res: any) {
     }
     if (!credentialsConfigured()) return res.status(503).json({ error: 'Administrator sign-in is not configured.' })
     const ip = clientIp(req)
-    if (await adminLoginLocked(ip)) {
-      res.setHeader('Retry-After', '7200')
-      return res.status(429).json({ error: 'Too many attempts. Please try again in 2 hours.' })
-    }
+    const activeLock = await adminLoginRetryAfter(ip)
+    if (activeLock) return locked(res, activeLock)
 
     const admin = await verifyAdminCredentials(credentials.username, credentials.password)
     if (!admin) {
-      if (await recordAdminLoginFailure(ip)) {
-        res.setHeader('Retry-After', '7200')
-        return res.status(429).json({ error: 'Too many attempts. Please try again in 2 hours.' })
-      }
+      const retryAfter = await recordAdminLoginFailure(ip)
+      if (retryAfter) return locked(res, retryAfter)
       return res.status(401).json({ error: 'Invalid credentials.' })
     }
     await clearAdminLoginFailures(ip)

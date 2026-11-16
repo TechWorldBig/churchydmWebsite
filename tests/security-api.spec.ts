@@ -87,7 +87,7 @@ test('rejects malformed cookies and compares secrets without length-dependent er
 test('unauthenticated session check reveals no credentials', async () => {
   const session = request('GET')
   await auth(session.req, session.res)
-  expect(session.result.body).toEqual({ authenticated: false, expiresAt: null })
+  expect(session.result.body).toEqual({ authenticated: false, expiresAt: null, retryAfter: 0 })
 })
 
 test('rejects cross-origin login and malformed JSON', async () => {
@@ -189,6 +189,7 @@ test('login uses a bcrypt password_hash in Neon, rate limits attempts, and creat
   process.env.ADMIN_PASSWORD = 'long-test-password-123456'
   const sessions = new Map<string, { username: string; version: string; expires: string }>()
   const rateLimits = new Map<string, number>()
+  const rateLimitExpiries = new Map<string, string>()
   let passwordHash = ''
   const mutations: string[] = []
   neonConfig.fetchFunction = async (_url, init) => {
@@ -198,14 +199,16 @@ test('login uses a bcrypt password_hash in Neon, rate limits attempts, and creat
     if (query.startsWith('INSERT INTO api_rate_limits')) {
       const count = (rateLimits.get(params[0]) || 0) + 1
       rateLimits.set(params[0], count)
-      fields = [{ name: 'count', dataTypeID: 23 }]
-      rows = [[String(count)]]
+      const expires = rateLimitExpiries.get(params[0]) || new Date(Date.now() + 7_200_000).toISOString()
+      rateLimitExpiries.set(params[0], expires)
+      fields = [{ name: 'count', dataTypeID: 23 }, { name: 'expires_at', dataTypeID: 25 }]
+      rows = [[String(count), expires]]
     }
-    if (query.startsWith('SELECT 1 AS locked FROM api_rate_limits')) {
-      fields = [{ name: 'locked', dataTypeID: 23 }]
-      if ((rateLimits.get(params[0]) || 0) >= 5) rows = [['1']]
+    if (query.startsWith('SELECT expires_at FROM api_rate_limits')) {
+      fields = [{ name: 'expires_at', dataTypeID: 25 }]
+      if ((rateLimits.get(params[0]) || 0) >= 5) rows = [[rateLimitExpiries.get(params[0])!]]
     }
-    if (query.startsWith('DELETE FROM api_rate_limits WHERE bucket')) rateLimits.delete(params[0])
+    if (query.startsWith('DELETE FROM api_rate_limits WHERE bucket')) { rateLimits.delete(params[0]); rateLimitExpiries.delete(params[0]) }
     if (query.startsWith('SELECT password_hash FROM admin_credentials')) {
       fields = [{ name: 'password_hash', dataTypeID: 25 }]
       if (passwordHash) rows = [[passwordHash]]
@@ -262,9 +265,16 @@ test('login uses a bcrypt password_hash in Neon, rate limits attempts, and creat
     await login(fifthFailure.req, fifthFailure.res)
     expect(fifthFailure.result.status).toBe(429)
     expect(fifthFailure.result.headers['Retry-After']).toBe('7200')
+    expect(fifthFailure.result.body.retryAfter).toBe(7200)
+    const loginBucket = hashClientIp('unknown', 'admin-login-failures')
+    expect(rateLimits.get(loginBucket)).toBe(5)
     const correctDuringLock = request('POST', { username: 'test-admin', password: process.env.ADMIN_PASSWORD })
     await login(correctDuringLock.req, correctDuringLock.res)
     expect(correctDuringLock.result.status).toBe(429)
+    const refreshedLock = request('GET')
+    await auth(refreshedLock.req, refreshedLock.res)
+    expect(rateLimits.get(loginBucket)).toBe(5)
+    expect(refreshedLock.result.body.retryAfter).toBeGreaterThan(0)
   } finally {
     neonConfig.fetchFunction = originalFetch
     for (const [key, value] of Object.entries(originalEnv)) {

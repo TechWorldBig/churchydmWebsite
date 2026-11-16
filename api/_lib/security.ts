@@ -181,17 +181,19 @@ export async function sharedRateLimited(scope: string, ip: string, limit: number
 
 const adminLoginBucket = (ip: string) => hashClientIp(ip, 'admin-login-failures')
 
-export async function adminLoginLocked(ip: string): Promise<boolean> {
+const retrySeconds = (expiresAt: unknown) => Math.max(0, Math.ceil((new Date(String(expiresAt)).getTime() - Date.now()) / 1000))
+
+export async function adminLoginRetryAfter(ip: string): Promise<number> {
   await ensureSecuritySchema()
-  const rows = await getSql()`SELECT 1 AS locked FROM api_rate_limits WHERE bucket=${adminLoginBucket(ip)} AND count >= 5 AND expires_at > NOW()`
-  return Boolean(rows[0]?.locked)
+  const rows = await getSql()`SELECT expires_at FROM api_rate_limits WHERE bucket=${adminLoginBucket(ip)} AND count >= 5 AND expires_at > NOW()`
+  return rows[0]?.expires_at ? retrySeconds(rows[0].expires_at) : 0
 }
 
-export async function recordAdminLoginFailure(ip: string): Promise<boolean> {
+export async function recordAdminLoginFailure(ip: string): Promise<number> {
   await ensureSecuritySchema()
   const bucket = adminLoginBucket(ip)
-  const rows = await getSql()`INSERT INTO api_rate_limits (bucket, count, expires_at) VALUES (${bucket}, 1, NOW() + INTERVAL '2 hours') ON CONFLICT (bucket) DO UPDATE SET count=CASE WHEN api_rate_limits.expires_at <= NOW() THEN 1 ELSE api_rate_limits.count + 1 END, expires_at=CASE WHEN api_rate_limits.expires_at <= NOW() THEN NOW() + INTERVAL '2 hours' ELSE api_rate_limits.expires_at END RETURNING count`
-  return Number(rows[0].count) >= 5
+  const rows = await getSql()`INSERT INTO api_rate_limits (bucket, count, expires_at) VALUES (${bucket}, 1, NOW() + INTERVAL '2 hours') ON CONFLICT (bucket) DO UPDATE SET count=CASE WHEN api_rate_limits.expires_at <= NOW() THEN 1 ELSE api_rate_limits.count + 1 END, expires_at=CASE WHEN api_rate_limits.expires_at <= NOW() THEN NOW() + INTERVAL '2 hours' ELSE api_rate_limits.expires_at END RETURNING count, expires_at`
+  return Number(rows[0].count) >= 5 ? 2 * 60 * 60 : 0
 }
 
 export async function clearAdminLoginFailures(ip: string): Promise<void> {

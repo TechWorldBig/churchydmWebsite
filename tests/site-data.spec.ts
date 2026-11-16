@@ -80,6 +80,22 @@ test('supports mocked admin member and attendance writes without production data
   await expect(page.getByRole('cell', { name: 'Daniel', exact: true })).toBeVisible()
 })
 
+test('shows a live countdown while admin sign-in is locked', async ({ page }) => {
+  await page.route('**/api/auth/login', route => route.fulfill({
+    status: 429,
+    contentType: 'application/json',
+    headers: { 'Retry-After': '3' },
+    body: JSON.stringify({ error: 'Too many incorrect attempts. Sign-in is temporarily locked.', retryAfter: 3 }),
+  }))
+  await page.goto('/admin')
+  await page.getByLabel('Username').fill('ydm_admin')
+  await page.getByLabel('Password').fill('wrong-password')
+  await page.getByRole('button', { name: 'Enter admin area' }).click()
+  await expect(page.getByRole('button', { name: 'Sign-in locked' })).toBeDisabled()
+  await expect(page.getByRole('timer')).toContainText(/00:00:0[12]/, { timeout: 2500 })
+  await expect(page.getByRole('button', { name: 'Enter admin area' })).toBeEnabled({ timeout: 5000 })
+})
+
 test('exports correct Junior and Senior attendance summaries', async ({ page }) => {
   await page.route('**/api/auth', route => route.fulfill({ contentType: 'application/json', body: JSON.stringify({ authenticated: true, expiresAt: Date.now() + 3600000 }) }))
   await page.goto('/admin')
