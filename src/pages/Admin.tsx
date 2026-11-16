@@ -1,6 +1,6 @@
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { AlertTriangle, Check, Download, Eye, EyeOff, Github, LoaderCircle, LockKeyhole, Pencil, Plus, Search, ShieldCheck, Trash2, UserCog, X } from 'lucide-react'
+import { AlertTriangle, Check, Download, Eye, EyeOff, LoaderCircle, LockKeyhole, Pencil, Plus, Search, ShieldCheck, Trash2, UserCog, X } from 'lucide-react'
 import PageHero from '../components/PageHero'
 import { AttendanceRecord, Member } from '../data/memberStore'
 import { createAttendance, createMember, deleteAttendance, deleteMember, getAttendance, getMembers, updateAttendance, updateMember } from '../data/api'
@@ -159,14 +159,7 @@ export default function Admin({ section = 'management' }: { section?: 'managemen
         {loginLocked ? <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-[#991b1b]">
           <div className="flex items-start gap-3"><AlertTriangle size={19} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="text-sm font-semibold">{loginMessage || 'Too many incorrect attempts. Sign-in is temporarily locked.'}</p><p className="mt-3 text-[11px] font-bold uppercase tracking-[.12em] text-[#b91c1c]">Time remaining</p><p role="timer" aria-live="off" aria-label={`${lockRemaining} seconds remaining`} className="mt-0.5 font-mono text-2xl font-black tabular-nums tracking-tight">{countdown(lockRemaining)}</p></div></div>
         </div> : loginMessage && <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3.5 py-3 text-sm font-medium text-[#b91c1c]"><AlertTriangle size={18} className="mt-0.5 shrink-0" aria-hidden="true" /><span>{loginMessage}</span></div>}
-        <div className="flex items-center gap-3 py-1 text-[11px] font-extrabold uppercase tracking-[.12em] text-slate-600"><span className="h-px flex-1 bg-slate-200" />Or continue with<span className="h-px flex-1 bg-slate-200" /></div>
-        <div className="grid grid-cols-2 gap-3" aria-label="Social sign-in options">
-          <button type="button" disabled title="Google sign-in is not configured" className="admin-social-button"><span className="text-base font-black text-[#4285f4]" aria-hidden="true">G</span><span>Google</span><span className="sr-only"> unavailable</span></button>
-          <button type="button" disabled title="GitHub sign-in is not configured" className="admin-social-button"><Github size={17} aria-hidden="true" /><span>GitHub</span><span className="sr-only"> unavailable</span></button>
-        </div>
         </form>
-
-        <footer className="mt-6 text-center text-[11px] font-semibold leading-5 text-slate-600"><LockKeyhole size={12} className="mr-1 inline-block align-[-2px]" aria-hidden="true" />Encrypted access <span aria-hidden="true">•</span> Authorized personnel only</footer>
       </div>
     </section>
   </main>

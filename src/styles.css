@@ -154,8 +154,6 @@ input[type='date']:active { transform: perspective(20rem) translateY(.18rem) rot
 .admin-login-input:disabled { cursor: not-allowed; background: #f1f5f9; color: #64748b; }
 .admin-login-submit { border: 1px solid #a93630; border-bottom-width: 3px; box-shadow: 0 9px 20px rgba(176,56,49,.2); }
 .admin-login-submit:active:not(:disabled) { transform: translateY(1px); border-bottom-width: 1px; box-shadow: 0 4px 10px rgba(126,85,9,.14); }
-.admin-social-button { display: inline-flex; min-height: 2.8rem; align-items: center; justify-content: center; gap: .5rem; border: 1px solid #dbe6ed; border-radius: .875rem; background: #fff; padding: .65rem .75rem; color: #52677b; font-size: .8rem; font-weight: 800; }
-.admin-social-button:disabled { cursor: not-allowed; opacity: .62; background: #f8fafc; }
 .admin-login-error { animation: admin-login-shake .32s ease both; }
 @keyframes admin-login-shake { 0%,100% { transform: translateX(0); } 30% { transform: translateX(-5px); } 65% { transform: translateX(5px); } }
 @media (prefers-reduced-motion: reduce) { .admin-login-error { animation: none; } }
