@@ -136,7 +136,6 @@ export default function Admin({ section = 'management' }: { section?: 'managemen
           <span className="mb-5 flex size-11 items-center justify-center rounded-2xl bg-[#eaf7ff] text-[#287bb5]" aria-hidden="true"><ShieldCheck size={23} strokeWidth={2} /></span>
           <p className="text-[11px] font-black uppercase tracking-[.15em] text-[#b63d35]">Admin access</p>
           <h1 id="admin-login-title" className="mt-1 text-3xl font-black tracking-[-.035em] text-[#17283b]">Sign in to continue</h1>
-          <p className="mt-2 text-sm font-semibold text-slate-500">Welcome back to your creative workspace.</p>
         </header>
 
         <form className="grid gap-4" onSubmit={event => { event.preventDefault(); void handleLogin() }} noValidate>
