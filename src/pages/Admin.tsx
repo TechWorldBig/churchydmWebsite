@@ -152,8 +152,8 @@ export default function Admin({ section = 'management' }: { section?: 'managemen
 
         <form className="grid gap-4" onSubmit={event => { event.preventDefault(); void handleLogin() }} noValidate>
         <label className="grid gap-2 text-xs font-extrabold text-[#334e68]">
-          Email address
-          <input value={username} onChange={event => setUsername(event.target.value)} className="admin-login-input" autoComplete="username" inputMode="email" disabled={loginLocked} required aria-invalid={Boolean(loginMessage && !loginLocked)} placeholder="admin@example.com" />
+          Username
+          <input value={username} onChange={event => setUsername(event.target.value)} className="admin-login-input" autoComplete="username" disabled={loginLocked} required aria-invalid={Boolean(loginMessage && !loginLocked)} placeholder="Enter your username" />
         </label>
         <div className="grid gap-2 text-xs font-extrabold text-[#334e68]">
           <span className="flex items-center justify-between gap-4"><label htmlFor="admin-password">Password</label><button type="button" aria-label="Account recovery assistance" onClick={() => setLoginMessage('Please contact the site administrator to reset your password.')} className="font-extrabold text-[#b63d35] underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3294d2]">Forgot password?</button></span>
