@@ -10,7 +10,6 @@ import AdminMemberExport from '../components/AdminMemberExport'
 import AdminGallery from './AdminGallery'
 import AdminAttendanceExport from '../components/AdminAttendanceExport'
 import AdminVisitorStats from '../components/AdminVisitorStats'
-import adminMario from '../assets/admin-mario.jpg'
 import AdminAuditLogs from '../components/AdminAuditLogs'
 import AdminReports from '../components/AdminReports'
 import AdminCertificates from '../components/AdminCertificates'
@@ -125,41 +124,39 @@ export default function Admin({ section = 'management' }: { section?: 'managemen
   }
   if (checkingSession) return <section className="px-4 pb-20 pt-32"><p role="status" className="text-center">Checking your session...</p></section>
 
-  if (!isAuthed) return <main className="admin-login flex min-h-[100svh] items-center justify-center px-4 py-24 sm:px-6">
-    <section aria-labelledby="admin-login-title" className={`admin-login-card grid w-full max-w-[58rem] overflow-hidden rounded-[2rem] border border-white/80 bg-white shadow-[0_32px_90px_rgba(54,91,128,.18)] lg:grid-cols-[.92fr_1.08fr] ${loginMessage && !loginLocked ? 'admin-login-error' : ''}`}>
-      <aside className="admin-login-art flex min-h-56 items-end justify-center overflow-hidden px-4 pt-5 sm:px-8 lg:min-h-[38rem]" aria-label="Admin character illustration">
-        <img src={adminMario} alt="Admin character" className="admin-login-character max-h-[22rem] w-auto max-w-full object-contain lg:max-h-[36rem]" />
-      </aside>
+  if (!isAuthed) return <main className="admin-login flex min-h-[100svh] items-center justify-center bg-[#f4f7f5] px-4 py-28 sm:px-6">
+    <section aria-labelledby="admin-login-title" className={`admin-login-card w-full max-w-[30rem] rounded-2xl border border-[#e2eae6] bg-white p-6 shadow-[0_24px_60px_rgba(15,81,50,.10)] sm:p-8 ${loginMessage && !loginLocked ? 'admin-login-error' : ''}`}>
+      <header className="mb-8 flex items-start gap-4">
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-emerald-100 bg-emerald-50 text-[#0a6847]" aria-hidden="true"><ShieldCheck size={24} strokeWidth={1.8} /></span>
+        <div className="min-w-0">
+          <p className="text-[11px] font-bold uppercase tracking-[.16em] text-[#0a6847]">Admin access</p>
+          <h1 id="admin-login-title" className="mt-1 text-2xl font-black tracking-[-.025em] text-slate-900">Sign in to continue</h1>
+        </div>
+      </header>
 
-      <div className="flex flex-col justify-center p-6 sm:p-10 lg:p-12">
-        <header className="mb-7">
-          <span className="mb-5 flex size-11 items-center justify-center rounded-2xl bg-[#eaf7ff] text-[#287bb5]" aria-hidden="true"><ShieldCheck size={23} strokeWidth={2} /></span>
-          <p className="text-[11px] font-black uppercase tracking-[.15em] text-[#b63d35]">Admin access</p>
-          <h1 id="admin-login-title" className="mt-1 text-3xl font-black tracking-[-.035em] text-[#17283b]">Sign in to continue</h1>
-        </header>
-
-        <form className="grid gap-4" onSubmit={event => { event.preventDefault(); void handleLogin() }} noValidate>
-        <label className="grid gap-2 text-xs font-extrabold text-[#334e68]">
+      <form className="grid gap-5" onSubmit={event => { event.preventDefault(); void handleLogin() }} noValidate>
+        <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em] text-slate-600">
           Username
-          <input value={username} onChange={event => setUsername(event.target.value)} className="admin-login-input" autoComplete="username" disabled={loginLocked} required aria-invalid={Boolean(loginMessage && !loginLocked)} placeholder="Enter your username" />
+          <input value={username} onChange={event => setUsername(event.target.value)} className="admin-login-input" autoComplete="username" disabled={loginLocked} required aria-invalid={Boolean(loginMessage && !loginLocked)} />
         </label>
-        <div className="grid gap-2 text-xs font-extrabold text-[#334e68]">
-          <span className="flex items-center justify-between gap-4"><label htmlFor="admin-password">Password</label><button type="button" aria-label="Account recovery assistance" onClick={() => setLoginMessage('Please contact the site administrator to reset your password.')} className="font-extrabold text-[#b63d35] underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3294d2]">Forgot password?</button></span>
+        <div className="grid gap-2 text-xs font-bold uppercase tracking-[.1em] text-slate-600">
+          <span className="flex items-center justify-between gap-4"><label htmlFor="admin-password">Password</label><button type="button" aria-label="Account recovery assistance" onClick={() => setLoginMessage('Please contact the site administrator to reset your password.')} className="normal-case tracking-normal text-[#0a6847] underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0a6847]">Forgot password?</button></span>
           <span className="relative">
             <input id="admin-password" value={password} onChange={event => setPassword(event.target.value)} type={showPassword ? 'text' : 'password'} className="admin-login-input pr-12" autoComplete="current-password" disabled={loginLocked} required aria-invalid={Boolean(loginMessage && !loginLocked)} />
-            <button type="button" onClick={() => setShowPassword(current => !current)} disabled={loginLocked} aria-label={showPassword ? 'Hide entered characters' : 'Show entered characters'} aria-pressed={showPassword} className="absolute right-1.5 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-xl text-slate-500 transition hover:bg-[#eaf7ff] hover:text-[#287bb5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3294d2] disabled:opacity-50">{showPassword ? <EyeOff size={19} /> : <Eye size={19} />}</button>
+            <button type="button" onClick={() => setShowPassword(current => !current)} disabled={loginLocked} aria-label={showPassword ? 'Hide entered characters' : 'Show entered characters'} aria-pressed={showPassword} className="absolute right-1.5 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-lg text-slate-500 transition hover:bg-emerald-50 hover:text-[#0a6847] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0a6847] disabled:opacity-50">{showPassword ? <EyeOff size={19} /> : <Eye size={19} />}</button>
           </span>
         </div>
-        <button type="submit" disabled={signingIn || loginLocked} className="admin-login-submit mt-1 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#c9473e] px-5 py-3 font-extrabold text-white transition hover:-translate-y-0.5 hover:bg-[#b63d35] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3294d2] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0">
+        <button type="submit" disabled={signingIn || loginLocked} className="admin-login-submit mt-1 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#d9a73e] px-5 py-3 font-bold text-[#1a1a1a] transition hover:-translate-y-0.5 hover:bg-[#e0b34f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0a6847] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0">
           {signingIn ? <LoaderCircle size={18} className="animate-spin" aria-hidden="true" /> : <LockKeyhole size={18} aria-hidden="true" />}
-          {signingIn ? 'Signing in…' : loginLocked ? 'Sign-in locked' : 'Continue'}
+          {signingIn ? 'Signing in…' : loginLocked ? 'Sign-in locked' : 'Enter admin area'}
         </button>
 
         {loginLocked ? <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-[#991b1b]">
           <div className="flex items-start gap-3"><AlertTriangle size={19} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="text-sm font-semibold">{loginMessage || 'Too many incorrect attempts. Sign-in is temporarily locked.'}</p><p className="mt-3 text-[11px] font-bold uppercase tracking-[.12em] text-[#b91c1c]">Time remaining</p><p role="timer" aria-live="off" aria-label={`${lockRemaining} seconds remaining`} className="mt-0.5 font-mono text-2xl font-black tabular-nums tracking-tight">{countdown(lockRemaining)}</p></div></div>
         </div> : loginMessage && <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3.5 py-3 text-sm font-medium text-[#b91c1c]"><AlertTriangle size={18} className="mt-0.5 shrink-0" aria-hidden="true" /><span>{loginMessage}</span></div>}
-        </form>
-      </div>
+      </form>
+
+      <footer className="mt-7 border-t border-slate-100 pt-5 text-center text-xs leading-5 text-slate-500"><LockKeyhole size={13} className="mr-1 inline-block align-[-2px]" aria-hidden="true" />Protected by encrypted access <span aria-hidden="true">•</span> Authorized personnel only</footer>
     </section>
   </main>
 
