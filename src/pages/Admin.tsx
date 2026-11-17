@@ -1,6 +1,6 @@
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { AlertTriangle, Check, Download, Eye, EyeOff, LoaderCircle, LockKeyhole, Pencil, Plus, Search, ShieldCheck, Trash2, UserCog, X } from 'lucide-react'
+import { AlertTriangle, Check, Download, LockKeyhole, Pencil, Plus, Search, ShieldCheck, Trash2, UserCog, X } from 'lucide-react'
 import PageHero from '../components/PageHero'
 import { AttendanceRecord, Member } from '../data/memberStore'
 import { createAttendance, createMember, deleteAttendance, deleteMember, getAttendance, getMembers, updateAttendance, updateMember } from '../data/api'
@@ -42,7 +42,6 @@ export default function Admin({ section = 'management' }: { section?: 'managemen
   const [signingIn, setSigningIn] = useState(false)
   const [lockUntil, setLockUntil] = useState(0)
   const [lockNow, setLockNow] = useState(Date.now())
-  const [showPassword, setShowPassword] = useState(false)
   const [username, setUsername] = useState(''); const [password, setPassword] = useState('')
   const [members, setMembers] = useState<Member[]>([]); const [records, setRecords] = useState<AttendanceRecord[]>([])
   const [member, setMember] = useState(emptyMember); const [editingId, setEditingId] = useState<string | null>(null)
@@ -124,41 +123,19 @@ export default function Admin({ section = 'management' }: { section?: 'managemen
   }
   if (checkingSession) return <section className="px-4 pb-20 pt-32"><p role="status" className="text-center">Checking your session...</p></section>
 
-  if (!isAuthed) return <main className="admin-login flex min-h-[100svh] items-center justify-center bg-[#f4f7f5] px-4 py-28 sm:px-6">
-    <section aria-labelledby="admin-login-title" className={`admin-login-card w-full max-w-[30rem] rounded-2xl border border-[#e2eae6] bg-white p-6 shadow-[0_24px_60px_rgba(15,81,50,.10)] sm:p-8 ${loginMessage && !loginLocked ? 'admin-login-error' : ''}`}>
-      <header className="mb-8 flex items-start gap-4">
-        <span className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-emerald-100 bg-emerald-50 text-[#0a6847]" aria-hidden="true"><ShieldCheck size={24} strokeWidth={1.8} /></span>
-        <div className="min-w-0">
-          <p className="text-[11px] font-bold uppercase tracking-[.16em] text-[#0a6847]">Admin access</p>
-          <h1 id="admin-login-title" className="mt-1 text-2xl font-black tracking-[-.025em] text-slate-900">Sign in to continue</h1>
-        </div>
-      </header>
-
-      <form className="grid gap-5" onSubmit={event => { event.preventDefault(); void handleLogin() }} noValidate>
-        <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em] text-slate-600">
-          Username
-          <input value={username} onChange={event => setUsername(event.target.value)} className="admin-login-input" autoComplete="username" disabled={loginLocked} required aria-invalid={Boolean(loginMessage && !loginLocked)} />
-        </label>
-        <div className="grid gap-2 text-xs font-bold uppercase tracking-[.1em] text-slate-600">
-          <span className="flex items-center justify-between gap-4"><label htmlFor="admin-password">Password</label><button type="button" aria-label="Account recovery assistance" onClick={() => setLoginMessage('Please contact the site administrator to reset your password.')} className="normal-case tracking-normal text-[#0a6847] underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0a6847]">Forgot password?</button></span>
-          <span className="relative">
-            <input id="admin-password" value={password} onChange={event => setPassword(event.target.value)} type={showPassword ? 'text' : 'password'} className="admin-login-input pr-12" autoComplete="current-password" disabled={loginLocked} required aria-invalid={Boolean(loginMessage && !loginLocked)} />
-            <button type="button" onClick={() => setShowPassword(current => !current)} disabled={loginLocked} aria-label={showPassword ? 'Hide entered characters' : 'Show entered characters'} aria-pressed={showPassword} className="absolute right-1.5 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-lg text-slate-500 transition hover:bg-emerald-50 hover:text-[#0a6847] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0a6847] disabled:opacity-50">{showPassword ? <EyeOff size={19} /> : <Eye size={19} />}</button>
-          </span>
-        </div>
-        <button type="submit" disabled={signingIn || loginLocked} className="admin-login-submit mt-1 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#d9a73e] px-5 py-3 font-bold text-[#1a1a1a] transition hover:-translate-y-0.5 hover:bg-[#e0b34f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0a6847] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0">
-          {signingIn ? <LoaderCircle size={18} className="animate-spin" aria-hidden="true" /> : <LockKeyhole size={18} aria-hidden="true" />}
-          {signingIn ? 'Signing in…' : loginLocked ? 'Sign-in locked' : 'Enter admin area'}
-        </button>
-
-        {loginLocked ? <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-[#991b1b]">
-          <div className="flex items-start gap-3"><AlertTriangle size={19} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="text-sm font-semibold">{loginMessage || 'Too many incorrect attempts. Sign-in is temporarily locked.'}</p><p className="mt-3 text-[11px] font-bold uppercase tracking-[.12em] text-[#b91c1c]">Time remaining</p><p role="timer" aria-live="off" aria-label={`${lockRemaining} seconds remaining`} className="mt-0.5 font-mono text-2xl font-black tabular-nums tracking-tight">{countdown(lockRemaining)}</p></div></div>
-        </div> : loginMessage && <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3.5 py-3 text-sm font-medium text-[#b91c1c]"><AlertTriangle size={18} className="mt-0.5 shrink-0" aria-hidden="true" /><span>{loginMessage}</span></div>}
-      </form>
-
-      <footer className="mt-7 border-t border-slate-100 pt-5 text-center text-xs leading-5 text-slate-500"><LockKeyhole size={13} className="mr-1 inline-block align-[-2px]" aria-hidden="true" />Protected by encrypted access <span aria-hidden="true">•</span> Authorized personnel only</footer>
-    </section>
-  </main>
+  if (!isAuthed) return <section className="admin-login min-h-[70svh] px-4 pb-20 pt-32 sm:px-5 sm:pt-40">
+    <div className="mx-auto max-w-md">
+      <div className="soft-card border border-emerald-100 shadow-lg">
+        <div className="mb-6 flex items-center gap-3"><span className="icon-box"><ShieldCheck size={20} /></span><div><p className="eyebrow">Admin access</p><h1 className="mt-1 text-2xl font-black">Sign in to continue</h1></div></div>
+        <form className="grid gap-4" onSubmit={event => { event.preventDefault(); void handleLogin() }} noValidate>
+          <label className="field-label">Username<input value={username} onChange={event => setUsername(event.target.value)} className="field" autoComplete="username" disabled={loginLocked} required aria-invalid={Boolean(loginMessage && !loginLocked)} /></label>
+          <label className="field-label">Password<input value={password} onChange={event => setPassword(event.target.value)} type="password" className="field" autoComplete="current-password" disabled={loginLocked} required aria-invalid={Boolean(loginMessage && !loginLocked)} /></label>
+          <button type="submit" disabled={signingIn || loginLocked} className="primary-btn justify-center"><LockKeyhole size={17} /> {signingIn ? 'Signing in...' : loginLocked ? 'Sign-in locked' : 'Enter admin area'}</button>
+          {loginLocked ? <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-rose-700"><div className="flex items-start gap-2"><AlertTriangle size={18} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="text-sm font-semibold">{loginMessage || 'Too many incorrect attempts. Sign-in is temporarily locked.'}</p><p className="mt-2 text-xs font-bold uppercase tracking-wider">Time remaining</p><p role="timer" aria-live="off" aria-label={`${lockRemaining} seconds remaining`} className="font-mono text-xl font-black tabular-nums">{countdown(lockRemaining)}</p></div></div></div> : loginMessage && <p role="alert" className="text-sm text-rose-700">{loginMessage}</p>}
+        </form>
+      </div>
+    </div>
+  </section>
 
   if (section === 'certificates') return <><PageHero eyebrow="Administration" title="Certificates" description="Review eligible members and prepare their recognition certificates." icon={<UserCog size={15} />} /><section className="admin-page py-10 sm:py-16"><div className="mx-auto max-w-7xl px-4 sm:px-5 lg:px-8"><div className="flex flex-wrap items-start justify-between gap-3"><AdminSectionNav /><button onClick={() => void handleLogout()} className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700 transition hover:bg-rose-100">Log out</button></div><AdminCertificates /><AdminMembershipCards /></div></section></>
 

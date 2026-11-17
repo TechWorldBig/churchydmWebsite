@@ -54,7 +54,7 @@ Cards are rounded and spacious; fields are compact rounded rectangles. Use the s
 
 Tables use native semantic markup, sticky headers only inside their own scrolling panel, and a clearly labelled action column. Icon-only actions have an accessible name and title. Native selects and dates remain intentionally platform-owned controls in this application.
 
-The signed-out admin login uses a compact single-card layout with the established deep emerald and restrained gold palette. Security, lockout, countdown, and error states remain prominent and readable without decorative artwork.
+The signed-out admin login uses the original compact `soft-card`, shared field styling, emerald accents, and raised gold primary button. Security, lockout, countdown, and error states remain prominent without decorative artwork.
 
 ## Do's and Don'ts
 
