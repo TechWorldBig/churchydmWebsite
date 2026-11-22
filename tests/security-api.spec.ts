@@ -8,6 +8,7 @@ import visitors, { isAutomatedVisitor, validVisitorDate } from '../api/visitors'
 import members from '../api/members'
 import attendance from '../api/attendance'
 import gallery from '../api/gallery'
+import { validAnnualProgram } from '../api/year-archive'
 import { clientIp, endpointRateLimited, hashClientIp, isJsonContentType, sameOriginMutation, sameSecret, sessionCookie, sessionToken } from '../api/_lib/security'
 import { parseImageData, readMutation } from '../api/_lib/validation'
 
@@ -163,6 +164,17 @@ test('rejects executable images and invalid attendance dates', () => {
   const record = request('POST', { id: 'record', memberId: 'member', name: 'Friend', date: '2026-02-30', present: true })
   expect(readMutation(record.req, record.res, 'attendance')).toBeNull()
   expect(record.result.status).toBe(400)
+})
+
+test('rejects oversized member metadata and malformed annual program archives', () => {
+  const member = request('POST', { id: 'member', name: 'Friend', photoName: 'x'.repeat(256) })
+  expect(readMutation(member.req, member.res, 'members')).toBeNull()
+  expect(member.result.status).toBe(400)
+
+  const valid = { id: 'annual-2026', year: '2026', date: '2026-12-31', theme: 'Serve the Lord', rows: [{ serialNo: 1, programName: 'Bible Quiz', memberName: 'Friend' }] }
+  expect(validAnnualProgram(valid)).toBe(true)
+  expect(validAnnualProgram({ ...valid, date: '2026-02-30' })).toBe(false)
+  expect(validAnnualProgram({ ...valid, rows: [{ ...valid.rows[0], programName: 'x'.repeat(201) }] })).toBe(false)
 })
 
 test('accepts only declared raster image formats with matching binary signatures', () => {

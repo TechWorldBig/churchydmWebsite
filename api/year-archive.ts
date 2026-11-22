@@ -3,7 +3,13 @@ import { ensureSchema, getSql, sendError } from './_lib/db.js'
 import { writeAuditLog } from './_lib/audit.js'
 
 const validText = (value: unknown, max: number) => typeof value === 'string' && value.trim().length > 0 && value.length <= max
-const validDate = (value: unknown) => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/u.test(value) && Number.isFinite(Date.parse(value))
+const validDate = (value: unknown) => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/u.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value
+
+export const validAnnualProgram = (program: any): boolean => {
+  const rows = Array.isArray(program?.rows) ? program.rows : []
+  return validText(program?.id, 100) && /^\d{4}$/u.test(program?.year) && validDate(program?.date) && program.date.slice(0, 4) === program.year && validText(program?.theme, 300)
+    && rows.length > 0 && rows.length <= 100 && rows.every((row: any, index: number) => row && typeof row === 'object' && !Array.isArray(row) && row.serialNo === index + 1 && validText(row.programName, 200) && validText(row.memberName, 120))
+}
 
 export default async function handler(req: any, res: any) {
   res.setHeader?.('Cache-Control', 'no-store')
@@ -13,10 +19,10 @@ export default async function handler(req: any, res: any) {
       await ensureSchema()
       const sql = getSql()
       const program = req.body?.annualProgram || {}
-      const programRows = Array.isArray(program.rows) ? program.rows : []
-      const validRows = programRows.length > 0 && programRows.length <= 100 && programRows.every((row: any, index: number) => row?.serialNo === index + 1 && validText(row.programName, 200) && validText(row.memberName, 120))
-      if (!validText(program.id, 100) || !/^\d{4}$/u.test(program.year) || !validDate(program.date) || program.date.slice(0, 4) !== program.year || !validText(program.theme, 300) || !validRows) return res.status(400).json({ error: 'Invalid annual program data.' })
-      await sql`INSERT INTO annual_programs (id, year, program_date, theme, rows) VALUES (${program.id}, ${program.year}, ${program.date}, ${program.theme.trim()}, ${JSON.stringify(programRows)}::jsonb) ON CONFLICT (id) DO NOTHING`
+      const payloadSize = Buffer.byteLength(JSON.stringify(req.body ?? null), 'utf8')
+      if (payloadSize > 64_000) return res.status(413).json({ error: 'Request too large.' })
+      if (!validAnnualProgram(program)) return res.status(400).json({ error: 'Invalid annual program data.' })
+      await sql`INSERT INTO annual_programs (id, year, program_date, theme, rows) VALUES (${program.id}, ${program.year}, ${program.date}, ${program.theme.trim()}, ${JSON.stringify(program.rows)}::jsonb) ON CONFLICT (id) DO NOTHING`
       await writeAuditLog(req, { action: 'archive', entity: 'annual_program', entityId: program.id, summary: `${program.year} · ${program.date}` })
       return res.status(200).json({ ok: true })
     }
