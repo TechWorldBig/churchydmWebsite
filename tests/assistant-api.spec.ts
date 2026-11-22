@@ -35,12 +35,14 @@ test('builds a scoped Gemini request without exposing the server key', async () 
   const originalKey = process.env.GEMINI_API_KEY
   const originalModel = process.env.GEMINI_MODEL
   let capturedInit: RequestInit | undefined
+  let capturedUrl = ''
   process.env.GEMINI_API_KEY = 'test-only-key'
   process.env.GEMINI_MODEL = 'test-model'
-  globalThis.fetch = async (_input, init) => {
+  globalThis.fetch = async (input, init) => {
     if (JSON.parse(String(init?.body)).generationConfig.responseSchema.properties.decision) {
       return new Response(JSON.stringify({ candidates: [{ finishReason: 'STOP', content: { parts: [{ text: JSON.stringify({ decision: 'ALLOWED' }) }] } }] }))
     }
+    capturedUrl = String(input)
     capturedInit = init
     return new Response(JSON.stringify({
       candidates: [{ finishReason: 'STOP', content: { parts: [{ text: JSON.stringify({ inScope: true, answer: 'Verified mock answer' }) }] } }],
@@ -60,6 +62,7 @@ test('builds a scoped Gemini request without exposing the server key', async () 
     const headers = capturedInit?.headers as Record<string, string>
     const requestBody = JSON.parse(String(capturedInit?.body))
     expect(headers['x-goog-api-key']).toBe('test-only-key')
+    expect(capturedUrl).toContain('/models/test-model:generateContent')
     expect(requestBody.generationConfig.maxOutputTokens).toBe(7_000)
     expect(requestBody.systemInstruction.parts[0].text).toContain("saved preference, which is Malayalam")
     expect(requestBody.systemInstruction.parts[0].text).toContain('an explicit language requested in the current message')

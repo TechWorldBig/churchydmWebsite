@@ -30,7 +30,10 @@ export type AssistantTurn = {
 const request = async <T>(url: string, options?: RequestInit): Promise<T> => {
   const response = await fetch(url, { cache: 'no-store', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, ...options })
   if (response.status === 401) window.dispatchEvent(new Event('ydm-session-expired'))
-  if (!response.ok) throw new Error(`Request failed: ${response.status}`)
+  if (!response.ok) {
+    const payload = await response.clone().json().catch(() => null) as { error?: unknown } | null
+    throw new Error(typeof payload?.error === 'string' && payload.error ? payload.error : `Request failed: ${response.status}`)
+  }
   return response.json()
 }
 
