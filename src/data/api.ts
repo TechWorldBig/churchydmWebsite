@@ -64,6 +64,7 @@ export const createWeeklyProgram = (item: WeeklyProgram) => request<{ ok: boolea
 export const deleteWeeklyProgram = (id: string) => request<{ ok: boolean }>('/api/weekly-programs', { method: 'DELETE', body: JSON.stringify({ id }) })
 export const getAnnualPrograms = () => request<AnnualProgram[]>('/api/year-archive?annualPrograms=1')
 export const archiveAnnualProgram = (program: AnnualProgram) => request<{ ok: boolean }>('/api/year-archive', { method: 'POST', body: JSON.stringify({ annualProgram: program }) })
+export const deleteAnnualProgram = (id: string) => request<{ ok: boolean }>('/api/year-archive', { method: 'DELETE', body: JSON.stringify({ id }) })
 export const askChurchAssistant = (question: string, name: string, language: 'en' | 'ta' | 'ml', history: AssistantTurn[]) => request<{ answer: string }>('/api/assistant', {
   method: 'POST',
   body: JSON.stringify({ question, name, language, history }),

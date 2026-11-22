@@ -14,6 +14,17 @@ export const validAnnualProgram = (program: any): boolean => {
 export default async function handler(req: any, res: any) {
   res.setHeader?.('Cache-Control', 'no-store')
   try {
+    if (req.method === 'DELETE') {
+      if (!await authorizeMutation(req, res)) return
+      const id = typeof req.body?.id === 'string' ? req.body.id.trim() : ''
+      if (!validText(id, 100)) return res.status(400).json({ error: 'Invalid annual program ID.' })
+      await ensureSchema()
+      const sql = getSql()
+      const deleted = await sql`DELETE FROM annual_programs WHERE id=${id} RETURNING year, program_date AS "date"`
+      if (!deleted[0]) return res.status(404).json({ error: 'Archived annual program not found.' })
+      await writeAuditLog(req, { action: 'delete', entity: 'annual_program', entityId: id, summary: `${deleted[0].year} · ${deleted[0].date}` })
+      return res.status(200).json({ ok: true })
+    }
     if (req.method === 'POST') {
       if (!await authorizeMutation(req, res)) return
       await ensureSchema()

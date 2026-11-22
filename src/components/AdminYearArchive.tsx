@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import { Archive, CalendarDays, ClipboardList, Download, RefreshCw, Users } from 'lucide-react'
-import { getAnnualPrograms, getYearArchives } from '../data/api'
+import { Archive, CalendarDays, ClipboardList, Download, RefreshCw, Trash2, Users } from 'lucide-react'
+import { deleteAnnualProgram, getAnnualPrograms, getYearArchives } from '../data/api'
 import { downloadHtmlPdf } from '../data/pdf'
 import { annualProgramHtml } from '../data/annualProgramPdf'
 import archiveArtwork from '../assets/admin-year-archive.avif'
@@ -22,6 +22,8 @@ export default function AdminYearArchive() {
   const [error, setError] = useState('')
   const [downloading, setDownloading] = useState(false)
   const [downloadError, setDownloadError] = useState('')
+  const [deletingId, setDeletingId] = useState('')
+  const [deleteError, setDeleteError] = useState('')
 
   const load = async () => {
     setLoading(true)
@@ -80,6 +82,21 @@ export default function AdminYearArchive() {
     }
   }
 
+  const removeAnnualProgram = async (program: AnnualProgram) => {
+    const confirmed = window.confirm(`Permanently delete the archived annual program “${program.theme}” from ${program.date}?\n\nThis will permanently delete it from the database and cannot be undone.`)
+    if (!confirmed) return
+    setDeletingId(program.id)
+    setDeleteError('')
+    try {
+      await deleteAnnualProgram(program.id)
+      setAnnualPrograms(current => current.filter(item => item.id !== program.id))
+    } catch {
+      setDeleteError('The archived annual program could not be deleted. Please try again.')
+    } finally {
+      setDeletingId('')
+    }
+  }
+
   return <section className="mt-6 rounded-3xl border border-emerald-100 bg-white p-5 shadow-[0_18px_45px_rgba(7,31,25,.08)] sm:p-7">
     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div className="flex items-center gap-3"><span className="admin-section-art"><img src={archiveArtwork} alt="" /></span><div><p className="eyebrow">Protected history</p><h2 className="text-xl font-black text-slate-900">Year archive</h2><p className="mt-1 max-w-2xl text-sm text-slate-500">Each completed year remains here as a lasting record of the ministry&apos;s journey. Every January in India time, members, attendance, program points, and weekly programs from the completed year move here as read-only records.</p></div></div>
@@ -89,12 +106,13 @@ export default function AdminYearArchive() {
     {loading ? <p role="status" className="mt-6 text-sm text-slate-500">Loading archived ministry records…</p> : years.length === 0 ? <div className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-7 text-center"><Archive className="mx-auto text-emerald-700" size={28} /><p className="mt-3 font-bold">No completed-year records yet</p><p className="mt-1 text-sm text-slate-500">When the calendar moves beyond {currentYear}, the completed year&apos;s members, attendance, program points, and weekly programs will appear here automatically.</p></div> : <>
       <div className="mt-6 flex flex-wrap items-end gap-3"><label className="field-label max-w-xs">Archived year<select aria-label="Archived year" className="field mt-1" value={selectedYear} onChange={event => setSelectedYear(event.target.value)}>{years.map(year => <option key={year} value={year}>{year}</option>)}</select></label><p className="pb-2 text-sm text-slate-500">Read-only record for {selectedYear}.</p><button type="button" onClick={() => void downloadArchive()} disabled={downloading} className="primary-btn shrink-0"><Download size={17} /> {downloading ? 'Preparing PDF…' : 'Download PDF'}</button></div>
       {downloadError && <p role="alert" className="mt-3 text-sm font-semibold text-rose-700">{downloadError}</p>}
+      {deleteError && <p role="alert" className="mt-3 text-sm font-semibold text-rose-700">{deleteError}</p>}
       <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5"><Metric icon={<Users size={18} />} label="Archived members" value={yearMembers.length} /><Metric icon={<CalendarDays size={18} />} label="Attendance records" value={yearAttendance.length} /><Metric icon={<Users size={18} />} label="Present / absent" value={`${present} / ${absent}`} /><Metric icon={<ClipboardList size={18} />} label="Program points" value={yearPoints.length} /><Metric icon={<CalendarDays size={18} />} label="Weekly programs" value={yearWeekly.length} /></div>
       <ArchiveTable title="Members" empty="No members were saved for this year." count={yearMembers.length}><table className="w-full min-w-[780px] text-left text-sm"><thead><tr><th>Member</th><th>Role</th><th>Seniority</th><th>Email</th><th>Phone</th></tr></thead><tbody>{yearMembers.map(item => <tr key={item.id}><td className="font-bold">{item.name}</td><td>{item.role}</td><td>{item.seniority || '—'}</td><td>{item.email || '—'}</td><td>{item.phone || '—'}</td></tr>)}</tbody></table></ArchiveTable>
       <ArchiveTable title="Attendance" empty="No attendance records were saved for this year." count={yearAttendance.length}><table className="w-full min-w-[620px] text-left text-sm"><thead><tr><th>Member</th><th>Date</th><th>Status</th><th>Note</th></tr></thead><tbody>{yearAttendance.map(item => <tr key={item.id}><td className="font-bold">{item.name}</td><td>{item.date}</td><td><span className={item.present ? 'text-emerald-700' : 'text-rose-700'}>{item.present ? 'Present' : 'Absent'}</span></td><td className="max-w-64 truncate">{item.note || '—'}</td></tr>)}</tbody></table></ArchiveTable>
       <ArchiveTable title="Program points" empty="No program points were saved for this year." count={yearPoints.length}><table className="w-full min-w-[780px] text-left text-sm"><thead><tr><th>Member</th><th>Seniority</th><th>Program</th><th>Date</th><th>Answered</th></tr></thead><tbody>{yearPoints.map(item => <tr key={item.id}><td className="font-bold">{item.name}</td><td>{item.seniority || '—'}</td><td>{item.program}</td><td>{item.date}</td><td>{item.questionsAnswered}/5</td></tr>)}</tbody></table></ArchiveTable>
       <ArchiveTable title="Weekly programs" empty="No weekly programs were saved for this year." count={yearWeekly.length}><table className="w-full min-w-[680px] text-left text-sm"><thead><tr><th>Date</th><th>Sl.No</th><th>Program</th><th>Member</th></tr></thead><tbody>{yearWeekly.map(item => <tr key={item.id}><td>{item.date}</td><td className="font-bold">{item.serialNo}</td><td>{item.programName}</td><td>{item.memberName}</td></tr>)}</tbody></table></ArchiveTable>
-      <ArchiveTable title="Annual program PDFs" empty="No annual program PDF was moved to this year archive." count={yearAnnualPrograms.length}><table className="w-full min-w-[680px] text-left text-sm"><thead><tr><th>Date</th><th>Theme</th><th>Programs</th><th className="text-right">Action</th></tr></thead><tbody>{yearAnnualPrograms.map(item => <tr key={item.id}><td>{item.date}</td><td className="font-bold">{item.theme}</td><td>{item.rows.length}</td><td className="text-right"><button type="button" onClick={() => void downloadHtmlPdf(annualProgramHtml(item), `ydm-annual-program-${item.year}.pdf`, 'a4', '.page')} className="primary-btn ml-auto"><Download size={16} /> Download PDF</button></td></tr>)}</tbody></table></ArchiveTable>
+      <ArchiveTable title="Annual program PDFs" empty="No annual program PDF was moved to this year archive." count={yearAnnualPrograms.length}><table className="w-full min-w-[760px] text-left text-sm"><thead><tr><th>Date</th><th>Theme</th><th>Programs</th><th className="text-right">Actions</th></tr></thead><tbody>{yearAnnualPrograms.map(item => <tr key={item.id}><td>{item.date}</td><td className="font-bold">{item.theme}</td><td>{item.rows.length}</td><td><div className="flex justify-end gap-2"><button type="button" onClick={() => void downloadHtmlPdf(annualProgramHtml(item), `ydm-annual-program-${item.year}.pdf`, 'a4', '.page')} className="primary-btn"><Download size={16} /> Download PDF</button><button type="button" onClick={() => void removeAnnualProgram(item)} disabled={Boolean(deletingId)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"><Trash2 size={16} /> {deletingId === item.id ? 'Deleting…' : 'Delete'}</button></div></td></tr>)}</tbody></table></ArchiveTable>
     </>}
   </section>
 }
