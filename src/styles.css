@@ -2,6 +2,7 @@
 
 :root { font-family: "Avenir Next", Avenir, ui-sans-serif, system-ui, sans-serif; color: #17211f; background: #faf9f6; font-synthesis: none; text-rendering: optimizeLegibility; --forest: #071f19; --forest-deep: #041511; --gold: #e3bc62; --ink: #17211f; --cream: #faf9f6; }
 * { box-sizing: border-box; }
+html { max-width: 100%; overflow-x: clip; }
 .grid > * { min-width: 0; }
 img { display: block; max-width: 100%; }
 html { scroll-behavior: smooth; }
