@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Archive, CalendarDays, ClipboardList, Download, RefreshCw, Users } from 'lucide-react'
-import { getYearArchives } from '../data/api'
+import { getAnnualPrograms, getYearArchives } from '../data/api'
 import { downloadHtmlPdf } from '../data/pdf'
+import { annualProgramHtml } from '../data/annualProgramPdf'
 import archiveArtwork from '../assets/admin-year-archive.avif'
-import type { AttendanceRecord, Member, ProgramPoint, WeeklyProgram } from '../data/memberStore'
+import type { AnnualProgram, AttendanceRecord, Member, ProgramPoint, WeeklyProgram } from '../data/memberStore'
 import { currentYearDateBounds } from '../data/dateBounds'
 
 const yearFrom = (value: string) => value.slice(0, 4)
@@ -15,6 +16,7 @@ export default function AdminYearArchive() {
   const [points, setPoints] = useState<ProgramPoint[]>([])
   const [members, setMembers] = useState<Member[]>([])
   const [weekly, setWeekly] = useState<WeeklyProgram[]>([])
+  const [annualPrograms, setAnnualPrograms] = useState<AnnualProgram[]>([])
   const [selectedYear, setSelectedYear] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -25,7 +27,7 @@ export default function AdminYearArchive() {
     setLoading(true)
     setError('')
     try {
-      const archives = await getYearArchives()
+      const [archives, savedAnnualPrograms] = await Promise.all([getYearArchives(), getAnnualPrograms()])
       const savedAttendance = archives.flatMap(item => item.payload.attendance || [])
       const savedPoints = archives.flatMap(item => item.payload.points || [])
       const savedMembers = archives.flatMap(item => item.payload.members || [])
@@ -34,6 +36,7 @@ export default function AdminYearArchive() {
       setPoints(savedPoints)
       setMembers(savedMembers)
       setWeekly(savedWeekly)
+      setAnnualPrograms(savedAnnualPrograms)
     } catch {
       setError('Could not load the year archive. Please refresh and try again.')
     } finally {
@@ -43,9 +46,9 @@ export default function AdminYearArchive() {
 
   useEffect(() => { void load() }, [])
 
-  const years = useMemo(() => [...new Set([...attendance.map(item => yearFrom(item.date)), ...points.map(item => yearFrom(item.date)), ...members.map(item => item.activeYear || ''), ...weekly.map(item => yearFrom(item.date))])]
-    .filter(year => /^\d{4}$/u.test(year) && year < currentYear)
-    .sort((left, right) => right.localeCompare(left)), [attendance, currentYear, members, points, weekly])
+  const years = useMemo(() => [...new Set([...attendance.map(item => yearFrom(item.date)), ...points.map(item => yearFrom(item.date)), ...members.map(item => item.activeYear || ''), ...weekly.map(item => yearFrom(item.date)), ...annualPrograms.map(item => item.year)])]
+    .filter(year => /^\d{4}$/u.test(year) && (year < currentYear || annualPrograms.some(item => item.year === year)))
+    .sort((left, right) => right.localeCompare(left)), [annualPrograms, attendance, currentYear, members, points, weekly])
 
   useEffect(() => {
     setSelectedYear(current => years.includes(current) ? current : (years[0] || ''))
@@ -55,6 +58,7 @@ export default function AdminYearArchive() {
   const yearPoints = useMemo(() => points.filter(item => yearFrom(item.date) === selectedYear).sort((left, right) => right.date.localeCompare(left.date) || left.name.localeCompare(right.name)), [points, selectedYear])
   const yearMembers = useMemo(() => members.filter(item => item.activeYear === selectedYear).sort((left, right) => left.name.localeCompare(right.name)), [members, selectedYear])
   const yearWeekly = useMemo(() => weekly.filter(item => yearFrom(item.date) === selectedYear).sort((left, right) => right.date.localeCompare(left.date) || left.serialNo - right.serialNo), [selectedYear, weekly])
+  const yearAnnualPrograms = useMemo(() => annualPrograms.filter(item => item.year === selectedYear), [annualPrograms, selectedYear])
   const present = yearAttendance.filter(item => item.present).length
   const absent = yearAttendance.length - present
 
@@ -90,6 +94,7 @@ export default function AdminYearArchive() {
       <ArchiveTable title="Attendance" empty="No attendance records were saved for this year." count={yearAttendance.length}><table className="w-full min-w-[620px] text-left text-sm"><thead><tr><th>Member</th><th>Date</th><th>Status</th><th>Note</th></tr></thead><tbody>{yearAttendance.map(item => <tr key={item.id}><td className="font-bold">{item.name}</td><td>{item.date}</td><td><span className={item.present ? 'text-emerald-700' : 'text-rose-700'}>{item.present ? 'Present' : 'Absent'}</span></td><td className="max-w-64 truncate">{item.note || '—'}</td></tr>)}</tbody></table></ArchiveTable>
       <ArchiveTable title="Program points" empty="No program points were saved for this year." count={yearPoints.length}><table className="w-full min-w-[780px] text-left text-sm"><thead><tr><th>Member</th><th>Seniority</th><th>Program</th><th>Date</th><th>Answered</th></tr></thead><tbody>{yearPoints.map(item => <tr key={item.id}><td className="font-bold">{item.name}</td><td>{item.seniority || '—'}</td><td>{item.program}</td><td>{item.date}</td><td>{item.questionsAnswered}/5</td></tr>)}</tbody></table></ArchiveTable>
       <ArchiveTable title="Weekly programs" empty="No weekly programs were saved for this year." count={yearWeekly.length}><table className="w-full min-w-[680px] text-left text-sm"><thead><tr><th>Date</th><th>Sl.No</th><th>Program</th><th>Member</th></tr></thead><tbody>{yearWeekly.map(item => <tr key={item.id}><td>{item.date}</td><td className="font-bold">{item.serialNo}</td><td>{item.programName}</td><td>{item.memberName}</td></tr>)}</tbody></table></ArchiveTable>
+      <ArchiveTable title="Annual program PDFs" empty="No annual program PDF was moved to this year archive." count={yearAnnualPrograms.length}><table className="w-full min-w-[680px] text-left text-sm"><thead><tr><th>Date</th><th>Theme</th><th>Programs</th><th className="text-right">Action</th></tr></thead><tbody>{yearAnnualPrograms.map(item => <tr key={item.id}><td>{item.date}</td><td className="font-bold">{item.theme}</td><td>{item.rows.length}</td><td className="text-right"><button type="button" onClick={() => void downloadHtmlPdf(annualProgramHtml(item), `ydm-annual-program-${item.year}.pdf`, 'a4', '.page')} className="primary-btn ml-auto"><Download size={16} /> Download PDF</button></td></tr>)}</tbody></table></ArchiveTable>
     </>}
   </section>
 }

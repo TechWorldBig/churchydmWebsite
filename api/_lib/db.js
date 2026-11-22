@@ -56,6 +56,7 @@ export async function ensureSchema() {
     await sql`CREATE UNIQUE INDEX IF NOT EXISTS program_points_member_program_date_idx ON program_points (member_id, program, date)`
     await sql`CREATE TABLE IF NOT EXISTS weekly_programs (id TEXT PRIMARY KEY, date TEXT NOT NULL, serial_no INTEGER NOT NULL CHECK (serial_no >= 1 AND serial_no <= 15), program_name TEXT NOT NULL, member_id TEXT NOT NULL REFERENCES members(id) ON DELETE CASCADE, member_name TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), UNIQUE(date, serial_no))`
     await sql`ALTER TABLE weekly_programs ADD COLUMN IF NOT EXISTS archived_at TIMESTAMPTZ`
+    await sql`CREATE TABLE IF NOT EXISTS annual_programs (id TEXT PRIMARY KEY, year TEXT NOT NULL, program_date TEXT NOT NULL, theme TEXT NOT NULL, rows JSONB NOT NULL, archived_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`
     await sql`
     CREATE TABLE IF NOT EXISTS system_metadata (
       key TEXT PRIMARY KEY,

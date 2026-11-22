@@ -1,4 +1,4 @@
-import { AttendanceRecord, GalleryPhoto, Member, ProgramPoint, WeeklyProgram } from './memberStore'
+import { AnnualProgram, AttendanceRecord, GalleryPhoto, Member, ProgramPoint, WeeklyProgram } from './memberStore'
 
 export type AuditLog = {
   id: string
@@ -59,6 +59,8 @@ export const getWeeklyPrograms = (includeArchived = false) => request<WeeklyProg
 export const getYearArchives = () => request<Array<{ year: string; payload: { members: Member[]; attendance: AttendanceRecord[]; points: ProgramPoint[]; weekly: WeeklyProgram[] } }>>('/api/year-archive')
 export const createWeeklyProgram = (item: WeeklyProgram) => request<{ ok: boolean; id?: string }>('/api/weekly-programs', { method: 'POST', body: JSON.stringify(item) })
 export const deleteWeeklyProgram = (id: string) => request<{ ok: boolean }>('/api/weekly-programs', { method: 'DELETE', body: JSON.stringify({ id }) })
+export const getAnnualPrograms = () => request<AnnualProgram[]>('/api/annual-programs')
+export const archiveAnnualProgram = (program: AnnualProgram) => request<{ ok: boolean }>('/api/annual-programs', { method: 'POST', body: JSON.stringify(program) })
 export const askChurchAssistant = (question: string, name: string, language: 'en' | 'ta' | 'ml', history: AssistantTurn[]) => request<{ answer: string }>('/api/assistant', {
   method: 'POST',
   body: JSON.stringify({ question, name, language, history }),

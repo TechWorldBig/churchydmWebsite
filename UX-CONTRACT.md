@@ -71,3 +71,7 @@ The protected Yearly Report and Annual Speeches sections include an **AI Generat
 ## Christmas cake cover
 
 `/admin/cake-cover` is a protected section beside Certificates. It provides an editable Christmas and New Year cake-distribution cover with the YDM logo, Luke 2:11, sender and year. The live preview matches the single square cover centered on its downloadable A4 portrait PDF.
+
+## Annual program
+
+`/admin/annual-program` is a protected editor for one dated annual program. The PDF begins with “கர்த்தருக்கு ஸ்தோத்திரம்”, the selected year and annual theme, followed by the three-column program list and signature spaces for two YDM leaders and the pastor. Downloading remains local unless the admin checks **Move to Year archive**; with that option selected, the immutable program snapshot is saved under its selected year and can be downloaded again from the protected Year archive.

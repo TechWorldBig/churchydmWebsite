@@ -37,6 +37,7 @@ export default function App() {
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/certificates" element={<Admin section="certificates" />} />
           <Route path="/admin/year-archive" element={<Admin section="archive" />} />
+          <Route path="/admin/annual-program" element={<Admin section="annual-program" />} />
           <Route path="/admin/cake-cover" element={<Admin section="cake-cover" />} />
           <Route path="/admin/annual-speeches" element={<Admin section="annual-speeches" />} />
           <Route path="/admin/yearly-report" element={<Admin section="yearly-report" />} />

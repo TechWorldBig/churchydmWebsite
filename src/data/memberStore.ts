@@ -33,3 +33,6 @@ export type GalleryPhoto = {
 }
 
 export type WeeklyProgram = { id: string; date: string; serialNo: number; programName: string; memberId: string; memberName: string; archivedAt?: string | null }
+
+export type AnnualProgramRow = { serialNo: number; programName: string; memberName: string }
+export type AnnualProgram = { id: string; year: string; date: string; theme: string; rows: AnnualProgramRow[]; archivedAt?: string }
