@@ -74,14 +74,16 @@ export const attendanceReport = (members: Member[], records: AttendanceRecord[])
   return shell('Attendance', sections || '<p class="empty">No members match the attendance report criteria.</p>')
 }
 
-const programReport = (points: ProgramPoint[]) => {
+export const programReport = (points: ProgramPoint[]) => {
   const programs = ['Bible Quiz', 'Bible Reference', 'Song Survey']
   const sections = programs.flatMap(program => ['Junior', 'Senior'].map(seniority => {
     const totals = new Map<string, { name: string; seniority: string; points: number }>()
-    points.filter(point => point.program === program && point.seniority === seniority).forEach(point => { const current = totals.get(point.memberId) || { name: point.name, seniority: point.seniority, points: 0 }; current.points += point.questionsAnswered; totals.set(point.memberId, current) })
-    const rows = [...totals.values()].sort((a, b) => b.points - a.points || a.name.localeCompare(b.name)).slice(0, 2)
+    points.filter(point => point.program.trim().toLocaleLowerCase() === program.toLocaleLowerCase() && normalizeSeniority(point.seniority) === normalizeSeniority(seniority)).forEach(point => { const key = point.memberId || normalizeName(point.name); const current = totals.get(key) || { name: point.name, seniority, points: 0 }; current.points += point.questionsAnswered; totals.set(key, current) })
+    const ranked = [...totals.values()].sort((a, b) => b.points - a.points || a.name.localeCompare(b.name))
+    const secondPlacePoints = [...new Set(ranked.map(row => row.points))][1]
+    const rows = secondPlacePoints === undefined ? ranked : ranked.filter(row => row.points >= secondPlacePoints)
     if (!rows.length) return ''
-    return `<h2>${esc(program)} · ${esc(seniority)}</h2><table><thead><tr><th>Rank</th><th>Name</th><th>Seniority</th><th>Total points</th></tr></thead><tbody>${rows.map((row, index) => `<tr><td>${index + 1}</td><td>${esc(row.name)}</td><td>${esc(row.seniority)}</td><td>${row.points}</td></tr>`).join('')}</tbody></table>`
+    return `<h2>${esc(program)} · ${esc(seniority)}</h2><table><thead><tr><th>Rank</th><th>Name</th><th>Seniority</th><th>Total points</th></tr></thead><tbody>${rows.map(row => `<tr><td>${ranked.findIndex(candidate => candidate.points === row.points) + 1}</td><td>${esc(row.name)}</td><td>${esc(row.seniority)}</td><td>${row.points}</td></tr>`).join('')}</tbody></table>`
   })).join('')
   return shell('Programs', sections || '<p class="empty">No program points are available.</p>')
 }
@@ -121,7 +123,7 @@ export default function AdminReports({ members: propMembers, records: propRecord
   return (
     <>
       <ReportCard title="Download attendance report" description={`${attendanceCount} qualifying members · grouped by seniority and absent days`} format={attendanceFormat} setFormat={setAttendanceFormat} download={downloadAttendance} message={attendanceMessage} />
-      <ReportCard title="Download program points report" description="Top two Junior and Senior members for Bible Quiz, Bible Reference and Song Survey" format={programFormat} setFormat={setProgramFormat} download={downloadPrograms} message={programMessage} />
+      <ReportCard title="Download program points report" description="Top two ranks, including ties, for Junior and Senior Bible Quiz, Bible Reference and Song Survey" format={programFormat} setFormat={setProgramFormat} download={downloadPrograms} message={programMessage} />
     </>
   )
 }
