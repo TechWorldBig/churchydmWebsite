@@ -1,14 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Pencil, Trash2, X } from 'lucide-react'
+import { Download, Pencil, Trash2, X } from 'lucide-react'
 import { deleteProgramPoint, getMembers, getProgramPoints, saveProgramPoint, updateProgramPoint } from '../data/api'
 import { Member, ProgramPoint } from '../data/memberStore'
 import { currentYearDateBounds } from '../data/dateBounds'
+import { downloadHtmlPdf } from '../data/pdf'
 
 const pointPrograms = ['Bible Reference', 'Bible Quiz', 'Song Survey']
 const memberNameCollator = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true })
 const pointKey = (item: ProgramPoint) => `${item.memberId}-${item.program}-${item.date}`
 const pointDateValue = (value: string) => Date.parse(`${value}T00:00:00`)
 const uniquePoints = (items: ProgramPoint[]) => Array.from(new Map([...items].reverse().map(item => [pointKey(item), item])).values()).reverse()
+const escapeHtml = (value: string) => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
+const escapeCsv = (value: string | number) => `"${String(value).replace(/^[=+@-]/u, "'$&").replaceAll('"', '""')}"`
 
 export default function AdminProgramPoints() {
   const yearBounds = currentYearDateBounds()
@@ -83,6 +86,25 @@ export default function AdminProgramPoints() {
     }
   }
 
+  const exportPdf = () => {
+    const rows = displayedPoints.map(point => `<tr><td>${escapeHtml(point.name)}</td><td>${escapeHtml(point.seniority || '—')}</td><td>${escapeHtml(point.program)}</td><td>${escapeHtml(point.date)}</td><td>${point.questionsAnswered}/5</td></tr>`).join('')
+    const html = `<html><head><title>JSC YDM Program Points</title><style>body{font-family:Arial;color:#071f19;padding:24px}h1{color:#087f5b}p{color:#64748b}table{border-collapse:collapse;width:100%;font-size:12px;margin-bottom:18px}th,td{border:1px solid #cbd5e1;padding:8px;text-align:left}th{background:#e8f5ef}</style></head><body><h1>JSC YDM Program Points Report</h1><p>${displayedPoints.length} records</p><table><thead><tr><th>Member</th><th>Seniority</th><th>Program</th><th>Date</th><th>Questions answered</th></tr></thead><tbody>${rows || '<tr><td colspan="5">No program points.</td></tr>'}</tbody></table></body></html>`
+    if (window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 600) { void downloadHtmlPdf(html, 'jsc-ydm-program-points-report.pdf').catch(() => setMessage('PDF export failed. Please try again.')); return }
+    const popup = window.open('', '_blank')
+    if (!popup) { setMessage('Please allow pop-ups to export the PDF.'); return }
+    popup.document.write(html); popup.document.close(); setTimeout(() => { popup.focus(); popup.print() }, 150)
+  }
+
+  const exportCsv = () => {
+    const rows = [['Member', 'Seniority', 'Program', 'Date', 'Questions answered'], ...displayedPoints.map(point => [point.name, point.seniority || '', point.program, point.date, point.questionsAnswered])]
+    const csv = rows.map(row => row.map(escapeCsv).join(',')).join('\n')
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }))
+    link.download = 'jsc-ydm-program-points.csv'
+    link.click()
+    URL.revokeObjectURL(link.href)
+  }
+
   return <section className="soft-card admin-program-points-form mt-6">
     <h2 className="font-black">Program points</h2>
     <p className="mt-1 text-sm text-slate-500">Add and manage member questions answered.</p>
@@ -93,7 +115,8 @@ export default function AdminProgramPoints() {
       <label className="field-label">Questions answered<div className="flex min-w-0 gap-2"><input aria-label="Questions answered" className="field min-w-0" type="number" min="0" max="5" value={questionsAnswered} onChange={event => setQuestionsAnswered(event.target.value)} placeholder="0–5" /><button className="primary-btn shrink-0" onClick={() => void save()}>{editingId ? 'Update' : 'Save'}</button>{editingId && <button type="button" className="shrink-0 rounded-xl border border-slate-200 bg-white p-3 text-slate-600 shadow-sm transition hover:bg-slate-50" aria-label="Cancel editing program point" title="Cancel editing" onClick={clearForm}><X size={18} /></button>}</div></label>
     </div>
     {message && <p className="mt-3 text-sm text-emerald-700">{message}</p>}
-    <div className="mt-6 overflow-x-auto border-t border-slate-200 pt-5" tabIndex={0} aria-label="Program points table. Swipe or use Shift and mouse wheel to view all columns.">
+    <div className="mt-6 flex flex-wrap justify-end gap-2 border-t border-slate-200 pt-5"><button type="button" onClick={exportPdf} className="secondary-dark-btn justify-center"><Download size={17} /> Export PDF</button><button type="button" onClick={exportCsv} className="secondary-dark-btn justify-center"><Download size={17} /> Export CSV</button></div>
+    <div className="mt-3 overflow-x-auto" tabIndex={0} aria-label="Program points table. Swipe or use Shift and mouse wheel to view all columns.">
       <table className="w-full min-w-[760px] text-left text-sm"><thead className="text-xs uppercase tracking-wider text-slate-500"><tr><th className="py-2">Member</th><th>Seniority</th><th>Program</th><th>Date</th><th>Questions answered</th><th>Action</th></tr></thead>
         <tbody className="divide-y divide-slate-100">{displayedPoints.map(point => <tr key={point.id}><td className="py-3 font-bold">{point.name}</td><td>{point.seniority || '—'}</td><td>{point.program}</td><td>{point.date}</td><td className="font-black">{point.questionsAnswered}/5</td><td><div className="flex items-center gap-2"><button type="button" className="rounded-xl border border-slate-200 bg-white p-2 text-slate-600 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50" aria-label={`Edit ${point.name} ${point.program} point`} title="Edit" onClick={() => edit(point)}><Pencil size={16} /></button><button type="button" className="rounded-xl border border-rose-200 bg-white p-2 text-rose-600 shadow-sm transition hover:-translate-y-0.5 hover:bg-rose-50" aria-label={`Delete ${point.name} ${point.program} point`} title="Delete" onClick={() => void remove(point)}><Trash2 size={16} /></button></div></td></tr>)}{displayedPoints.length === 0 && <tr><td colSpan={6} className="py-8 text-center text-sm text-slate-400">No program points added yet.</td></tr>}</tbody>
       </table>
